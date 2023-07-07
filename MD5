@@ -1,0 +1,13 @@
+eb89a6e3b7746a41cf57b9a4501c4413 *DESCRIPTION
+ab67fd121eb6acdc3b8d59388f1e7915 *LICENSE
+ca2e9cbf2a140d88af5b5d09e8c475e7 *NAMESPACE
+5801965b14b8e97a7c3ca9d1d1a36597 *NEWS.md
+ce8abb6d02bd382736f79bb4a038c13c *R/relational-expr.R
+77d20b7125597dc8fb932191c982465c *R/relational-rel.R
+03b896e8190cd006a9fe519df722fa10 *R/utils.R
+54b0494a2491d04a7ff8d602cf24c4fa *README.md
+8156b690fd4c9b690f421cabe2011602 *man/expr.Rd
+a03fde04a74e6d2733ffa3640d33d571 *man/relational.Rd
+cb4b227543f23ee374c34bed2b6f55bf *tests/testthat.R
+218e3c51f06a0f7b01845c322ea78c38 *tests/testthat/_snaps/relational-rel.md
+4479c61d11e69f84b408e12c0c0abf4b *tests/testthat/test-relational-rel.R
