@@ -75,9 +75,47 @@ relexpr_function <- function(name, args, alias = NULL) {
   new_relexpr(list(name = name, args = args, alias = alias), class = "relational_relexpr_function")
 }
 
+#' relexpr_window
+#'
+#' `relexpr_window()` applies a function over a window,
+#' similarly to the SQL `OVER` clause.
+#'
+#' @param partitions Partitions, a list of `expr` objects.
+#' @param order_bys which variables to order results by (list).
+#' @param offset_expr offset relational expression.
+#' @param default_expr default relational expression.
+#' @rdname expr
+#' @export
+relexpr_window <- function(
+    expr,
+    partitions,
+    order_bys = list(),
+    offset_expr = NULL,
+    default_expr = NULL,
+    alias = NULL
+) {
+  stopifnot(inherits(expr, "relational_relexpr"))
+  stopifnot(is.list(partitions))
+  stopifnot(is.list(order_bys))
+  stopifnot(is.null(offset_expr) || inherits(offset_expr, "relational_relexpr"))
+  stopifnot(is.null(default_expr) || inherits(default_expr, "relational_relexpr"))
+  stopifnot(is.null(alias) || is_string(alias))
+  new_relexpr(
+    list(
+      expr = expr,
+      partitions = partitions,
+      order_bys = order_bys,
+      offset_expr = offset_expr,
+      default_expr = default_expr,
+      alias = alias
+    ),
+    class = "relational_relexpr_window"
+  )
+}
+
 #' relexpr_set_alias
 #'
-#' `relexpr_set_alias()` updates the alias of a relational expression.
+#' `relexpr_set_alias()` assigns an alias to an expression.
 #'
 #' @param expr An `expr` object.
 #' @rdname expr
@@ -94,8 +132,4 @@ relexpr_set_alias <- function(expr, alias = NULL) {
 print.relational_relexpr <- function(x, ...) {
   utils::str(x)
   invisible(x)
-}
-
-is_string <- function(x) {
-  is.character(x) && length(x) == 1
 }

@@ -1,3 +1,13 @@
+rel_stats_env <- new.env(parent = emptyenv(), size = 937L)
+
+rel_stats_clean <- function() {
+  rm(list = ls(rel_stats_env, all.names = TRUE), pos = rel_stats_env)
+}
+
+rel_stats_get <- function() {
+  arrange(tibble::enframe(unlist(as.list(rel_stats_env)), "fun", "count"), desc(count))
+}
+
 #' Relational implementer's interface
 #'
 #' @description
@@ -161,6 +171,7 @@ rel_order <- function(rel, orders, ...) {
 #'
 #' @param conds A list of expressions to use for the join.
 #' @param join The type of join.
+#' @param join_ref_type The ref type of join.
 #' @rdname relational
 #' @export
 #' @examplesIf requireNamespace("dplyr", quietly = TRUE)
@@ -180,6 +191,7 @@ rel_join <- function(left,
                      right,
                      conds,
                      join = c("inner", "left", "right", "outer", "cross", "semi", "anti"),
+                     join_ref_type = c("regular", "natural", "cross", "positional", "asof"),
                      ...) {
   rel_stats_env$rel_join <- (rel_stats_env$rel_join %||% 0L) + 1L
   UseMethod("rel_join")
@@ -276,6 +288,50 @@ rel_union_all <- function(rel_a, rel_b, ...) {
   UseMethod("rel_union_all")
 }
 
+#' rel_explain
+#'
+#' `rel_explain()` prints an explanation of the plan
+#' executed by the relational object.
+#'
+#' @rdname relational
+#' @export
+#' @examples
+#'
+#' rel <- rel_from_df(mtcars)
+#' rel_explain(rel)
+rel_explain <- function(rel, ...) {
+  rel_stats_env$rel_explain <- (rel_stats_env$rel_explain %||% 0L) + 1L
+  UseMethod("rel_explain")
+}
+
+#' rel_alias
+#'
+#' `rel_alias()` returns the alias name for a relational object.
+#'
+#' @rdname relational
+#' @export
+rel_alias <- function(rel, ...) {
+  rel_stats_env$rel_alias <- (rel_stats_env$rel_alias %||% 0L) + 1L
+  UseMethod("rel_alias")
+}
+
+#' rel_set_alias
+#'
+#' `rel_set_alias()` sets the alias name for a relational object.
+#'
+#' @rdname relational
+#' @param alias the new alias
+#' @export
+#' @examples
+#'
+#' rel <- rel_from_df(mtcars)
+#' rel_set_alias(rel, "my_new_alias")
+#' rel_alias(rel)
+rel_set_alias <- function(rel, alias, ...) {
+  rel_stats_env$rel_set_alias <- (rel_stats_env$rel_set_alias %||% 0L) + 1L
+  UseMethod("rel_set_alias")
+}
+
 #' rel_names()
 #'
 #' `rel_names()` returns the column names as character vector,
@@ -295,10 +351,4 @@ rel_union_all <- function(rel_a, rel_b, ...) {
 rel_names <- function(rel, ...) {
   rel_stats_env$rel_names <- (rel_stats_env$rel_names %||% 0L) + 1L
   UseMethod("rel_names")
-}
-
-rel_stats_env <- new.env(parent = emptyenv(), size = 937L)
-
-rel_stats_clean <- function() {
-  rm(list = ls(rel_stats_env, all.names = TRUE), pos = rel_stats_env)
 }
