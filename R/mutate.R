@@ -8,6 +8,7 @@ mutate.duckplyr_df <- function(.data, ..., .by = NULL, .keep = c("all", "used", 
 
   # Our implementation
   rel_try(
+    "Implemented for all cases?" = FALSE,
     {
       rel <- duckdb_rel_from_df(.data)
 
@@ -48,7 +49,7 @@ mutate.duckplyr_df <- function(.data, ..., .by = NULL, .keep = c("all", "used", 
 
       out <- rel_to_df(rel)
 
-      out <- dplyr_reconstruct(out, .data)
+      out <- dplyr_reconstruct_dispatch(out, .data)
 
       names_original <- names(.data)
 

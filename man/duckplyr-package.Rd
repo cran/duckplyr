@@ -4,13 +4,14 @@
 \name{duckplyr-package}
 \alias{duckplyr}
 \alias{duckplyr-package}
-\title{duckplyr: A DuckDB-backed version of dplyr}
+\title{duckplyr: A 'DuckDB'-Backed Version of 'dplyr'}
 \description{
-A drop-in replacement for dplyr, powered by DuckDB for performance. Also defines a set of generics that provide a low-level implementer's interface for the high-level user interface of dplyr.
+A drop-in replacement for 'dplyr', powered by 'DuckDB' for performance. Also defines a set of generics that provide a low-level implementer's interface for the high-level user interface of 'dplyr'.
 }
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://duckdblabs.github.io/duckplyr/}
   \item \url{https://github.com/duckdblabs/duckplyr}
   \item Report bugs at \url{https://github.com/duckdblabs/duckplyr/issues}
 }

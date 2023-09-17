@@ -1,7 +1,7 @@
 Type: Package
 Package: duckplyr
 Title: A 'DuckDB'-Backed Version of 'dplyr'
-Version: 0.2.0
+Version: 0.2.1
 Authors@R: c(
     person("Hannes", "Mühleisen", role = "aut",
            comment = c(ORCID = "0000-0001-8552-0029")),
@@ -13,7 +13,8 @@ Description: A drop-in replacement for 'dplyr', powered by 'DuckDB' for performa
     Also defines a set of generics that provide a low-level
     implementer's interface for the high-level user interface of 'dplyr'.
 License: MIT + file LICENSE
-URL: https://github.com/duckdblabs/duckplyr
+URL: https://duckdblabs.github.io/duckplyr/,
+        https://github.com/duckdblabs/duckplyr
 BugReports: https://github.com/duckdblabs/duckplyr/issues
 Depends: R (>= 4.1.0)
 Imports: cli, collections, DBI, dplyr (>= 1.1.3), duckdb (>= 0.8.1-3),
@@ -29,10 +30,10 @@ Config/testthat/start-first: as_duckplyr_df, mutate, filter,
 Encoding: UTF-8
 RoxygenNote: 7.2.3
 NeedsCompilation: yes
-Packaged: 2023-09-10 20:55:11 UTC; kirill
+Packaged: 2023-09-17 10:53:52 UTC; kirill
 Author: Hannes Mühleisen [aut] (<https://orcid.org/0000-0001-8552-0029>),
   Kirill Müller [aut, cre] (<https://orcid.org/0000-0002-1416-3412>),
   Posit Software, PBC [cph, fnd]
 Maintainer: Kirill Müller <kirill@cynkra.com>
 Repository: CRAN
-Date/Publication: 2023-09-10 21:10:02 UTC
+Date/Publication: 2023-09-17 11:20:03 UTC
