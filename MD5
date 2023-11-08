@@ -1,7 +1,7 @@
-31efc74b3eb7448093998c664e2bae0c *DESCRIPTION
+63cc3b1f1589bc29a3b64f9815938946 *DESCRIPTION
 ab67fd121eb6acdc3b8d59388f1e7915 *LICENSE
 56e3f613cfe8f49a551afdc86f79bb4f *NAMESPACE
-4b1a34830022bd1f424a57fd88bb273e *NEWS.md
+a70c0191c6331fc9e13bb8e47f33fa97 *NEWS.md
 b10449657db643cd0dd5382507f3ea3c *R/aaa-meta.R
 41737d7dd7c4242651328540c0269b22 *R/add_count.R
 7921c7a12903964d385f100e6ddc89fd *R/anti_join.R
@@ -44,7 +44,7 @@ e0d416e64047778d487a5e7885cdb89b *R/pull.R
 41f0a9dfb3618eda3cb5ebfcb94d9c34 *R/reframe.R
 e23dbb6f4025623e165afc0a85e490fc *R/relational-altrep-wrap.R
 7710e08ba7535a89d78651b82992c790 *R/relational-df.R
-6d98c28001297610da4aead62847a119 *R/relational-duckdb.R
+7df13dc87cd1a6cbc7675f27f0978d80 *R/relational-duckdb.R
 4d4aeca5004e5e9951d0085923f31be1 *R/relational-expr.R
 0a2e52e7e23cd77bd4f8b922f1a21772 *R/relational-rel.R
 4b5b4fc4dda2da877113c5a0d9bbfd45 *R/relational.R
@@ -83,7 +83,7 @@ bb53aaae1eb3cf3187d262a6df614be3 *R/tally.R
 e58e040ff5bce568d03caaf4335962d3 *R/union_all.R
 c695cd32f9fe013361488dfbc7becf1f *R/zzz-methods.R
 ba13633ee69d76a4f8fc7a12a33abf66 *R/zzz.R
-a28583cd9677fc517d54e7b09b1d4118 *README.md
+e4c3b9b409d9692ff9c7d003f73c9f66 *README.md
 47542f3c27ef3dce4e3380554f1b0759 *man/as_duckplyr_df.Rd
 9c53f63869ca46dd45cc1e8bbcc6c20d *man/config.Rd
 31bd48e22a468b054c2604021f47421c *man/df_from_file.Rd
