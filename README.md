@@ -80,7 +80,26 @@ duckdb is responsible for eventually carrying out the operations. Despite the la
 <span><span class='c'>#&gt; │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │</span></span>
 <span><span class='c'>#&gt; │          ORDERS:          │</span></span>
 <span><span class='c'>#&gt; │      dataframe_42_42      │</span></span>
-<span><span class='c'>#&gt; │    42.___row_number ASC   │</span></span>
+<span><span class='c'>#&gt; │      42.___row_number ASC     │</span></span>
+<span><span class='c'>#&gt; └─────────────┬─────────────┘                             </span></span>
+<span><span class='c'>#&gt; ┌─────────────┴─────────────┐</span></span>
+<span><span class='c'>#&gt; │           FILTER          │</span></span>
+<span><span class='c'>#&gt; │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │</span></span>
+<span><span class='c'>#&gt; │   (species != 'Gentoo')   │</span></span>
+<span><span class='c'>#&gt; │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │</span></span>
+<span><span class='c'>#&gt; │          EC: 344          │</span></span>
+<span><span class='c'>#&gt; └─────────────┬─────────────┘                             </span></span>
+<span><span class='c'>#&gt; ┌─────────────┴─────────────┐</span></span>
+<span><span class='c'>#&gt; │      STREAMING_WINDOW     │</span></span>
+<span><span class='c'>#&gt; │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │</span></span>
+<span><span class='c'>#&gt; │    ROW_NUMBER() OVER ()   │</span></span>
+<span><span class='c'>#&gt; └─────────────┬─────────────┘                             </span></span>
+<span><span class='c'>#&gt; ┌─────────────┴─────────────┐</span></span>
+<span><span class='c'>#&gt; │          ORDER_BY         │</span></span>
+<span><span class='c'>#&gt; │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │</span></span>
+<span><span class='c'>#&gt; │          ORDERS:          │</span></span>
+<span><span class='c'>#&gt; │      dataframe_42_42      │</span></span>
+<span><span class='c'>#&gt; │      42.___row_number ASC     │</span></span>
 <span><span class='c'>#&gt; └─────────────┬─────────────┘                             </span></span>
 <span><span class='c'>#&gt; ┌─────────────┴─────────────┐</span></span>
 <span><span class='c'>#&gt; │       HASH_GROUP_BY       │</span></span>
@@ -97,13 +116,6 @@ duckdb is responsible for eventually carrying out the operations. Despite the la
 <span><span class='c'>#&gt; │            sex            │</span></span>
 <span><span class='c'>#&gt; │       ___row_number       │</span></span>
 <span><span class='c'>#&gt; │         bill_area         │</span></span>
-<span><span class='c'>#&gt; └─────────────┬─────────────┘                             </span></span>
-<span><span class='c'>#&gt; ┌─────────────┴─────────────┐</span></span>
-<span><span class='c'>#&gt; │           FILTER          │</span></span>
-<span><span class='c'>#&gt; │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │</span></span>
-<span><span class='c'>#&gt; │   (species != 'Gentoo')   │</span></span>
-<span><span class='c'>#&gt; │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │</span></span>
-<span><span class='c'>#&gt; │          EC: 344          │</span></span>
 <span><span class='c'>#&gt; └─────────────┬─────────────┘                             </span></span>
 <span><span class='c'>#&gt; ┌─────────────┴─────────────┐</span></span>
 <span><span class='c'>#&gt; │      STREAMING_WINDOW     │</span></span>
@@ -138,13 +150,16 @@ All data frame operations are supported. Computation happens upon the first requ
 <span><span class='c'>#&gt; ---------------------</span></span>
 <span><span class='c'>#&gt; --- Relation Tree ---</span></span>
 <span><span class='c'>#&gt; ---------------------</span></span>
-<span><span class='c'>#&gt; Filter [!=(species, 'Gentoo')]</span></span>
-<span><span class='c'>#&gt;   Projection [species as species, sex as sex, mean_bill_area as mean_bill_area]</span></span>
-<span><span class='c'>#&gt;     Order [___row_number ASC]</span></span>
-<span><span class='c'>#&gt;       Aggregate [species, sex, min(___row_number), mean(bill_area)]</span></span>
-<span><span class='c'>#&gt;         Projection [species as species, island as island, bill_length_mm as bill_length_mm, bill_depth_mm as bill_depth_mm, flipper_length_mm as flipper_length_mm, body_mass_g as body_mass_g, sex as sex, "year" as year, bill_area as bill_area, row_number() OVER () as ___row_number]</span></span>
-<span><span class='c'>#&gt;           Projection [species as species, island as island, bill_length_mm as bill_length_mm, bill_depth_mm as bill_depth_mm, flipper_length_mm as flipper_length_mm, body_mass_g as body_mass_g, sex as sex, "year" as year, *(bill_length_mm, bill_depth_mm) as bill_area]</span></span>
-<span><span class='c'>#&gt;             r_dataframe_scan(0xdeadbeef)</span></span>
+<span><span class='c'>#&gt; Projection [species as species, sex as sex, mean_bill_area as mean_bill_area]</span></span>
+<span><span class='c'>#&gt;   Order [___row_number ASC]</span></span>
+<span><span class='c'>#&gt;     Filter [!=(species, 'Gentoo')]</span></span>
+<span><span class='c'>#&gt;       Projection [species as species, sex as sex, mean_bill_area as mean_bill_area, row_number() OVER () as ___row_number]</span></span>
+<span><span class='c'>#&gt;         Projection [species as species, sex as sex, mean_bill_area as mean_bill_area]</span></span>
+<span><span class='c'>#&gt;           Order [___row_number ASC]</span></span>
+<span><span class='c'>#&gt;             Aggregate [species, sex, min(___row_number), mean(bill_area)]</span></span>
+<span><span class='c'>#&gt;               Projection [species as species, island as island, bill_length_mm as bill_length_mm, bill_depth_mm as bill_depth_mm, flipper_length_mm as flipper_length_mm, body_mass_g as body_mass_g, sex as sex, "year" as year, bill_area as bill_area, row_number() OVER () as ___row_number]</span></span>
+<span><span class='c'>#&gt;                 Projection [species as species, island as island, bill_length_mm as bill_length_mm, bill_depth_mm as bill_depth_mm, flipper_length_mm as flipper_length_mm, body_mass_g as body_mass_g, sex as sex, "year" as year, *(bill_length_mm, bill_depth_mm) as bill_area]</span></span>
+<span><span class='c'>#&gt;                   r_dataframe_scan(0xdeadbeef)</span></span>
 <span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; ---------------------</span></span>
 <span><span class='c'>#&gt; -- Result Columns  --</span></span>
@@ -202,13 +217,16 @@ Querying the number of rows also starts the computation:
 <span><span class='c'>#&gt; ---------------------</span></span>
 <span><span class='c'>#&gt; --- Relation Tree ---</span></span>
 <span><span class='c'>#&gt; ---------------------</span></span>
-<span><span class='c'>#&gt; Filter [!=(species, 'Gentoo')]</span></span>
-<span><span class='c'>#&gt;   Projection [species as species, sex as sex, mean_bill_area as mean_bill_area]</span></span>
-<span><span class='c'>#&gt;     Order [___row_number ASC]</span></span>
-<span><span class='c'>#&gt;       Aggregate [species, sex, min(___row_number), mean(bill_area)]</span></span>
-<span><span class='c'>#&gt;         Projection [species as species, island as island, bill_length_mm as bill_length_mm, bill_depth_mm as bill_depth_mm, flipper_length_mm as flipper_length_mm, body_mass_g as body_mass_g, sex as sex, "year" as year, bill_area as bill_area, row_number() OVER () as ___row_number]</span></span>
-<span><span class='c'>#&gt;           Projection [species as species, island as island, bill_length_mm as bill_length_mm, bill_depth_mm as bill_depth_mm, flipper_length_mm as flipper_length_mm, body_mass_g as body_mass_g, sex as sex, "year" as year, *(bill_length_mm, bill_depth_mm) as bill_area]</span></span>
-<span><span class='c'>#&gt;             r_dataframe_scan(0xdeadbeef)</span></span>
+<span><span class='c'>#&gt; Projection [species as species, sex as sex, mean_bill_area as mean_bill_area]</span></span>
+<span><span class='c'>#&gt;   Order [___row_number ASC]</span></span>
+<span><span class='c'>#&gt;     Filter [!=(species, 'Gentoo')]</span></span>
+<span><span class='c'>#&gt;       Projection [species as species, sex as sex, mean_bill_area as mean_bill_area, row_number() OVER () as ___row_number]</span></span>
+<span><span class='c'>#&gt;         Projection [species as species, sex as sex, mean_bill_area as mean_bill_area]</span></span>
+<span><span class='c'>#&gt;           Order [___row_number ASC]</span></span>
+<span><span class='c'>#&gt;             Aggregate [species, sex, min(___row_number), mean(bill_area)]</span></span>
+<span><span class='c'>#&gt;               Projection [species as species, island as island, bill_length_mm as bill_length_mm, bill_depth_mm as bill_depth_mm, flipper_length_mm as flipper_length_mm, body_mass_g as body_mass_g, sex as sex, "year" as year, bill_area as bill_area, row_number() OVER () as ___row_number]</span></span>
+<span><span class='c'>#&gt;                 Projection [species as species, island as island, bill_length_mm as bill_length_mm, bill_depth_mm as bill_depth_mm, flipper_length_mm as flipper_length_mm, body_mass_g as body_mass_g, sex as sex, "year" as year, *(bill_length_mm, bill_depth_mm) as bill_area]</span></span>
+<span><span class='c'>#&gt;                   r_dataframe_scan(0xdeadbeef)</span></span>
 <span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; ---------------------</span></span>
 <span><span class='c'>#&gt; -- Result Columns  --</span></span>
@@ -232,12 +250,34 @@ dplyr is active again:
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>bill_area <span class='o'>=</span> <span class='nv'>bill_length_mm</span> <span class='o'>*</span> <span class='nv'>bill_depth_mm</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='o'>(</span>.by <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>species</span>, <span class='nv'>sex</span><span class='o'>)</span>, mean_bill_area <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>bill_area</span><span class='o'>)</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
 <span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>species</span> <span class='o'>!=</span> <span class='s'>"Gentoo"</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; materializing:</span></span>
+<span><span class='c'>#&gt; ---------------------</span></span>
+<span><span class='c'>#&gt; --- Relation Tree ---</span></span>
+<span><span class='c'>#&gt; ---------------------</span></span>
+<span><span class='c'>#&gt; Projection [species as species, sex as sex, mean_bill_area as mean_bill_area]</span></span>
+<span><span class='c'>#&gt;   Order [___row_number ASC]</span></span>
+<span><span class='c'>#&gt;     Filter [!=(species, 'Gentoo')]</span></span>
+<span><span class='c'>#&gt;       Projection [species as species, sex as sex, mean_bill_area as mean_bill_area, row_number() OVER () as ___row_number]</span></span>
+<span><span class='c'>#&gt;         Projection [species as species, sex as sex, mean_bill_area as mean_bill_area]</span></span>
+<span><span class='c'>#&gt;           Order [___row_number ASC]</span></span>
+<span><span class='c'>#&gt;             Aggregate [species, sex, min(___row_number), mean(bill_area)]</span></span>
+<span><span class='c'>#&gt;               Projection [species as species, island as island, bill_length_mm as bill_length_mm, bill_depth_mm as bill_depth_mm, flipper_length_mm as flipper_length_mm, body_mass_g as body_mass_g, sex as sex, "year" as year, bill_area as bill_area, row_number() OVER () as ___row_number]</span></span>
+<span><span class='c'>#&gt;                 Projection [species as species, island as island, bill_length_mm as bill_length_mm, bill_depth_mm as bill_depth_mm, flipper_length_mm as flipper_length_mm, body_mass_g as body_mass_g, sex as sex, "year" as year, *(bill_length_mm, bill_depth_mm) as bill_area]</span></span>
+<span><span class='c'>#&gt;                   r_dataframe_scan(0xdeadbeef)</span></span>
+<span><span class='c'>#&gt; </span></span>
+<span><span class='c'>#&gt; ---------------------</span></span>
+<span><span class='c'>#&gt; -- Result Columns  --</span></span>
+<span><span class='c'>#&gt; ---------------------</span></span>
+<span><span class='c'>#&gt; - species (VARCHAR)</span></span>
+<span><span class='c'>#&gt; - sex (VARCHAR)</span></span>
+<span><span class='c'>#&gt; - mean_bill_area (DOUBLE)</span></span>
+<span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 3</span></span></span>
 <span><span class='c'>#&gt;   <span style='font-weight: bold;'>species</span>   <span style='font-weight: bold;'>sex</span>    <span style='font-weight: bold;'>mean_bill_area</span></span></span>
 <span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>           <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>1</span> Adelie    male             770.</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>2</span> Adelie    female           657.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> Adelie    <span style='color: #BB0000;'>NA</span>                <span style='color: #BB0000;'>NA</span> </span></span>
+<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> Adelie    <span style='color: #BB0000;'>NA</span>               695.</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>4</span> Chinstrap female           820.</span></span>
 <span><span class='c'>#&gt; <span style='color: #555555;'>5</span> Chinstrap male             984.</span></span></pre>
 
@@ -248,12 +288,14 @@ This package also provides generics, for which other packages may then implement
 <pre class='chroma'>
 <span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://duckdblabs.github.io/duckplyr/'>duckplyr</a></span><span class='o'>)</span></span>
 <span></span>
+<span><span class='c'># Create a relational to be used by examples below</span></span>
 <span><span class='nv'>new_dfrel</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='o'>{</span></span>
 <span>  <span class='nf'><a href='https://rdrr.io/r/base/stopifnot.html'>stopifnot</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/as.data.frame.html'>is.data.frame</a></span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span><span class='o'>)</span></span>
 <span>  <span class='nf'><a href='https://duckdblabs.github.io/duckplyr/reference/new_relational.html'>new_relational</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span>, class <span class='o'>=</span> <span class='s'>"dfrel"</span><span class='o'>)</span></span>
 <span><span class='o'>}</span></span>
 <span><span class='nv'>mtcars_rel</span> <span class='o'>&lt;-</span> <span class='nf'>new_dfrel</span><span class='o'>(</span><span class='nv'>mtcars</span><span class='o'>[</span><span class='m'>1</span><span class='o'>:</span><span class='m'>5</span>, <span class='m'>1</span><span class='o'>:</span><span class='m'>4</span><span class='o'>]</span><span class='o'>)</span></span>
 <span></span>
+<span><span class='c'># Example 1: return a data.frame</span></span>
 <span><span class='nv'>rel_to_df.dfrel</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>rel</span>, <span class='nv'>...</span><span class='o'>)</span> <span class='o'>{</span></span>
 <span>  <span class='nf'><a href='https://rdrr.io/r/base/class.html'>unclass</a></span><span class='o'>(</span><span class='nv'>rel</span><span class='o'>)</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span></span>
 <span><span class='o'>}</span></span>
@@ -265,6 +307,7 @@ This package also provides generics, for which other packages may then implement
 <span><span class='c'>#&gt; Hornet 4 Drive    21.4   6  258 110</span></span>
 <span><span class='c'>#&gt; Hornet Sportabout 18.7   8  360 175</span></span>
 <span></span>
+<span><span class='c'># Example 2: A (random) filter</span></span>
 <span><span class='nv'>rel_filter.dfrel</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>rel</span>, <span class='nv'>exprs</span>, <span class='nv'>...</span><span class='o'>)</span> <span class='o'>{</span></span>
 <span>  <span class='nv'>df</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/class.html'>unclass</a></span><span class='o'>(</span><span class='nv'>rel</span><span class='o'>)</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span></span>
 <span></span>
@@ -291,6 +334,7 @@ This package also provides generics, for which other packages may then implement
 <span><span class='c'>#&gt; attr(,"class")</span></span>
 <span><span class='c'>#&gt; [1] "dfrel"      "relational"</span></span>
 <span></span>
+<span><span class='c'># Example 3: A custom projection</span></span>
 <span><span class='nv'>rel_project.dfrel</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>rel</span>, <span class='nv'>exprs</span>, <span class='nv'>...</span><span class='o'>)</span> <span class='o'>{</span></span>
 <span>  <span class='nv'>df</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/class.html'>unclass</a></span><span class='o'>(</span><span class='nv'>rel</span><span class='o'>)</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span></span>
 <span></span>
@@ -314,6 +358,7 @@ This package also provides generics, for which other packages may then implement
 <span><span class='c'>#&gt; attr(,"class")</span></span>
 <span><span class='c'>#&gt; [1] "dfrel"      "relational"</span></span>
 <span></span>
+<span><span class='c'># Example 4: A custom ordering (eg, ascending by mpg)</span></span>
 <span><span class='nv'>rel_order.dfrel</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>rel</span>, <span class='nv'>exprs</span>, <span class='nv'>...</span><span class='o'>)</span> <span class='o'>{</span></span>
 <span>  <span class='nv'>df</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/class.html'>unclass</a></span><span class='o'>(</span><span class='nv'>rel</span><span class='o'>)</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span></span>
 <span></span>
@@ -336,6 +381,8 @@ This package also provides generics, for which other packages may then implement
 <span><span class='c'>#&gt; </span></span>
 <span><span class='c'>#&gt; attr(,"class")</span></span>
 <span><span class='c'>#&gt; [1] "dfrel"      "relational"</span></span>
+<span></span>
+<span><span class='c'># Example 5: A custom join</span></span>
 <span><span class='nv'>rel_join.dfrel</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>left</span>, <span class='nv'>right</span>, <span class='nv'>conds</span>, <span class='nv'>join</span>, <span class='nv'>...</span><span class='o'>)</span> <span class='o'>{</span></span>
 <span>  <span class='nv'>left_df</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/class.html'>unclass</a></span><span class='o'>(</span><span class='nv'>left</span><span class='o'>)</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span></span>
 <span>  <span class='nv'>right_df</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/class.html'>unclass</a></span><span class='o'>(</span><span class='nv'>right</span><span class='o'>)</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span></span>
@@ -349,6 +396,7 @@ This package also provides generics, for which other packages may then implement
 <span></span>
 <span><span class='nf'><a href='https://duckdblabs.github.io/duckplyr/reference/new_relational.html'>rel_join</a></span><span class='o'>(</span><span class='nf'>new_dfrel</span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='o'>(</span>mpg <span class='o'>=</span> <span class='m'>21</span><span class='o'>)</span><span class='o'>)</span>, <span class='nv'>mtcars_rel</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; Joining with `by = join_by(mpg)`</span></span>
+<span><span class='c'>#&gt; Joining with `by = join_by(mpg)`</span></span>
 <span><span class='c'>#&gt; [[1]]</span></span>
 <span><span class='c'>#&gt;   mpg cyl disp  hp</span></span>
 <span><span class='c'>#&gt; 1  21   6  160 110</span></span>
@@ -357,6 +405,7 @@ This package also provides generics, for which other packages may then implement
 <span><span class='c'>#&gt; attr(,"class")</span></span>
 <span><span class='c'>#&gt; [1] "dfrel"      "relational"</span></span>
 <span></span>
+<span><span class='c'># Example 6: Limit the maximum rows returned</span></span>
 <span><span class='nv'>rel_limit.dfrel</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>rel</span>, <span class='nv'>n</span>, <span class='nv'>...</span><span class='o'>)</span> <span class='o'>{</span></span>
 <span>  <span class='nv'>df</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/class.html'>unclass</a></span><span class='o'>(</span><span class='nv'>rel</span><span class='o'>)</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span></span>
 <span></span>
@@ -373,6 +422,8 @@ This package also provides generics, for which other packages may then implement
 <span><span class='c'>#&gt; attr(,"class")</span></span>
 <span><span class='c'>#&gt; [1] "dfrel"      "relational"</span></span>
 <span></span>
+<span><span class='c'># Example 7: Suppress duplicate rows</span></span>
+<span><span class='c'>#  (ignoring row names)</span></span>
 <span><span class='nv'>rel_distinct.dfrel</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>rel</span>, <span class='nv'>...</span><span class='o'>)</span> <span class='o'>{</span></span>
 <span>  <span class='nv'>df</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/class.html'>unclass</a></span><span class='o'>(</span><span class='nv'>rel</span><span class='o'>)</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span></span>
 <span></span>
@@ -388,6 +439,7 @@ This package also provides generics, for which other packages may then implement
 <span><span class='c'>#&gt; attr(,"class")</span></span>
 <span><span class='c'>#&gt; [1] "dfrel"      "relational"</span></span>
 <span></span>
+<span><span class='c'># Example 8: Return column names</span></span>
 <span><span class='nv'>rel_names.dfrel</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>rel</span>, <span class='nv'>...</span><span class='o'>)</span> <span class='o'>{</span></span>
 <span>  <span class='nv'>df</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/class.html'>unclass</a></span><span class='o'>(</span><span class='nv'>rel</span><span class='o'>)</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span></span>
 <span></span>

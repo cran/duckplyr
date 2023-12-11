@@ -8,6 +8,7 @@
 ## usethis namespace: start
 #' @importFrom collections dict
 #' @importFrom collections queue
+#' @importFrom dplyr if_else
 #' @importFrom glue glue
 #' @importFrom lifecycle deprecated
 #' @importFrom purrr imap
@@ -35,6 +36,7 @@
 #' @importFrom vctrs vec_cast
 #' @importFrom vctrs vec_cast_common
 #' @importFrom vctrs vec_cbind
+#' @importFrom vctrs vec_check_size
 #' @importFrom vctrs vec_in
 #' @importFrom vctrs vec_match
 #' @importFrom vctrs vec_rbind
@@ -48,8 +50,11 @@
 #' @importFrom vctrs vec_slice
 #' @importFrom vctrs vec_split
 #' @importFrom vctrs vec_unique_loc
-#' @useDynLib duckplyr, .registration = TRUE
 ## usethis namespace: end
+NULL
+
+# Enable to use compiled code again
+# @useDynLib duckplyr, .registration = TRUE
 NULL
 
 #' @importFrom dplyr %>%

@@ -84,22 +84,22 @@ test_that("reconstruct method gets a data frame", {
 
 test_that("classes are restored", {
   expect_identical(
-    duckplyr_dplyr_reconstruct(tibble(), data.frame()),
+    dplyr_reconstruct(tibble(), data.frame()),
     data.frame()
   )
   expect_identical(
-    duckplyr_dplyr_reconstruct(tibble(), tibble()),
+    dplyr_reconstruct(tibble(), tibble()),
     tibble()
   )
   expect_identical(
-    duckplyr_dplyr_reconstruct(tibble(), new_data_frame(class = "foo")),
+    dplyr_reconstruct(tibble(), new_data_frame(class = "foo")),
     new_data_frame(class = "foo")
   )
 })
 
 test_that("attributes of `template` are kept", {
   expect_identical(
-    duckplyr_dplyr_reconstruct(new_tibble(list(), nrow = 1), new_data_frame(foo = 1)),
+    dplyr_reconstruct(new_tibble(list(), nrow = 1), new_data_frame(foo = 1)),
     new_data_frame(n = 1L, foo = 1)
   )
 })
@@ -108,7 +108,7 @@ test_that("compact row names are retained", {
   data <- vec_rbind(tibble(a = 1), tibble(a = 2))
   template <- tibble()
 
-  x <- duckplyr_dplyr_reconstruct(data, template)
+  x <- dplyr_reconstruct(data, template)
   expect <- tibble(a = c(1, 2))
 
   expect_identical(x, expect)
@@ -120,7 +120,7 @@ test_that("compact row names are retained", {
   )
 })
 
-test_that("duckplyr_dplyr_reconstruct() strips attributes before dispatch", {
+test_that("dplyr_reconstruct() strips attributes before dispatch", {
   local_methods(
     dplyr_reconstruct.dplyr_foobar = function(data, template) {
       out <<- data
@@ -129,11 +129,63 @@ test_that("duckplyr_dplyr_reconstruct() strips attributes before dispatch", {
 
   df <- foobar(data.frame(x = 1), foo = "bar")
   out <- NULL
-  duckplyr_dplyr_reconstruct(df, df)
+  dplyr_reconstruct(df, df)
   expect_identical(out, data.frame(x = 1))
 
   df <- foobar(data.frame(x = 1, row.names = "a"), foo = "bar")
   out <- NULL
-  duckplyr_dplyr_reconstruct(df, df)
+  dplyr_reconstruct(df, df)
   expect_identical(out, data.frame(x = 1, row.names = "a"))
+})
+
+test_that("`dplyr_reconstruct()` retains attribute ordering of `template`", {
+  df <- vctrs::data_frame(x = 1)
+  expect_identical(
+    attributes(dplyr_reconstruct(df, df)),
+    attributes(df)
+  )
+})
+
+test_that("`dplyr_reconstruct()` doesn't modify the original `data` in place", {
+  data <- new_data_frame(list(x = 1), foo = "bar")
+  template <- vctrs::data_frame(x = 1)
+
+  out <- dplyr_reconstruct(data, template)
+
+  expect_null(attr(out, "foo"))
+  expect_identical(attr(data, "foo"), "bar")
+})
+
+test_that("`dplyr_reconstruct()`, which gets and sets attributes, doesn't touch `row.names` (#6525)", {
+  skip("TODO duckdb")
+  skip_if_no_lazy_character()
+
+  dplyr_attributes <- function(x) {
+    .Call(ffi_test_dplyr_attributes, x)
+  }
+  dplyr_set_attributes <- function(x, attributes) {
+    .Call(ffi_test_dplyr_set_attributes, x, attributes)
+  }
+
+  df <- vctrs::data_frame(x = 1)
+
+  attributes <- attributes(df)
+  attributes$row.names <- new_lazy_character(function() "a")
+  attributes <- as.pairlist(attributes)
+
+  df_with_lazy_row_names <- dplyr_set_attributes(df, attributes)
+
+  # Ensure `data` row names aren't materialized
+  x <- dplyr_reconstruct(df_with_lazy_row_names, df)
+  attributes <- dplyr_attributes(df_with_lazy_row_names)
+  expect_false(lazy_character_is_materialized(attributes$row.names))
+
+  # `data` row names should also propagate into the result unmaterialized
+  attributes <- dplyr_attributes(x)
+  expect_false(lazy_character_is_materialized(attributes$row.names))
+
+  # Ensure `template` row names aren't materialized
+  x <- dplyr_reconstruct(df, df_with_lazy_row_names)
+  attributes <- dplyr_attributes(df_with_lazy_row_names)
+  expect_false(lazy_character_is_materialized(attributes$row.names))
 })
