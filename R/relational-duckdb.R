@@ -22,13 +22,13 @@ duckplyr_macros <- c(
   "==" = "(x, y) AS x = y",
   "!=" = "(x, y) AS x <> y",
   #
-  "___divide" = "(x, y) AS CASE WHEN x = 0 AND y = 0 THEN CAST('NaN' AS double) ELSE CAST(x AS double) / y END",
+  "___divide" = "(x, y) AS CASE WHEN y = 0 THEN CASE WHEN x = 0 THEN CAST('NaN' AS double) WHEN x > 0 THEN CAST('+Infinity' AS double) ELSE CAST('-Infinity' AS double) END ELSE CAST(x AS double) / y END",
   #
   "is.na" = "(x) AS (x IS NULL)",
   "n" = "() AS CAST(COUNT(*) AS int32)",
   #
-  "log10" = "(x) AS CASE WHEN x < 0 THEN CAST('NaN' AS double) WHEN x = 0 THEN CAST('-Inf' AS double) ELSE log(x) END",
-  "log" = "(x) AS CASE WHEN x < 0 THEN CAST('NaN' AS double) WHEN x = 0 THEN CAST('-Inf' AS double) ELSE ln(x) END",
+  "___log10" = "(x) AS CASE WHEN x < 0 THEN CAST('NaN' AS double) WHEN x = 0 THEN CAST('-Inf' AS double) ELSE log10(x) END",
+  "___log" = "(x) AS CASE WHEN x < 0 THEN CAST('NaN' AS double) WHEN x = 0 THEN CAST('-Inf' AS double) ELSE ln(x) END",
   # TPCH
 
   # https://github.com/duckdb/duckdb/discussions/8599
@@ -49,11 +49,17 @@ duckplyr_macros <- c(
   "___eq_na_matches_na" = '(x, y) AS (x IS NOT DISTINCT FROM y)',
   "___coalesce" = "(x, y) AS COALESCE(x, y)",
   #
+  # FIXME: Need a better way?
+  "suppressWarnings" = "(x) AS (x)",
+  #
   NULL
 )
 
 create_default_duckdb_connection <- function() {
   con <- DBI::dbConnect(duckdb::duckdb())
+
+  DBI::dbExecute(con, "set memory_limit='2GB'")
+  DBI::dbExecute(con, paste0("pragma temp_directory='", tempdir(), "'"))
 
   for (i in seq_along(duckplyr_macros)) {
     sql <- paste0('CREATE MACRO "', names(duckplyr_macros)[[i]], '"', duckplyr_macros[[i]])
@@ -98,23 +104,31 @@ duckdb_rel_from_df <- function(df) {
 # FIXME: This should be duckdb's responsibility
 check_df_for_rel <- function(df) {
   if (is.character(.row_names_info(df, 0L))) {
-    stop("Need data frame without row names to convert to relational.")
+    cli::cli_abort("Need data frame without row names to convert to relational.")
   }
 
   for (i in seq_along(df)) {
     col <- .subset2(df, i)
     if (!is.null(names(col))) {
-      stop("Can't convert named vectors to relational. Affected column: `", names(df)[[i]], "`.")
+      cli::cli_abort("Can't convert named vectors to relational. Affected column: {.var {names(df)[[i]]}}.")
     }
     if (!is.null(dim(col))) {
-      stop("Can't convert arrays or matrices to relational. Affected column: `", names(df)[[i]], "`.")
+      cli::cli_abort("Can't convert arrays or matrices to relational. Affected column: {.var {names(df)[[i]]}}.")
     }
     if (isS4(col)) {
-      stop("Can't convert S4 columns to relational. Affected column: `", names(df)[[i]], "`.")
+      cli::cli_abort("Can't convert S4 columns to relational. Affected column: {.var {names(df)[[i]]}}.")
     }
     # https://github.com/duckdb/duckdb/issues/8561
-    if (is.factor(col)) {
-      stop("Can't convert factor columns to relational. Affected column: `", names(df)[[i]], "`.")
+    col_class <- class(col)
+    if (length(col_class) == 1) {
+      valid <- col_class %in% c("logical", "integer", "numeric", "character", "Date", "difftime")
+    } else if (length(col_class) == 2) {
+      valid <- identical(col_class, c("POSIXct", "POSIXt")) || identical(col_class, c("hms", "difftime"))
+    } else {
+      valid <- FALSE
+    }
+    if (!valid) {
+      cli::cli_abort("Can't convert columns of class {.cls {col_class}} to relational. Affected column: {.var {names(df)[[i]]}}.")
     }
   }
 
@@ -131,7 +145,7 @@ check_df_for_rel <- function(df) {
     rlang::with_options(duckdb.materialize_message = FALSE, {
       for (i in seq_along(df)) {
         if (!identical(df[[i]], roundtrip[[i]])) {
-          stop("Imperfect roundtrip. Affected column: `", names(df)[[i]], "`.")
+          cli::cli_abort("Imperfect roundtrip. Affected column: {.var {names(df)[[i]]}}.")
         }
       }
     })
@@ -140,7 +154,7 @@ check_df_for_rel <- function(df) {
       df_attrib <- attributes(df[[i]])
       roundtrip_attrib <- attributes(roundtrip[[i]])
       if (!identical(df_attrib, roundtrip_attrib)) {
-        stop("Attributes are lost during conversion. Affected column: `", names(df)[[i]], "`.")
+        cli::cli_abort("Attributes are lost during conversion. Affected column: {.var {names(df)[[i]]}}.")
       }
     }
   }
@@ -392,7 +406,7 @@ to_duckdb_expr <- function(x) {
       out
     },
     NULL = NULL,
-    stop("Unknown expr class: ", class(x)[[1]])
+    cli::cli_abort("Unknown expr class: {.cls {class(x))}}")
   )
 }
 
@@ -468,6 +482,6 @@ to_duckdb_expr_meta <- function(x) {
       out
     },
     NULL = expr(NULL),
-    stop("Unknown expr class: ", class(x)[[1]])
+    cli::cli_abort("Unknown expr class: {.cls {class(x))}}")
   )
 }

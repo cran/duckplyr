@@ -1,11 +1,20 @@
-rel_try <- function(rel, ...) {
-  call <- as.character(sys.call(-1)[[1]])
+rel_try <- function(rel, ..., call = NULL) {
+  call_name <- as.character(sys.call(-1)[[1]])
 
-  if (!(list(call) %in% stats$calls)) {
-    stats$calls <- c(stats$calls, call)
+  if (!(call_name %in% stats$calls)) {
+    stats$calls <- c(stats$calls, call_name)
   }
 
   stats$attempts <- stats$attempts + 1L
+
+  if (Sys.getenv("DUCKPLYR_TELEMETRY_TEST") == "TRUE") {
+    force(call)
+    json <- call_to_json(
+      error_cnd(message = paste0("Error in ", call$name)),
+      call
+    )
+    cli::cli_abort("{call$name}: {json}")
+  }
 
   if (Sys.getenv("DUCKPLYR_FALLBACK_FORCE") == "TRUE") {
     stats$fallback <- stats$fallback + 1L
@@ -17,11 +26,16 @@ rel_try <- function(rel, ...) {
     if (isTRUE(dots[[i]])) {
       stats$fallback <- stats$fallback + 1L
       if (!dplyr_mode) {
+        message <- names(dots)[[i]]
+        if (message != "-") {
+          tel_collect(message, call)
+        }
+
         if (Sys.getenv("DUCKPLYR_FALLBACK_INFO") == "TRUE") {
-          inform(message = c("Requested fallback for relational:", i = names(dots)[[i]]))
+          inform(message = c("Requested fallback for relational:", i = message))
         }
         if (Sys.getenv("DUCKPLYR_FORCE") == "TRUE") {
-          abort("Fallback not available with DUCKPLYR_FORCE")
+          cli::cli_abort("Fallback not available with {.envvar DUCKPLYR_FORCE}.")
         }
       }
 
@@ -29,12 +43,20 @@ rel_try <- function(rel, ...) {
     }
   }
 
+  # https://github.com/duckdb/duckdb-r/issues/101
+  DBI::dbExecute(get_default_duckdb_connection(), "SET max_expression_depth TO 100")
+  withr::defer({
+    DBI::dbExecute(get_default_duckdb_connection(), "SET max_expression_depth TO 200")
+  })
+
   if (Sys.getenv("DUCKPLYR_FORCE") == "TRUE") {
     return(rel)
   }
 
   out <- rlang::try_fetch(rel, error = identity)
   if (inherits(out, "error")) {
+    tel_collect(out, call)
+
     # FIXME: enable always
     if (Sys.getenv("DUCKPLYR_FALLBACK_INFO") == "TRUE") {
       rlang::cnd_signal(rlang::message_cnd(message = "Error processing with relational.", parent = out))
@@ -44,12 +66,22 @@ rel_try <- function(rel, ...) {
   }
 
   # Never reached due to return() in code
-  stop("Must use a return() in rel_try().")
+  cli::cli_abort("Must use a return() in rel_try().")
 }
 
-rel_translate_dots <- function(dots, data) {
+rel_translate_dots <- function(dots, data, forbid_new = FALSE) {
   if (is.null(names(dots))) {
     map(dots, rel_translate, data)
+  } else if (forbid_new) {
+    out <- accumulate(seq_along(dots), .init = NULL, function(.x, .y) {
+      new <- names(dots)[[.y]]
+      translation <- rel_translate(dots[[.y]], alias = new, data, names_forbidden = .x$new)
+      list(
+        new = c(.x$new, new),
+        translation = c(.x$translation, list(translation))
+      )
+    })
+    out[[length(out)]]$translation
   } else {
     imap(dots, rel_translate, data = data)
   }
@@ -60,7 +92,8 @@ rel_translate <- function(
     alias = NULL,
     partition = NULL,
     need_window = FALSE,
-    names_data = names(data)) {
+    names_data = names(data),
+    names_forbidden = NULL) {
   if (is_expression(quo)) {
     expr <- quo
     env <- baseenv()
@@ -84,6 +117,9 @@ rel_translate <- function(
       double = relexpr_constant(expr),
       #
       symbol = {
+        if (as.character(expr) %in% names_forbidden) {
+          cli::cli_abort("Can't reuse summary variable {.var {as.character(expr)}}.")
+        }
         if (as.character(expr) %in% names_data) {
           ref <- as.character(expr)
           if (!(ref %in% used)) {
@@ -99,21 +135,31 @@ rel_translate <- function(
       language = {
         name <- as.character(expr[[1]])
 
+        if (name[[1]] == "::") {
+          pkg <- name[[2]]
+          name <- name[[3]]
+        } else {
+          pkg <- NULL
+        }
+
         switch(name,
           "(" = {
             return(do_translate(expr[[2]], in_window = in_window))
           },
           # Hack
           "wday" = {
+            if (!is.null(pkg) && pkg != "lubridate") {
+              cli::cli_abort("Don't know how to translate {.code {pkg}::{name}}.")
+            }
             def <- lubridate::wday
             call <- match.call(def, expr, envir = env)
             args <- as.list(call[-1])
             bad <- !(names(args) %in% c("x"))
             if (any(bad)) {
-              abort(paste0(name, "(", names(args)[which(bad)[[1]]], " = ) not supported"))
+              cli::cli_abort("{name}({names(args)[which(bad)[[1]]]} = ) not supported")
             }
             if (!is.null(getOption("lubridate.week.start"))) {
-              abort('wday() with option("lubridate.week.start") not supported')
+              cli::cli_abort('{.code wday()} with {.code option("lubridate.week.start")} not supported')
             }
           },
           "strftime" = {
@@ -122,7 +168,7 @@ rel_translate <- function(
             args <- as.list(call[-1])
             bad <- !(names(args) %in% c("x", "format"))
             if (any(bad)) {
-              abort(paste0(name, "(", names(args)[which(bad)[[1]]], " = ) not supported"))
+              cli::cli_abort("{name}({names(args)[which(bad)[[1]]]} = ) not supported")
             }
           },
           "%in%" = {
@@ -132,11 +178,25 @@ rel_translate <- function(
                 consts <- map(values, do_translate, in_window = in_window)
                 ops <- map(consts, list, do_translate(expr[[2]]))
                 cmp <- map(ops, relexpr_function, name = "==")
-                alt <- reduce(cmp, ~ relexpr_function("|", list(.x, .y)))
+                alt <- reduce(cmp, function(.x, .y) {
+                  relexpr_function("|", list(.x, .y))
+                })
                 return(alt)
               },
               error = identity
             )
+          },
+          "$" = {
+            if (expr[[2]] == ".data") {
+              return(do_translate(expr[[3]], in_window = in_window))
+            } else if (expr[[2]] == ".env") {
+              var_name <- as.character(expr[[3]])
+              if (exists(var_name, envir = env)) {
+                return(do_translate(get(var_name, env), in_window = in_window))
+              } else {
+                cli::cli_abort("internal: object not found, should also be triggered by the dplyr fallback")
+              }
+            }
           }
         )
 
@@ -146,6 +206,8 @@ rel_translate <- function(
           last = "last_value",
           nth = "nth_value",
           "/" = "___divide",
+          "log10" = "___log10",
+          "log" = "___log",
           NULL
         )
 
@@ -179,7 +241,7 @@ rel_translate <- function(
         known <- c(names(duckplyr_macros), names(aliases), known_window, known_ops, known_funs)
 
         if (!(name %in% known)) {
-          abort(paste0("Unknown function: ", name))
+          cli::cli_abort("Unknown function: {.code {name}()}")
         }
 
         if (name %in% names(aliases)) {
@@ -225,7 +287,7 @@ rel_translate <- function(
         fun
       },
       #
-      abort(paste0("Internal: Unknown type ", typeof(expr)))
+      cli::cli_abort("Internal: Unknown type {.val {typeof(expr)}}")
     )
   }
 

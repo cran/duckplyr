@@ -1,6 +1,7 @@
 dplyr <- asNamespace("dplyr")
 
 as_across_fn_call <- dplyr$as_across_fn_call
+as_group_map_function <- dplyr$as_group_map_function
 as_fun_list <- dplyr$as_fun_list
 as_join_by <- dplyr$as_join_by
 check_filter <- dplyr$check_filter
@@ -25,6 +26,7 @@ expand_if_across <- dplyr$expand_if_across
 expr_substitute <- dplyr$expr_substitute
 get_slice_size <- dplyr$get_slice_size
 group_by_drop_default <- dplyr$group_by_drop_default
+group_keys0 <- dplyr$group_keys0
 is_compatible <- dplyr$is_compatible
 is_cross_by <- dplyr$is_cross_by
 join_by_common <- dplyr$join_by_common
@@ -56,6 +58,8 @@ ensure_group_vars <- dplyr$ensure_group_vars
 env_bind_do_pronouns <- dplyr$env_bind_do_pronouns
 filter_rows <- dplyr$filter_rows
 groups <- dplyr$groups
+group_nest_impl <- dplyr$group_nest_impl
+group_split_impl <- dplyr$group_split_impl
 join_cast_common <- dplyr$join_cast_common
 join_filter <- dplyr$join_filter
 join_mutate <- dplyr$join_mutate
@@ -63,7 +67,6 @@ join_rows <- dplyr$join_rows
 mutate_cols <- dplyr$mutate_cols
 mutate_keep <- dplyr$mutate_keep
 named_args <- dplyr$named_args
-nest_by.grouped_df <- dplyr$nest_by.grouped_df
 rows_bind <- dplyr$rows_bind
 rows_cast_y <- dplyr$rows_cast_y
 rows_check_by <- dplyr$rows_check_by

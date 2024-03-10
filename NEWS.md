@@ -1,5 +1,39 @@
 <!-- NEWS.md is maintained by https://fledge.cynkra.com, contributors should not edit this file -->
 
+# duckplyr 0.3.1 (2024-03-08)
+
+## Bug fixes
+
+- Forbid reuse of new columns created in `summarise()` (#72, #106).
+- `summarise()` no longer restores subclass.
+- Disambiguate computation of `log10()` and `log()`.
+- Fix division by zero for positive and negative numbers.
+
+## Features
+
+- New `fallback_sitrep()` and related functionality for collecting telemetry data (#102, #107, #110, #111, #115). No data is collected by default, only a message is displayed once per session and then every eight hours. Opt in or opt out by setting environment variables.
+- Implement `group_by()` and other methods to collect fallback information (#94, #104, #105).
+- Set memory limit and temporary directory for duckdb.
+- Implement `suppressWarnings()` as the identity function.
+- Prefer `cli::cli_abort()` over `stop()` or `rlang::abort()` (#114).
+- Translate `.data$a` and `.env$a`.
+- Strict checks for column class, only supporting `integer`, `numeric`, `logical`, `Date`, `POSIXct`, and `difftime` for now.
+- If the environment variable `DUCKPLYR_METHODS_OVERWRITE` is set to `TRUE`, loading duckplyr automatically calls `methods_overwrite()`.
+
+## Internal
+
+- Better duckdb tests.
+- Use standalone purrr for dplyr compatibility.
+
+## Testing
+
+- Add tests for correct base of `log()` and `log10()`.
+
+## Documentation
+
+- `methods_overwrite()` and `methods_restore()` show a message.
+
+
 # duckplyr 0.3.0 (2023-12-10)
 
 ## Bug fixes

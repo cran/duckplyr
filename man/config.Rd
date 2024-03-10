@@ -34,6 +34,11 @@ The default is to check roundtrip of attributes.
 \code{DUCKPLYR_EXPERIMENTAL}: If \code{TRUE}, pass \code{experimental = TRUE}
 to certain duckdb functions.
 Currently unused.
+
+\code{DUCKPLYR_METHODS_OVERWRITE}: If \code{TRUE}, call \code{methods_overwrite()}
+when the package is loaded.
+
+See \link{fallback} for more options related to logging and uploading of fallback events.
 }
 
 \examples{
