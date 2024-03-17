@@ -1,7 +1,7 @@
-672eef1c5393bc757d45e58b346a2296 *DESCRIPTION
+76cbe3345854f7913485a5414b3c2aef *DESCRIPTION
 ab67fd121eb6acdc3b8d59388f1e7915 *LICENSE
-ee862d23781a5bb786206e079c1b0071 *NAMESPACE
-571ac95aa7ba32e887a569790cf9faa7 *NEWS.md
+dda9d1126b9a660f34a50acce3424667 *NAMESPACE
+6caccbc8c19f0319f686cf96529efd99 *NEWS.md
 b10449657db643cd0dd5382507f3ea3c *R/aaa-meta.R
 41737d7dd7c4242651328540c0269b22 *R/add_count.R
 3d02935b8189aa8ba5761282f3974df0 *R/anti_join.R
@@ -13,7 +13,6 @@ f868e16b7156ab21e5e05cef7b02211e *R/compute.R
 ee349478dcae2410e19cf53c1e43e333 *R/config.R
 8eea527714ec601350504bc675ddd4a0 *R/count.R
 f3e16769c4bec3047243bff5d0d41fbc *R/cross_join.R
-fc1d0daa13d102165758a206348d9d07 *R/csv.R
 311ae3f66e9a87b6b323954eac60d4a5 *R/distinct.R
 a864f4594a37f88a1b2fb488a65daa47 *R/do.R
 51e48e14f4ebd36846f508ca4189b6d7 *R/dots.R
@@ -22,7 +21,7 @@ f0ae22375675176f153dfc1b645177c1 *R/dplyr.R
 afa1bfa0c0cf3c88a4ad97b60363d30f *R/duckdb.R
 e2ec9ac6c0774dfac5007eaafc495e0c *R/duckplyr-package.R
 607fb1e21b3330133a8fcfe55462ab2c *R/explain.R
-63651d4f3b44f272b9cd299d5879b7cb *R/fallback.R
+12aabd37c6972993b644a0935b5f2a94 *R/fallback.R
 9db9d129c578af00e5b6a41f99509f90 *R/filter.R
 bd360127dd46e37803be80092bc172cd *R/full_join.R
 0079325300925d8f2615c323ed28aa08 *R/globals.R
@@ -41,6 +40,9 @@ ebfca20e17c8c3e445f98fe49ac8908f *R/head.R
 8537edd77063dcce3ae1e05b1594b745 *R/import-standalone-purrr.R
 b187235e0edb20e85fec1f9ca66d4828 *R/inner_join.R
 5a1d0f6b7df512b318e188de00213ca8 *R/intersect.R
+0060ababac3d5daafe6716e8ee765f20 *R/io-csv.R
+b52c81d23007c9bcf14c6681ddc13291 *R/io-parquet.R
+62c6c7a9805c11d65c9e7cbb0dfe4914 *R/io.R
 3e12be3398d51a50cd60b956728856a3 *R/is_duckplyr_df.R
 8225d1773dac76bfeab19caa00003f64 *R/join.R
 c91911fa3e53082e2391d982abb79973 *R/left_join.R
@@ -94,7 +96,7 @@ ba13633ee69d76a4f8fc7a12a33abf66 *R/zzz.R
 cbb65e501585de99d7e12488acae0038 *README.md
 47542f3c27ef3dce4e3380554f1b0759 *man/as_duckplyr_df.Rd
 8ce0c88cfc5a989633870b72a2d2d5fb *man/config.Rd
-31bd48e22a468b054c2604021f47421c *man/df_from_file.Rd
+7d9562d5d8dbab06e99f504071371b54 *man/df_from_file.Rd
 b7b70e6f18219575ae8535a2a1365114 *man/duckplyr-package.Rd
 d71408d4da041b3ca5f39e971f8a9782 *man/fallback.Rd
 058b3777b913cd2d84677ecb234b32f1 *man/is_duckplyr_df.Rd
@@ -124,7 +126,7 @@ e1a209d6db1c4239c101693df003066f *tests/testthat/_snaps/relational-duckdb.md
 55b46395234136e6bd8f626ea6c00cf7 *tests/testthat/_snaps/relational.md
 3a2c2da09456a39c4d14df296be455c7 *tests/testthat/_snaps/relocate.md
 9b9367caa407c2435d6714446110e444 *tests/testthat/_snaps/rename.md
-2c277d29ad2230a300c3d9f61c66518a *tests/testthat/_snaps/select.md
+56322228633b27b34cc17a4c056f470c *tests/testthat/_snaps/select.md
 3f618a517e0c55e93a4bbe4b4f86f5c0 *tests/testthat/_snaps/sets.md
 bad066e21e027c1926bc572e58250baa *tests/testthat/_snaps/slice.md
 241e700abed418eb49ddfe808ef46c7c *tests/testthat/_snaps/summarise.md
@@ -155,6 +157,8 @@ de483b8550f90b79568e34eb05343173 *tests/testthat/test-dplyr.R
 46102d374964d79e133e654749ca7460 *tests/testthat/test-generics.R
 f09c86669a2795b580335fa7d92a9b7b *tests/testthat/test-group-map.R
 5cf44a9722380bf0ac2bd8bbbcc1f27d *tests/testthat/test-groups-with.R
+36f04917cadbce46d394bcc7ebd4f8b2 *tests/testthat/test-io-csv.R
+f57082b9f615822dc90d53c297bbe5fb *tests/testthat/test-io-parquet.R
 40ec8169c75997f74ea604c7b4ebf5de *tests/testthat/test-join-rows.R
 9bcb9f658d9c353b3e85fa11350d79c2 *tests/testthat/test-join.R
 66430290241e0eb3a61e924eff8d0ff3 *tests/testthat/test-mutate.R
