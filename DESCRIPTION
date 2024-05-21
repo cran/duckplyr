@@ -1,7 +1,7 @@
 Type: Package
 Package: duckplyr
 Title: A 'DuckDB'-Backed Version of 'dplyr'
-Version: 0.3.2
+Version: 0.4.0
 Authors@R: c(
     person("Hannes", "Mühleisen", role = "aut",
            comment = c(ORCID = "0000-0001-8552-0029")),
@@ -17,13 +17,12 @@ URL: https://duckdblabs.github.io/duckplyr/,
         https://github.com/duckdblabs/duckplyr
 BugReports: https://github.com/duckdblabs/duckplyr/issues
 Depends: R (>= 4.1.0)
-Imports: cli, collections, DBI, dplyr (>= 1.1.4), duckdb (>= 0.9.1-1),
+Imports: cli, collections, DBI, dplyr (>= 1.1.4), duckdb (>= 0.10.2),
         glue, jsonlite, lifecycle, rlang (>= 1.0.6), tibble,
         tidyselect, utils, vctrs (>= 0.6.3)
 Suggests: arrow, brio, constructive (>= 0.2.0), curl, dbplyr, hms,
         lobstr, lubridate, palmerpenguins, pillar, prettycode, purrr,
-        qs, reprex, rstudioapi, styler, testthat (>= 3.1.5), usethis,
-        withr
+        qs, reprex, rstudioapi, testthat (>= 3.1.5), usethis, withr
 Config/Needs/check: anthonynorth/roxyglobals
 Config/testthat/edition: 3
 Config/testthat/parallel: false
@@ -32,10 +31,10 @@ Config/testthat/start-first: rel_api, tpch, as_duckplyr_df, mutate,
 Encoding: UTF-8
 RoxygenNote: 7.3.1
 NeedsCompilation: no
-Packaged: 2024-03-17 19:36:22 UTC; kirill
+Packaged: 2024-05-21 06:22:00 UTC; kirill
 Author: Hannes Mühleisen [aut] (<https://orcid.org/0000-0001-8552-0029>),
   Kirill Müller [aut, cre] (<https://orcid.org/0000-0002-1416-3412>),
   Posit Software, PBC [cph, fnd]
 Maintainer: Kirill Müller <kirill@cynkra.com>
 Repository: CRAN
-Date/Publication: 2024-03-17 20:10:07 UTC
+Date/Publication: 2024-05-21 06:40:03 UTC

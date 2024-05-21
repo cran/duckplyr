@@ -55,7 +55,7 @@
       i A fallback situation just occurred. The following information would have been recorded:
         {foo:1, bar:2}
       > Run `duckplyr::fallback_sitrep()` to review the current settings.
-      > Run `Sys.setenv(DUCKPLYR_FALLBACK_COLLECT = 1)` to enable fallback logging, and `Sys.setenv(DUCKPLYR_FALLBACK_VERBOSE = 1)` in addition to enable printing of fallback situations to the console.
+      > Run `Sys.setenv(DUCKPLYR_FALLBACK_COLLECT = 1)` to enable fallback logging, and `Sys.setenv(DUCKPLYR_FALLBACK_VERBOSE = TRUE)` in addition to enable printing of fallback situations to the console.
       > Run `duckplyr::fallback_review()` to review the available reports, and `duckplyr::fallback_upload()` to upload them.
       i See `?duckplyr::fallback()` for details.
       i This message will be displayed once every eight hours.
@@ -63,16 +63,16 @@
 # summarize()
 
     Code
-      tibble(a = 1, b = 2, c = 3) %>% as_duckplyr_df() %>% summarize(.by = a, b = sum(
-        b), b = sum(b))
+      tibble(a = 1, b = 2, c = 3) %>% as_duckplyr_df() %>% summarize(.by = a, e = sum(
+        b), f = sum(e))
     Message
       i dplyr fallback recorded
-        {"version":"0.3.1","message":"Can't reuse summary variable `...2`.","name":"summarise","x":{"...1":"numeric","...2":"numeric","...3":"numeric"},"args":{"dots":{"...2":"sum(...2)","...2.1":"sum(...2)"},"by":["...1"]}}
+        {"version":"0.3.1","message":"Can't reuse summary variable `...4`.","name":"summarise","x":{"...1":"numeric","...2":"numeric","...3":"numeric"},"args":{"dots":{"...4":"sum(...2)","...5":"sum(...4)"},"by":["...1"]}}
     Output
-      # A tibble: 1 x 2
-            a     b
-        <dbl> <dbl>
-      1     1     2
+      # A tibble: 1 x 3
+            a     e     f
+        <dbl> <dbl> <dbl>
+      1     1     2     2
 
 # wday()
 
@@ -148,7 +148,7 @@
       mtcars[1:2, ] %>% as_duckplyr_df() %>% select(mpg, cyl)
     Message
       i dplyr fallback recorded
-        {"version":"0.3.1","message":"Need data frame without row names to convert to relational.","name":"select","x":{"...1":"numeric","...2":"numeric","...3":"numeric","...4":"numeric","...5":"numeric","...6":"numeric","...7":"numeric","...8":"numeric","...9":"numeric","...10":"numeric","...11":"numeric"},"args":{"dots":{"1":"...1","2":"...2"}}}
+        {"version":"0.3.1","message":"Need data frame without row names to convert to relational, got character row names.","name":"select","x":{"...1":"numeric","...2":"numeric","...3":"numeric","...4":"numeric","...5":"numeric","...6":"numeric","...7":"numeric","...8":"numeric","...9":"numeric","...10":"numeric","...11":"numeric"},"args":{"dots":{"1":"...1","2":"...2"}}}
     Output
                     mpg cyl
       Mazda RX4      21   6
@@ -211,13 +211,15 @@
 # rel_try()
 
     Code
-      tibble(a = 1) %>% as_duckplyr_df() %>% left_join(tibble(a = 1), by = "a", copy = TRUE)
+      tibble(a = 1) %>% as_duckplyr_df() %>% count(a, .drop = FALSE, name = "n")
     Message
       i dplyr fallback recorded
-        {"version":"0.3.1","message":"No relational implementation for left_join(copy = TRUE)","name":"left_join","x":{"...1":"numeric"},"y":{"...1":"numeric"},"args":{"by":{"condition":"==","filter":"none","x":["...1"],"y":["...1"]},"copy":true,"na_matches":["na","never"],"multiple":"all","unmatched":"drop"}}
+        {"version":"0.3.1","message":"count() only implemented for .drop = TRUE","name":"count","x":{"...1":"numeric"},"args":{"dots":{"1":"...1"},"wt":"NULL","sort":false,"name":"...3",".drop":false}}
+      i dplyr fallback recorded
+        {"version":"0.3.1","message":"No relational implementation for group_by()"}
     Output
-      # A tibble: 1 x 1
-            a
-        <dbl>
-      1     1
+      # A tibble: 1 x 2
+            a     n
+        <dbl> <int>
+      1     1     1
 

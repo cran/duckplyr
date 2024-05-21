@@ -15,16 +15,19 @@ get_default_duckdb_connection <- function() {
 }
 
 duckplyr_macros <- c(
-  "<" = "(x, y) AS x < y",
-  "<=" = "(x, y) AS x <= y",
-  ">" = "(x, y) AS x > y",
-  ">=" = "(x, y) AS x >= y",
-  "==" = "(x, y) AS x = y",
-  "!=" = "(x, y) AS x <> y",
+  # https://github.com/duckdb/duckdb-r/pull/156
+  "___null" = "() AS CAST(NULL AS BOOLEAN)",
+
+  "<" = '(x, y) AS "r_base::<"(x, y)',
+  "<=" = '(x, y) AS "r_base::<="(x, y)',
+  ">" = '(x, y) AS "r_base::>"(x, y)',
+  ">=" = '(x, y) AS "r_base::>="(x, y)',
+  "==" = '(x, y) AS "r_base::=="(x, y)',
+  "!=" = '(x, y) AS "r_base::!="(x, y)',
   #
   "___divide" = "(x, y) AS CASE WHEN y = 0 THEN CASE WHEN x = 0 THEN CAST('NaN' AS double) WHEN x > 0 THEN CAST('+Infinity' AS double) ELSE CAST('-Infinity' AS double) END ELSE CAST(x AS double) / y END",
   #
-  "is.na" = "(x) AS (x IS NULL)",
+  "is.na" = "(x) AS (x IS NULL OR isnan(x))",
   "n" = "() AS CAST(COUNT(*) AS int32)",
   #
   "___log10" = "(x) AS CASE WHEN x < 0 THEN CAST('NaN' AS double) WHEN x = 0 THEN CAST('-Inf' AS double) ELSE log10(x) END",
@@ -35,7 +38,6 @@ duckplyr_macros <- c(
   # "as.Date" = '(x) AS strptime(x, \'%Y-%m-%d\')',
 
   "grepl" = "(pattern, x) AS (CASE WHEN x IS NULL THEN FALSE ELSE regexp_matches(x, pattern) END)",
-  "as.integer" = "(x) AS CAST(x AS int32)",
   "if_else" = "(test, yes, no) AS (CASE WHEN test THEN yes ELSE no END)",
   "|" = "(x, y) AS (x OR y)",
   "&" = "(x, y) AS (x AND y)",
@@ -56,10 +58,13 @@ duckplyr_macros <- c(
 )
 
 create_default_duckdb_connection <- function() {
-  con <- DBI::dbConnect(duckdb::duckdb())
+  drv <- duckdb::duckdb()
+  con <- DBI::dbConnect(drv)
 
-  DBI::dbExecute(con, "set memory_limit='2GB'")
+  DBI::dbExecute(con, "set memory_limit='1GB'")
   DBI::dbExecute(con, paste0("pragma temp_directory='", tempdir(), "'"))
+
+  duckdb$rapi_load_rfuns(drv@database_ref)
 
   for (i in seq_along(duckplyr_macros)) {
     sql <- paste0('CREATE MACRO "', names(duckplyr_macros)[[i]], '"', duckplyr_macros[[i]])
@@ -103,8 +108,14 @@ duckdb_rel_from_df <- function(df) {
 
 # FIXME: This should be duckdb's responsibility
 check_df_for_rel <- function(df) {
-  if (is.character(.row_names_info(df, 0L))) {
-    cli::cli_abort("Need data frame without row names to convert to relational.")
+  rni <- .row_names_info(df, 0L)
+  if (is.character(rni)) {
+    cli::cli_abort("Need data frame without row names to convert to relational, got character row names.")
+  }
+  if (length(rni) != 0) {
+    if (length(rni) != 2L || !is.na(rni[[1]])) {
+      cli::cli_abort("Need data frame without row names to convert to relational, got numeric row names.")
+    }
   }
 
   for (i in seq_along(df)) {
@@ -156,6 +167,14 @@ check_df_for_rel <- function(df) {
       if (!identical(df_attrib, roundtrip_attrib)) {
         cli::cli_abort("Attributes are lost during conversion. Affected column: {.var {names(df)[[i]]}}.")
       }
+      # Always check roundtrip for timestamp columns
+      # duckdb uses microsecond precision only, this is in some cases
+      # less than R does
+      if (inherits(df[[i]], "POSIXct")) {
+        if (!identical(df[[i]], roundtrip[[i]])) {
+          cli::cli_abort("Imperfect roundtrip. Affected column: {.var {names(df)[[i]]}}.")
+        }
+      }
     }
   }
 
@@ -164,6 +183,10 @@ check_df_for_rel <- function(df) {
 
 #' @export
 rel_to_df.duckdb_relation <- function(rel, ...) {
+  if (anyDuplicated(tolower(names(rel)))) {
+    cli::cli_abort("Column names are case-insensitive in duckdb, fallback required.")
+  }
+
   duckdb$rel_to_altrep(rel)
 }
 
@@ -406,7 +429,7 @@ to_duckdb_expr <- function(x) {
       out
     },
     NULL = NULL,
-    cli::cli_abort("Unknown expr class: {.cls {class(x))}}")
+    cli::cli_abort("Unknown expr class: {.cls {class(x)}}")
   )
 }
 
@@ -482,6 +505,6 @@ to_duckdb_expr_meta <- function(x) {
       out
     },
     NULL = expr(NULL),
-    cli::cli_abort("Unknown expr class: {.cls {class(x))}}")
+    cli::cli_abort("Unknown expr class: {.cls {class(x)}}")
   )
 }

@@ -1,7 +1,8 @@
 rel_try <- function(rel, ..., call = NULL) {
   call_name <- as.character(sys.call(-1)[[1]])
 
-  if (!(call_name %in% stats$calls)) {
+  # Avoid error when called via dplyr:::filter.data.frame() (in yamlet)
+  if (length(call_name) == 1 && !(call_name %in% stats$calls)) {
     stats$calls <- c(stats$calls, call_name)
   }
 
@@ -44,10 +45,15 @@ rel_try <- function(rel, ..., call = NULL) {
   }
 
   # https://github.com/duckdb/duckdb-r/issues/101
-  DBI::dbExecute(get_default_duckdb_connection(), "SET max_expression_depth TO 100")
-  withr::defer({
-    DBI::dbExecute(get_default_duckdb_connection(), "SET max_expression_depth TO 200")
-  })
+  max_expression_depth <- DBI::dbGetQuery(get_default_duckdb_connection(), "SELECT current_setting('max_expression_depth')")[[1]]
+  if (max_expression_depth != 100) {
+    # Only reset if this hasn't been set already
+    # NeuroDecodeR, delayed evaluation
+    DBI::dbExecute(get_default_duckdb_connection(), "SET max_expression_depth TO 100")
+    withr::defer({
+      DBI::dbExecute(get_default_duckdb_connection(), "SET max_expression_depth TO 200")
+    })
+  }
 
   if (Sys.getenv("DUCKPLYR_FORCE") == "TRUE") {
     return(rel)
@@ -104,7 +110,7 @@ rel_translate <- function(
 
   used <- character()
 
-  do_translate <- function(expr, in_window = FALSE) {
+  do_translate <- function(expr, in_window = FALSE, top_level = FALSE) {
     if (is_quosure(expr)) {
       # FIXME: What to do with the environment here?
       expr <- quo_get_expr(expr)
@@ -112,9 +118,10 @@ rel_translate <- function(
 
     switch(typeof(expr),
       character = ,
-      logical = ,
       integer = ,
       double = relexpr_constant(expr),
+      # https://github.com/duckdb/duckdb-r/pull/156
+      logical = if (top_level && length(expr) == 1 && is.na(expr)) relexpr_function("___null", list()) else relexpr_constant(expr),
       #
       symbol = {
         if (as.character(expr) %in% names_forbidden) {
@@ -140,6 +147,13 @@ rel_translate <- function(
           name <- name[[3]]
         } else {
           pkg <- NULL
+        }
+
+        if (!(name %in% c("wday", "strftime", "lag", "lead"))) {
+          if (!is.null(names(expr)) && any(names(expr) != "")) {
+            # Fix grepl() logic below when allowing matching by argument name
+            cli::cli_abort("Can't translate named argument {.code {name}({names(expr)[names(expr) != ''][[1]]} = )}.")
+          }
         }
 
         switch(name,
@@ -172,19 +186,32 @@ rel_translate <- function(
             }
           },
           "%in%" = {
-            tryCatch(
-              {
-                values <- eval(expr[[3]], envir = baseenv())
-                consts <- map(values, do_translate, in_window = in_window)
-                ops <- map(consts, list, do_translate(expr[[2]]))
-                cmp <- map(ops, relexpr_function, name = "==")
-                alt <- reduce(cmp, function(.x, .y) {
-                  relexpr_function("|", list(.x, .y))
-                })
-                return(alt)
-              },
-              error = identity
-            )
+            values <- eval_tidy(expr[[3]], data = new_failing_mask(names_data), env = env)
+            if (length(values) == 0) {
+              return(relexpr_constant(FALSE))
+            }
+
+            lhs <- do_translate(expr[[2]])
+
+            if (anyNA(values)) {
+              has_na <- TRUE
+              values <- values[!is.na(values)]
+              if (length(values) == 0) {
+                return(relexpr_function("is.na", list(lhs)))
+              }
+            } else {
+              has_na <- FALSE
+            }
+
+            consts <- map(values, do_translate)
+            ops <- map(consts, ~ list(lhs, .x))
+            cmp <- map(ops, relexpr_function, name = "r_base::==")
+            alt <- reduce(cmp, function(.x, .y) {
+              relexpr_function("|", list(.x, .y))
+            })
+            coalesce <- relexpr_function("___coalesce", list(alt, relexpr_constant(has_na)))
+            meta_ext_register()
+            return(coalesce)
           },
           "$" = {
             if (expr[[2]] == ".data") {
@@ -208,6 +235,7 @@ rel_translate <- function(
           "/" = "___divide",
           "log10" = "___log10",
           "log" = "___log",
+          "as.integer" = "r_base::as.integer",
           NULL
         )
 
@@ -246,6 +274,9 @@ rel_translate <- function(
 
         if (name %in% names(aliases)) {
           name <- aliases[[name]]
+          if (grepl("^r_base::", name)) {
+            meta_ext_register()
+          }
         }
         # name <- aliases[name] %|% name
 
@@ -273,6 +304,13 @@ rel_translate <- function(
         }
 
         args <- map(as.list(expr[-1]), do_translate, in_window = in_window || window)
+
+        if (name == "grepl") {
+          if (!inherits(args[[1]], "relational_relexpr_constant")) {
+            cli::cli_abort("Only constant patterns are supported in {.code grepl()}")
+          }
+        }
+
         fun <- relexpr_function(name, args)
         if (window) {
           partitions <- map(partition, relexpr_reference)
@@ -283,6 +321,11 @@ rel_translate <- function(
             offset_expr = offset_expr,
             default_expr = default_expr
           )
+
+          if (name == "row_number") {
+            fun <- relexpr_function("r_base::as.integer", list(fun))
+            meta_ext_register()
+          }
         }
         fun
       },
@@ -291,11 +334,17 @@ rel_translate <- function(
     )
   }
 
-  out <- do_translate(expr)
+  out <- do_translate(expr, top_level = TRUE)
 
   if (!is.null(alias) && !identical(alias, "")) {
     out <- relexpr_set_alias(out, alias)
   }
 
   structure(out, used = used)
+}
+
+new_failing_mask <- function(names_data) {
+  env <- new_environment()
+  walk(names_data, ~ env_bind_lazy(env, !!.x := stop("Can't access data in this context")))
+  new_data_mask(env)
 }

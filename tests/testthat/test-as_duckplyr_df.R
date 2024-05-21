@@ -16,7 +16,7 @@ test_that("as_duckplyr_df() and add_count()", {
   post <- test_df %>% add_count() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -31,7 +31,7 @@ test_that("as_duckplyr_df() and add_count()", {
   post <- test_df %>% add_count() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and anti_join(join_by(a))", {
@@ -46,7 +46,7 @@ test_that("as_duckplyr_df() and anti_join(join_by(a))", {
   post <- test_df_x %>% anti_join(test_df_y, join_by(a)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -60,7 +60,7 @@ test_that("as_duckplyr_df() and anti_join(join_by(a))", {
   post <- test_df_x %>% anti_join(test_df_y, join_by(a)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and arrange()", {
@@ -74,7 +74,7 @@ test_that("as_duckplyr_df() and arrange()", {
   post <- test_df %>% arrange() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -87,7 +87,7 @@ test_that("as_duckplyr_df() and arrange()", {
   post <- test_df %>% arrange() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -100,7 +100,7 @@ test_that("as_duckplyr_df() and arrange(a)", {
   post <- test_df %>% arrange(a) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -113,7 +113,7 @@ test_that("as_duckplyr_df() and arrange(g)", {
   post <- test_df %>% arrange(g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -126,7 +126,7 @@ test_that("as_duckplyr_df() and arrange(g, a)", {
   post <- test_df %>% arrange(g, a) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -139,7 +139,7 @@ test_that("as_duckplyr_df() and arrange(a, g)", {
   post <- test_df %>% arrange(a, g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and auto_copy()", {
@@ -154,7 +154,7 @@ test_that("as_duckplyr_df() and auto_copy()", {
   post <- test_df_x %>% auto_copy(test_df_y)
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -170,7 +170,7 @@ test_that("as_duckplyr_df() and auto_copy()", {
   post <- test_df_x %>% auto_copy(test_df_y)
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and collapse()", {
@@ -184,7 +184,7 @@ test_that("as_duckplyr_df() and collapse()", {
   post <- test_df %>% collapse() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -199,7 +199,7 @@ test_that("as_duckplyr_df() and collapse()", {
   post <- test_df %>% collapse() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and collect()", {
@@ -213,7 +213,7 @@ test_that("as_duckplyr_df() and collect()", {
   post <- test_df %>% collect() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -228,7 +228,7 @@ test_that("as_duckplyr_df() and collect()", {
   post <- test_df %>% collect() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and compute()", {
@@ -242,7 +242,7 @@ test_that("as_duckplyr_df() and compute()", {
   post <- test_df %>% compute() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -257,7 +257,7 @@ test_that("as_duckplyr_df() and compute()", {
   post <- test_df %>% compute() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and count()", {
@@ -271,7 +271,7 @@ test_that("as_duckplyr_df() and count()", {
   post <- test_df %>% count() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -284,7 +284,7 @@ test_that("as_duckplyr_df() and count()", {
   post <- test_df %>% count() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -297,7 +297,7 @@ test_that("as_duckplyr_df() and count(a)", {
   post <- test_df %>% count(a) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -310,7 +310,7 @@ test_that("as_duckplyr_df() and count(b)", {
   post <- test_df %>% count(b) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -323,7 +323,7 @@ test_that("as_duckplyr_df() and count(g)", {
   post <- test_df %>% count(g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -336,7 +336,7 @@ test_that("as_duckplyr_df() and count(g, a)", {
   post <- test_df %>% count(g, a) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -349,7 +349,7 @@ test_that("as_duckplyr_df() and count(b, g)", {
   post <- test_df %>% count(b, g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and cross_join()", {
@@ -364,7 +364,7 @@ test_that("as_duckplyr_df() and cross_join()", {
   post <- test_df_x %>% cross_join(test_df_y) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -380,7 +380,7 @@ test_that("as_duckplyr_df() and cross_join()", {
   post <- test_df_x %>% cross_join(test_df_y) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and distinct()", {
@@ -394,7 +394,7 @@ test_that("as_duckplyr_df() and distinct()", {
   post <- test_df %>% distinct() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -407,7 +407,7 @@ test_that("as_duckplyr_df() and distinct()", {
   post <- test_df %>% distinct() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -420,7 +420,7 @@ test_that("as_duckplyr_df() and distinct(a)", {
   post <- test_df %>% distinct(a) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -433,7 +433,7 @@ test_that("as_duckplyr_df() and distinct(a, b)", {
   post <- test_df %>% distinct(a, b) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -446,7 +446,7 @@ test_that("as_duckplyr_df() and distinct(b, b)", {
   post <- test_df %>% distinct(b, b) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -459,7 +459,7 @@ test_that("as_duckplyr_df() and distinct(g)", {
   post <- test_df %>% distinct(g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -472,7 +472,7 @@ test_that("as_duckplyr_df() and union_all(data.frame(a = 1L, b = 3, g = 2L)) %>%
   post <- test_df %>% union_all(data.frame(a = 1L, b = 3, g = 2L)) %>% distinct(g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -485,7 +485,7 @@ test_that("as_duckplyr_df() and union_all(data.frame(a = 1L, b = 4, g = 2L)) %>%
   post <- test_df %>% union_all(data.frame(a = 1L, b = 4, g = 2L)) %>% distinct(g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -498,7 +498,7 @@ test_that("as_duckplyr_df() and union_all(data.frame(a = 1L, b = 5, g = 2L)) %>%
   post <- test_df %>% union_all(data.frame(a = 1L, b = 5, g = 2L)) %>% distinct(g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -511,7 +511,7 @@ test_that("as_duckplyr_df() and union_all(data.frame(a = 1L, b = 6, g = 2L)) %>%
   post <- test_df %>% union_all(data.frame(a = 1L, b = 6, g = 2L)) %>% distinct(g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -524,7 +524,7 @@ test_that("as_duckplyr_df() and union_all(data.frame(a = 1L, b = 7, g = 2L)) %>%
   post <- test_df %>% union_all(data.frame(a = 1L, b = 7, g = 2L)) %>% distinct(g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -537,7 +537,7 @@ test_that("as_duckplyr_df() and distinct(g, .keep_all = TRUE)", {
   post <- test_df %>% distinct(g, .keep_all = TRUE) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and do(data.frame(c = 1))", {
@@ -551,7 +551,7 @@ test_that("as_duckplyr_df() and do(data.frame(c = 1))", {
   post <- test_df %>% do(data.frame(c = 1))
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -566,7 +566,7 @@ test_that("as_duckplyr_df() and do(data.frame(c = 1))", {
   post <- test_df %>% do(data.frame(c = 1))
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and dplyr_reconstruct(test_df)", {
@@ -582,7 +582,7 @@ test_that("as_duckplyr_df() and dplyr_reconstruct(test_df)", {
   post <- test_df %>% dplyr_reconstruct(test_df)
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and filter(a == 1)", {
@@ -596,7 +596,7 @@ test_that("as_duckplyr_df() and filter(a == 1)", {
   post <- test_df %>% filter(a == 1) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -609,7 +609,7 @@ test_that("as_duckplyr_df() and filter(a == 1)", {
   post <- test_df %>% filter(a == 1) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -622,7 +622,7 @@ test_that("as_duckplyr_df() and filter(a %in% 2:3, g == 2)", {
   post <- test_df %>% filter(a %in% 2:3, g == 2) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -635,7 +635,7 @@ test_that("as_duckplyr_df() and filter(a %in% 2:3 & g == 2)", {
   post <- test_df %>% filter(a %in% 2:3 & g == 2) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -648,7 +648,7 @@ test_that("as_duckplyr_df() and filter(a != 2 | g != 2)", {
   post <- test_df %>% filter(a != 2 | g != 2) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and full_join(join_by(a))", {
@@ -663,7 +663,7 @@ test_that("as_duckplyr_df() and full_join(join_by(a))", {
   post <- test_df_x %>% full_join(test_df_y, join_by(a)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -677,7 +677,7 @@ test_that("as_duckplyr_df() and full_join(join_by(a))", {
   post <- test_df_x %>% full_join(test_df_y, join_by(a)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and group_by()", {
@@ -693,7 +693,7 @@ test_that("as_duckplyr_df() and group_by()", {
   post <- test_df %>% group_by() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and group_indices()", {
@@ -707,7 +707,7 @@ test_that("as_duckplyr_df() and group_indices()", {
   post <- test_df %>% group_indices() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and group_keys()", {
@@ -723,7 +723,7 @@ test_that("as_duckplyr_df() and group_keys()", {
   post <- test_df %>% group_keys() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and group_map(~ .x)", {
@@ -737,7 +737,7 @@ test_that("as_duckplyr_df() and group_map(~ .x)", {
   post <- test_df %>% group_map(~ .x) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and group_modify(~ .x)", {
@@ -751,7 +751,7 @@ test_that("as_duckplyr_df() and group_modify(~ .x)", {
   post <- test_df %>% group_modify(~ .x) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and group_nest()", {
@@ -767,7 +767,7 @@ test_that("as_duckplyr_df() and group_nest()", {
   post <- test_df %>% group_nest() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and group_size()", {
@@ -783,7 +783,7 @@ test_that("as_duckplyr_df() and group_size()", {
   post <- test_df %>% group_size() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and group_split()", {
@@ -797,7 +797,7 @@ test_that("as_duckplyr_df() and group_split()", {
   post <- test_df %>% group_split() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and group_trim()", {
@@ -813,7 +813,7 @@ test_that("as_duckplyr_df() and group_trim()", {
   post <- test_df %>% group_trim() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and group_vars()", {
@@ -827,7 +827,7 @@ test_that("as_duckplyr_df() and group_vars()", {
   post <- test_df %>% group_vars()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -842,7 +842,7 @@ test_that("as_duckplyr_df() and group_vars()", {
   post <- test_df %>% group_vars()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and groups()", {
@@ -858,7 +858,7 @@ test_that("as_duckplyr_df() and groups()", {
   post <- test_df %>% groups() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and inner_join(join_by(a))", {
@@ -873,7 +873,7 @@ test_that("as_duckplyr_df() and inner_join(join_by(a))", {
   post <- test_df_x %>% inner_join(test_df_y, join_by(a)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -887,7 +887,7 @@ test_that("as_duckplyr_df() and inner_join(join_by(a))", {
   post <- test_df_x %>% inner_join(test_df_y, join_by(a)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and intersect()", {
@@ -902,7 +902,7 @@ test_that("as_duckplyr_df() and intersect()", {
   post <- test_df_x %>% intersect(test_df_y) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -916,7 +916,7 @@ test_that("as_duckplyr_df() and intersect()", {
   post <- test_df_x %>% intersect(test_df_y) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and left_join(join_by(a))", {
@@ -931,7 +931,7 @@ test_that("as_duckplyr_df() and left_join(join_by(a))", {
   post <- test_df_x %>% left_join(test_df_y, join_by(a)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -945,7 +945,7 @@ test_that("as_duckplyr_df() and left_join(join_by(a))", {
   post <- test_df_x %>% left_join(test_df_y, join_by(a)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and mutate()", {
@@ -959,7 +959,7 @@ test_that("as_duckplyr_df() and mutate()", {
   post <- test_df %>% mutate() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -972,7 +972,7 @@ test_that("as_duckplyr_df() and mutate()", {
   post <- test_df %>% mutate() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -985,7 +985,7 @@ test_that("as_duckplyr_df() and mutate(a + 1)", {
   post <- test_df %>% mutate(a + 1) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -998,7 +998,7 @@ test_that("as_duckplyr_df() and mutate(a + 1, .by = g)", {
   post <- test_df %>% mutate(a + 1, .by = g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1011,7 +1011,7 @@ test_that("as_duckplyr_df() and mutate(c = a + 1)", {
   post <- test_df %>% mutate(c = a + 1) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1024,7 +1024,7 @@ test_that("as_duckplyr_df() and mutate(`if` = a + 1)", {
   post <- test_df %>% mutate(`if` = a + 1) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1037,7 +1037,7 @@ test_that("as_duckplyr_df() and mutate(sum(a))", {
   post <- test_df %>% mutate(sum(a)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1050,7 +1050,7 @@ test_that("as_duckplyr_df() and mutate(sum(a), .by = g)", {
   post <- test_df %>% mutate(sum(a), .by = g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1063,7 +1063,7 @@ test_that("as_duckplyr_df() and mutate(mean(a))", {
   post <- test_df %>% mutate(mean(a)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1076,7 +1076,7 @@ test_that("as_duckplyr_df() and mutate(mean(a), .by = g)", {
   post <- test_df %>% mutate(mean(a), .by = g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1089,7 +1089,7 @@ test_that("as_duckplyr_df() and mutate(sd(a))", {
   post <- test_df %>% mutate(sd(a)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1102,7 +1102,7 @@ test_that("as_duckplyr_df() and mutate(sd(a), .by = g)", {
   post <- test_df %>% mutate(sd(a), .by = g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1115,7 +1115,7 @@ test_that("as_duckplyr_df() and mutate(lag(a))", {
   post <- test_df %>% mutate(lag(a)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1128,7 +1128,7 @@ test_that("as_duckplyr_df() and mutate(lag(a), .by = g)", {
   post <- test_df %>% mutate(lag(a), .by = g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1141,7 +1141,7 @@ test_that("as_duckplyr_df() and mutate(lead(a))", {
   post <- test_df %>% mutate(lead(a)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1154,7 +1154,7 @@ test_that("as_duckplyr_df() and mutate(lead(a), .by = g)", {
   post <- test_df %>% mutate(lead(a), .by = g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1167,7 +1167,7 @@ test_that("as_duckplyr_df() and mutate(lag(a, 2))", {
   post <- test_df %>% mutate(lag(a, 2)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1180,7 +1180,7 @@ test_that("as_duckplyr_df() and mutate(lag(a, 2), .by = g)", {
   post <- test_df %>% mutate(lag(a, 2), .by = g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1193,7 +1193,7 @@ test_that("as_duckplyr_df() and mutate(lead(a, 2))", {
   post <- test_df %>% mutate(lead(a, 2)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1206,7 +1206,7 @@ test_that("as_duckplyr_df() and mutate(lead(a, 2), .by = g)", {
   post <- test_df %>% mutate(lead(a, 2), .by = g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1219,7 +1219,7 @@ test_that("as_duckplyr_df() and mutate(lag(a, 4))", {
   post <- test_df %>% mutate(lag(a, 4)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1232,7 +1232,7 @@ test_that("as_duckplyr_df() and mutate(lag(a, 4), .by = g)", {
   post <- test_df %>% mutate(lag(a, 4), .by = g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1245,7 +1245,7 @@ test_that("as_duckplyr_df() and mutate(lead(a, 4))", {
   post <- test_df %>% mutate(lead(a, 4)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1258,7 +1258,7 @@ test_that("as_duckplyr_df() and mutate(lead(a, 4), .by = g)", {
   post <- test_df %>% mutate(lead(a, 4), .by = g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1271,7 +1271,7 @@ test_that("as_duckplyr_df() and mutate(lag(a, default = 0))", {
   post <- test_df %>% mutate(lag(a, default = 0)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1284,7 +1284,7 @@ test_that("as_duckplyr_df() and mutate(lag(a, default = 0), .by = g)", {
   post <- test_df %>% mutate(lag(a, default = 0), .by = g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1297,7 +1297,7 @@ test_that("as_duckplyr_df() and mutate(lead(a, default = 1000))", {
   post <- test_df %>% mutate(lead(a, default = 1000)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1310,7 +1310,7 @@ test_that("as_duckplyr_df() and mutate(lead(a, default = 1000), .by = g)", {
   post <- test_df %>% mutate(lead(a, default = 1000), .by = g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1323,7 +1323,7 @@ test_that("as_duckplyr_df() and mutate(min(a))", {
   post <- test_df %>% mutate(min(a)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1336,7 +1336,7 @@ test_that("as_duckplyr_df() and mutate(min(a), .by = g)", {
   post <- test_df %>% mutate(min(a), .by = g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1349,7 +1349,7 @@ test_that("as_duckplyr_df() and mutate(max(a))", {
   post <- test_df %>% mutate(max(a)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1362,7 +1362,7 @@ test_that("as_duckplyr_df() and mutate(max(a), .by = g)", {
   post <- test_df %>% mutate(max(a), .by = g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1375,7 +1375,7 @@ test_that("as_duckplyr_df() and mutate(first(a))", {
   post <- test_df %>% mutate(first(a)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1388,7 +1388,7 @@ test_that("as_duckplyr_df() and mutate(first(a), .by = g)", {
   post <- test_df %>% mutate(first(a), .by = g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1401,7 +1401,7 @@ test_that("as_duckplyr_df() and mutate(last(a))", {
   post <- test_df %>% mutate(last(a)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1414,7 +1414,7 @@ test_that("as_duckplyr_df() and mutate(last(a), .by = g)", {
   post <- test_df %>% mutate(last(a), .by = g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1427,7 +1427,7 @@ test_that("as_duckplyr_df() and mutate(nth(a, 2))", {
   post <- test_df %>% mutate(nth(a, 2)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1440,7 +1440,7 @@ test_that("as_duckplyr_df() and mutate(nth(a, 2), .by = g)", {
   post <- test_df %>% mutate(nth(a, 2), .by = g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1453,7 +1453,7 @@ test_that("as_duckplyr_df() and mutate(a / b)", {
   post <- test_df %>% mutate(a / b) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1466,7 +1466,7 @@ test_that("as_duckplyr_df() and mutate(d = 0, e = 1 / d, f = 0 / d, g = -1 / d)"
   post <- test_df %>% mutate(d = 0, e = 1 / d, f = 0 / d, g = -1 / d) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1479,7 +1479,7 @@ test_that("as_duckplyr_df() and mutate(c = 0, d = -1, e = log(c), f = suppressWa
   post <- test_df %>% mutate(c = 0, d = -1, e = log(c), f = suppressWarnings(log(d))) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1492,7 +1492,7 @@ test_that("as_duckplyr_df() and mutate(c = 0, d = -1, e = log10(c), f = suppress
   post <- test_df %>% mutate(c = 0, d = -1, e = log10(c), f = suppressWarnings(log10(d))) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1505,7 +1505,7 @@ test_that("as_duckplyr_df() and mutate(c = 10, d = log(c))", {
   post <- test_df %>% mutate(c = 10, d = log(c)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1518,7 +1518,7 @@ test_that("as_duckplyr_df() and mutate(c = 10, d = log10(c))", {
   post <- test_df %>% mutate(c = 10, d = log10(c)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1531,7 +1531,98 @@ test_that("as_duckplyr_df() and mutate(c = NA_character_, d = grepl('.', c))", {
   post <- test_df %>% mutate(c = NA_character_, d = grepl('.', c)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
+})
+
+
+test_that("as_duckplyr_df() and mutate(d = a %in% NA_real_)", {
+  # Data
+  test_df <- data.frame(a = 1:6 + 0, b = 2, g = rep(1:3, 1:3))
+
+  # Run
+  pre <- test_df %>% as_duckplyr_df() %>% mutate(d = a %in% NA_real_)
+  post <- test_df %>% mutate(d = a %in% NA_real_) %>% as_duckplyr_df()
+
+  # Compare
+  expect_identical(pre, post)
+})
+
+
+test_that("as_duckplyr_df() and mutate(d = a %in% NULL)", {
+  # Data
+  test_df <- data.frame(a = 1:6 + 0, b = 2, g = rep(1:3, 1:3))
+
+  # Run
+  pre <- test_df %>% as_duckplyr_df() %>% mutate(d = a %in% NULL)
+  post <- test_df %>% mutate(d = a %in% NULL) %>% as_duckplyr_df()
+
+  # Compare
+  expect_identical(pre, post)
+})
+
+
+test_that("as_duckplyr_df() and mutate(d = a %in% integer())", {
+  # Data
+  test_df <- data.frame(a = 1:6 + 0, b = 2, g = rep(1:3, 1:3))
+
+  # Run
+  pre <- test_df %>% as_duckplyr_df() %>% mutate(d = a %in% integer())
+  post <- test_df %>% mutate(d = a %in% integer()) %>% as_duckplyr_df()
+
+  # Compare
+  expect_identical(pre, post)
+})
+
+
+test_that("as_duckplyr_df() and mutate(d = NA_real_, e = is.na(d))", {
+  # Data
+  test_df <- data.frame(a = 1:6 + 0, b = 2, g = rep(1:3, 1:3))
+
+  # Run
+  pre <- test_df %>% as_duckplyr_df() %>% mutate(d = NA_real_, e = is.na(d))
+  post <- test_df %>% mutate(d = NA_real_, e = is.na(d)) %>% as_duckplyr_df()
+
+  # Compare
+  expect_identical(pre, post)
+})
+
+
+test_that("as_duckplyr_df() and mutate(d = NaN, e = is.na(d))", {
+  # Data
+  test_df <- data.frame(a = 1:6 + 0, b = 2, g = rep(1:3, 1:3))
+
+  # Run
+  pre <- test_df %>% as_duckplyr_df() %>% mutate(d = NaN, e = is.na(d))
+  post <- test_df %>% mutate(d = NaN, e = is.na(d)) %>% as_duckplyr_df()
+
+  # Compare
+  expect_identical(pre, post)
+})
+
+
+test_that("as_duckplyr_df() and mutate(d = row_number())", {
+  # Data
+  test_df <- data.frame(a = 1:6 + 0, b = 2, g = rep(1:3, 1:3))
+
+  # Run
+  pre <- test_df %>% as_duckplyr_df() %>% mutate(d = row_number())
+  post <- test_df %>% mutate(d = row_number()) %>% as_duckplyr_df()
+
+  # Compare
+  expect_identical(pre, post)
+})
+
+
+test_that("as_duckplyr_df() and mutate(d = row_number(), .by = g)", {
+  # Data
+  test_df <- data.frame(a = 1:6 + 0, b = 2, g = rep(1:3, 1:3))
+
+  # Run
+  pre <- test_df %>% as_duckplyr_df() %>% mutate(d = row_number(), .by = g)
+  post <- test_df %>% mutate(d = row_number(), .by = g) %>% as_duckplyr_df()
+
+  # Compare
+  expect_identical(pre, post)
 })
 
 
@@ -1544,7 +1635,72 @@ test_that("as_duckplyr_df() and mutate(c = .data$b)", {
   post <- test_df %>% mutate(c = .data$b) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
+})
+
+
+test_that("as_duckplyr_df() and mutate(d = NA)", {
+  # Data
+  test_df <- data.frame(a = 1:6 + 0, b = 2, g = rep(1:3, 1:3))
+
+  # Run
+  pre <- test_df %>% as_duckplyr_df() %>% mutate(d = NA)
+  post <- test_df %>% mutate(d = NA) %>% as_duckplyr_df()
+
+  # Compare
+  expect_identical(pre, post)
+})
+
+
+test_that("as_duckplyr_df() and mutate(d = NA_integer_)", {
+  # Data
+  test_df <- data.frame(a = 1:6 + 0, b = 2, g = rep(1:3, 1:3))
+
+  # Run
+  pre <- test_df %>% as_duckplyr_df() %>% mutate(d = NA_integer_)
+  post <- test_df %>% mutate(d = NA_integer_) %>% as_duckplyr_df()
+
+  # Compare
+  expect_identical(pre, post)
+})
+
+
+test_that("as_duckplyr_df() and mutate(d = NA_real_)", {
+  # Data
+  test_df <- data.frame(a = 1:6 + 0, b = 2, g = rep(1:3, 1:3))
+
+  # Run
+  pre <- test_df %>% as_duckplyr_df() %>% mutate(d = NA_real_)
+  post <- test_df %>% mutate(d = NA_real_) %>% as_duckplyr_df()
+
+  # Compare
+  expect_identical(pre, post)
+})
+
+
+test_that("as_duckplyr_df() and mutate(d = NA_character_)", {
+  # Data
+  test_df <- data.frame(a = 1:6 + 0, b = 2, g = rep(1:3, 1:3))
+
+  # Run
+  pre <- test_df %>% as_duckplyr_df() %>% mutate(d = NA_character_)
+  post <- test_df %>% mutate(d = NA_character_) %>% as_duckplyr_df()
+
+  # Compare
+  expect_identical(pre, post)
+})
+
+
+test_that("as_duckplyr_df() and mutate(d = if_else(a > 1, \"ok\", NA))", {
+  # Data
+  test_df <- data.frame(a = 1:6 + 0, b = 2, g = rep(1:3, 1:3))
+
+  # Run
+  pre <- test_df %>% as_duckplyr_df() %>% mutate(d = if_else(a > 1, "ok", NA))
+  post <- test_df %>% mutate(d = if_else(a > 1, "ok", NA)) %>% as_duckplyr_df()
+
+  # Compare
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and n_groups()", {
@@ -1560,7 +1716,7 @@ test_that("as_duckplyr_df() and n_groups()", {
   post <- test_df %>% n_groups() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and nest_by()", {
@@ -1574,7 +1730,7 @@ test_that("as_duckplyr_df() and nest_by()", {
   post <- test_df %>% nest_by() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and nest_join(join_by(a))", {
@@ -1589,7 +1745,7 @@ test_that("as_duckplyr_df() and nest_join(join_by(a))", {
   post <- test_df_x %>% nest_join(test_df_y, join_by(a)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1605,7 +1761,7 @@ test_that("as_duckplyr_df() and nest_join(join_by(a))", {
   post <- test_df_x %>% nest_join(test_df_y, join_by(a)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and pull()", {
@@ -1619,7 +1775,7 @@ test_that("as_duckplyr_df() and pull()", {
   post <- test_df %>% pull()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1632,7 +1788,7 @@ test_that("as_duckplyr_df() and pull()", {
   post <- test_df %>% pull()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and reframe()", {
@@ -1646,7 +1802,7 @@ test_that("as_duckplyr_df() and reframe()", {
   post <- test_df %>% reframe()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1661,7 +1817,7 @@ test_that("as_duckplyr_df() and reframe()", {
   post <- test_df %>% reframe()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and relocate(g)", {
@@ -1675,7 +1831,7 @@ test_that("as_duckplyr_df() and relocate(g)", {
   post <- test_df %>% relocate(g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1688,7 +1844,7 @@ test_that("as_duckplyr_df() and relocate(g)", {
   post <- test_df %>% relocate(g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1701,7 +1857,7 @@ test_that("as_duckplyr_df() and relocate(a)", {
   post <- test_df %>% relocate(a) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1714,7 +1870,7 @@ test_that("as_duckplyr_df() and relocate(g, .before = b)", {
   post <- test_df %>% relocate(g, .before = b) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1727,7 +1883,7 @@ test_that("as_duckplyr_df() and relocate(a:b, .after = g)", {
   post <- test_df %>% relocate(a:b, .after = g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and rename()", {
@@ -1741,7 +1897,7 @@ test_that("as_duckplyr_df() and rename()", {
   post <- test_df %>% rename() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1754,7 +1910,7 @@ test_that("as_duckplyr_df() and rename()", {
   post <- test_df %>% rename() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1767,7 +1923,7 @@ test_that("as_duckplyr_df() and rename(c = a)", {
   post <- test_df %>% rename(c = a) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and rename_with(identity)", {
@@ -1781,7 +1937,7 @@ test_that("as_duckplyr_df() and rename_with(identity)", {
   post <- test_df %>% rename_with(identity) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1796,7 +1952,7 @@ test_that("as_duckplyr_df() and rename_with(identity)", {
   post <- test_df %>% rename_with(identity) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and right_join(join_by(a))", {
@@ -1811,7 +1967,7 @@ test_that("as_duckplyr_df() and right_join(join_by(a))", {
   post <- test_df_x %>% right_join(test_df_y, join_by(a)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1825,7 +1981,7 @@ test_that("as_duckplyr_df() and right_join(join_by(a))", {
   post <- test_df_x %>% right_join(test_df_y, join_by(a)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and rows_append()", {
@@ -1840,7 +1996,7 @@ test_that("as_duckplyr_df() and rows_append()", {
   post <- test_df_x %>% rows_append(test_df_y) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1856,7 +2012,7 @@ test_that("as_duckplyr_df() and rows_append()", {
   post <- test_df_x %>% rows_append(test_df_y) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and rows_delete(by = c(\"a\", \"b\"), unmatched = \"ignore\")", {
@@ -1871,7 +2027,7 @@ test_that("as_duckplyr_df() and rows_delete(by = c(\"a\", \"b\"), unmatched = \"
   post <- test_df_x %>% rows_delete(test_df_y, by = c("a", "b"), unmatched = "ignore") %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1887,7 +2043,7 @@ test_that("as_duckplyr_df() and rows_delete(by = c(\"a\", \"b\"), unmatched = \"
   post <- test_df_x %>% rows_delete(test_df_y, by = c("a", "b"), unmatched = "ignore") %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and rows_insert(by = \"a\", conflict = \"ignore\")", {
@@ -1902,7 +2058,7 @@ test_that("as_duckplyr_df() and rows_insert(by = \"a\", conflict = \"ignore\")",
   post <- test_df_x %>% rows_insert(test_df_y, by = "a", conflict = "ignore") %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1918,7 +2074,7 @@ test_that("as_duckplyr_df() and rows_insert(by = \"a\", conflict = \"ignore\")",
   post <- test_df_x %>% rows_insert(test_df_y, by = "a", conflict = "ignore") %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and rows_patch(by = \"a\", unmatched = \"ignore\")", {
@@ -1933,7 +2089,7 @@ test_that("as_duckplyr_df() and rows_patch(by = \"a\", unmatched = \"ignore\")",
   post <- test_df_x %>% rows_patch(test_df_y, by = "a", unmatched = "ignore") %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1949,7 +2105,7 @@ test_that("as_duckplyr_df() and rows_patch(by = \"a\", unmatched = \"ignore\")",
   post <- test_df_x %>% rows_patch(test_df_y, by = "a", unmatched = "ignore") %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and rows_update(by = \"a\", unmatched = \"ignore\")", {
@@ -1964,7 +2120,7 @@ test_that("as_duckplyr_df() and rows_update(by = \"a\", unmatched = \"ignore\")"
   post <- test_df_x %>% rows_update(test_df_y, by = "a", unmatched = "ignore") %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -1980,7 +2136,7 @@ test_that("as_duckplyr_df() and rows_update(by = \"a\", unmatched = \"ignore\")"
   post <- test_df_x %>% rows_update(test_df_y, by = "a", unmatched = "ignore") %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and rows_upsert(by = \"a\")", {
@@ -1995,7 +2151,7 @@ test_that("as_duckplyr_df() and rows_upsert(by = \"a\")", {
   post <- test_df_x %>% rows_upsert(test_df_y, by = "a") %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -2011,7 +2167,7 @@ test_that("as_duckplyr_df() and rows_upsert(by = \"a\")", {
   post <- test_df_x %>% rows_upsert(test_df_y, by = "a") %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and rowwise()", {
@@ -2027,7 +2183,7 @@ test_that("as_duckplyr_df() and rowwise()", {
   post <- test_df %>% rowwise() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and sample_frac()", {
@@ -2043,7 +2199,7 @@ test_that("as_duckplyr_df() and sample_frac()", {
   post <- test_df %>% sample_frac() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and sample_n(size = 1)", {
@@ -2059,7 +2215,7 @@ test_that("as_duckplyr_df() and sample_n(size = 1)", {
   post <- test_df %>% sample_n(size = 1) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and select(a)", {
@@ -2073,7 +2229,7 @@ test_that("as_duckplyr_df() and select(a)", {
   post <- test_df %>% select(a) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -2086,7 +2242,7 @@ test_that("as_duckplyr_df() and select(a)", {
   post <- test_df %>% select(a) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -2099,7 +2255,7 @@ test_that("as_duckplyr_df() and select(-g)", {
   post <- test_df %>% select(-g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -2112,7 +2268,7 @@ test_that("as_duckplyr_df() and select(everything())", {
   post <- test_df %>% select(everything()) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and semi_join(join_by(a))", {
@@ -2127,7 +2283,7 @@ test_that("as_duckplyr_df() and semi_join(join_by(a))", {
   post <- test_df_x %>% semi_join(test_df_y, join_by(a)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -2141,7 +2297,7 @@ test_that("as_duckplyr_df() and semi_join(join_by(a))", {
   post <- test_df_x %>% semi_join(test_df_y, join_by(a)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and setdiff()", {
@@ -2156,7 +2312,7 @@ test_that("as_duckplyr_df() and setdiff()", {
   post <- test_df_x %>% setdiff(test_df_y) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -2170,7 +2326,7 @@ test_that("as_duckplyr_df() and setdiff()", {
   post <- test_df_x %>% setdiff(test_df_y) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and setequal()", {
@@ -2185,7 +2341,7 @@ test_that("as_duckplyr_df() and setequal()", {
   post <- test_df_x %>% setequal(test_df_y)
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -2201,7 +2357,7 @@ test_that("as_duckplyr_df() and setequal()", {
   post <- test_df_x %>% setequal(test_df_y)
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and slice()", {
@@ -2215,7 +2371,7 @@ test_that("as_duckplyr_df() and slice()", {
   post <- test_df %>% slice() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -2230,7 +2386,7 @@ test_that("as_duckplyr_df() and slice()", {
   post <- test_df %>% slice() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and slice_head()", {
@@ -2246,7 +2402,7 @@ test_that("as_duckplyr_df() and slice_head()", {
   post <- test_df %>% slice_head() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and slice_max(a)", {
@@ -2262,7 +2418,7 @@ test_that("as_duckplyr_df() and slice_max(a)", {
   post <- test_df %>% slice_max(a) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and slice_min(a)", {
@@ -2278,7 +2434,7 @@ test_that("as_duckplyr_df() and slice_min(a)", {
   post <- test_df %>% slice_min(a) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and slice_sample()", {
@@ -2292,7 +2448,7 @@ test_that("as_duckplyr_df() and slice_sample()", {
   post <- test_df %>% slice_sample() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and slice_tail()", {
@@ -2308,7 +2464,7 @@ test_that("as_duckplyr_df() and slice_tail()", {
   post <- test_df %>% slice_tail() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and summarise(c = mean(a))", {
@@ -2322,7 +2478,7 @@ test_that("as_duckplyr_df() and summarise(c = mean(a))", {
   post <- test_df %>% summarise(c = mean(a)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -2335,7 +2491,7 @@ test_that("as_duckplyr_df() and summarise(c = mean(a))", {
   post <- test_df %>% summarise(c = mean(a)) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -2348,7 +2504,7 @@ test_that("as_duckplyr_df() and summarise(c = mean(a), .by = b)", {
   post <- test_df %>% summarise(c = mean(a), .by = b) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -2361,7 +2517,7 @@ test_that("as_duckplyr_df() and summarise(c = mean(a), .by = g)", {
   post <- test_df %>% summarise(c = mean(a), .by = g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -2374,7 +2530,7 @@ test_that("as_duckplyr_df() and summarise(c = 1)", {
   post <- test_df %>% summarise(c = 1) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -2387,7 +2543,33 @@ test_that("as_duckplyr_df() and summarise(c = 1, .by = g)", {
   post <- test_df %>% summarise(c = 1, .by = g) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
+})
+
+
+test_that("as_duckplyr_df() and summarise(n = n(), n = n() + 1L, .by = g)", {
+  # Data
+  test_df <- data.frame(a = 1:6 + 0, b = 2, g = rep(1:3, 1:3))
+
+  # Run
+  pre <- test_df %>% as_duckplyr_df() %>% summarise(n = n(), n = n() + 1L, .by = g)
+  post <- test_df %>% summarise(n = n(), n = n() + 1L, .by = g) %>% as_duckplyr_df()
+
+  # Compare
+  expect_identical(pre, post)
+})
+
+
+test_that("as_duckplyr_df() and summarise(n = n(), n = n() + 1L)", {
+  # Data
+  test_df <- data.frame(a = 1:6 + 0, b = 2, g = rep(1:3, 1:3))
+
+  # Run
+  pre <- test_df %>% as_duckplyr_df() %>% summarise(n = n(), n = n() + 1L)
+  post <- test_df %>% summarise(n = n(), n = n() + 1L) %>% as_duckplyr_df()
+
+  # Compare
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and symdiff()", {
@@ -2402,7 +2584,7 @@ test_that("as_duckplyr_df() and symdiff()", {
   post <- test_df_x %>% symdiff(test_df_y) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -2416,7 +2598,7 @@ test_that("as_duckplyr_df() and symdiff()", {
   post <- test_df_x %>% symdiff(test_df_y) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and tally()", {
@@ -2430,7 +2612,7 @@ test_that("as_duckplyr_df() and tally()", {
   post <- test_df %>% tally() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -2443,7 +2625,7 @@ test_that("as_duckplyr_df() and tally()", {
   post <- test_df %>% tally() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and tbl_vars()", {
@@ -2457,7 +2639,7 @@ test_that("as_duckplyr_df() and tbl_vars()", {
   post <- test_df %>% tbl_vars()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -2472,7 +2654,7 @@ test_that("as_duckplyr_df() and tbl_vars()", {
   post <- test_df %>% tbl_vars()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and transmute(c = a + 1)", {
@@ -2486,7 +2668,7 @@ test_that("as_duckplyr_df() and transmute(c = a + 1)", {
   post <- test_df %>% transmute(c = a + 1) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -2499,7 +2681,7 @@ test_that("as_duckplyr_df() and transmute(c = a + 1)", {
   post <- test_df %>% transmute(c = a + 1) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -2512,7 +2694,7 @@ test_that("as_duckplyr_df() and transmute(row = a)", {
   post <- test_df %>% transmute(row = a) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and ungroup()", {
@@ -2528,7 +2710,7 @@ test_that("as_duckplyr_df() and ungroup()", {
   post <- test_df %>% ungroup() %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and union()", {
@@ -2543,7 +2725,7 @@ test_that("as_duckplyr_df() and union()", {
   post <- test_df_x %>% union(test_df_y) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -2557,7 +2739,7 @@ test_that("as_duckplyr_df() and union()", {
   post <- test_df_x %>% union(test_df_y) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 test_that("as_duckplyr_df() and union_all()", {
@@ -2572,7 +2754,7 @@ test_that("as_duckplyr_df() and union_all()", {
   post <- test_df_x %>% union_all(test_df_y) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
 
 
@@ -2586,5 +2768,5 @@ test_that("as_duckplyr_df() and union_all()", {
   post <- test_df_x %>% union_all(test_df_y) %>% as_duckplyr_df()
 
   # Compare
-  expect_equal(pre, post)
+  expect_identical(pre, post)
 })
