@@ -17,14 +17,19 @@ arrange.duckplyr_df <- function(.data, ..., .by_group = FALSE, .locale = NULL) {
         return(.data)
       }
 
+      dots_ascending  <- handle_desc(dots)
+      dots            <- dots_ascending$dots
+      ascending       <- dots_ascending$ascending
+
       exprs <- rel_translate_dots(dots, .data)
 
       if (oo_force()) {
         rel <- oo_prep(rel, force = TRUE)
         exprs <- c(exprs, list(relexpr_reference("___row_number")))
+        ascending <- c(ascending, TRUE)
       }
 
-      rel <- rel_order(rel, exprs)
+      rel <- rel_order(rel, exprs, ascending)
 
       # Don't need to sort here, already sorting by ___row_number
       if (oo_force()) {

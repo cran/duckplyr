@@ -1,5 +1,25 @@
 <!-- NEWS.md is maintained by https://fledge.cynkra.com, contributors should not edit this file -->
 
+# duckplyr 0.4.1 (2024-07-11)
+
+## Features
+
+- `df_from_file()` and related functions support multiple files (#194, #195), show a clear error message for non-string `path` arguments (#182), and create a tibble by default (#177).
+- New `as_duckplyr_tibble()` to convert a data frame to a duckplyr tibble (#177).
+- Support descending sort for character and other non-numeric data (@toppyy, #92, #175).
+- Avoid setting memory limit (#193).
+- Check compatibility of join columns (#168, #185).
+- Explicitly list supported functions, add contributing guide, add analysis scripts for GitHub activity data (#179).
+
+## Documentation
+
+- Add contributing guide (#179).
+- Show a startup message at package load if telemetry is not configured (#188, #198).
+- `?df_from_file` shows how to read multiple files (#181, #186) and how to specify CSV column types (#140, #189), and is shown correctly in reference index (#173, #190).
+- Discuss dbplyr in README (#145, #191).
+- Add analysis scripts for GitHub activity data (#179).
+
+
 # duckplyr 0.4.0 (2024-05-21)
 
 ## Features

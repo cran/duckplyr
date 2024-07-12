@@ -30,7 +30,7 @@ rel_project(rel, exprs, ...)
 
 rel_aggregate(rel, groups, aggregates, ...)
 
-rel_order(rel, orders, ...)
+rel_order(rel, orders, ascending, ...)
 
 rel_join(
   left,
@@ -68,13 +68,16 @@ rel_names(rel, ...)
 
 \item{rel, rel_a, rel_b, left, right}{A relational object.}
 
-\item{exprs}{A list of \link{expr} objects to filter by.}
+\item{exprs}{A list of \code{"relational_relexpr"} objects to filter by,
+created by \code{\link[=new_relexpr]{new_relexpr()}}.}
 
 \item{groups}{A list of expressions to group by.}
 
 \item{aggregates}{A list of expressions with aggregates to compute.}
 
 \item{orders}{A list of expressions to order by.}
+
+\item{ascending}{A logical vector describing the sort order.}
 
 \item{conds}{A list of expressions to use for the join.}
 

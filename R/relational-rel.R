@@ -39,7 +39,7 @@ rel_stats_get <- function() {
 #' }
 #' mtcars_rel <- new_dfrel(mtcars[1:5, 1:4])
 new_relational <- function(..., class = NULL) {
-  structure(..., class = unique(c(class, "relational")))
+  structure(..., class = unique(c(class, "relational"), fromLast = TRUE))
 }
 
 #' rel_to_df()
@@ -67,7 +67,8 @@ rel_to_df <- function(rel, ...) {
 #' `rel_filter()` keeps rows that match a predicate,
 #'  to be used by [dplyr::filter()].
 #'
-#' @param exprs A list of [expr] objects to filter by.
+#' @param exprs A list of `"relational_relexpr"` objects to filter by,
+#'   created by [new_relexpr()].
 #' @rdname new_relational
 #' @export
 #' @examples
@@ -141,6 +142,7 @@ rel_aggregate <- function(rel, groups, aggregates, ...) {
 #' to be used by [dplyr::arrange()].
 #'
 #' @param orders A list of expressions to order by.
+#' @param ascending A logical vector describing the sort order.
 #' @rdname new_relational
 #' @export
 #' @examples
@@ -157,7 +159,7 @@ rel_aggregate <- function(rel, groups, aggregates, ...) {
 #'   mtcars_rel,
 #'   list(relexpr_reference("mpg"))
 #' )
-rel_order <- function(rel, orders, ...) {
+rel_order <- function(rel, orders, ascending, ...) {
   rel_stats_env$rel_order <- (rel_stats_env$rel_order %||% 0L) + 1L
   UseMethod("rel_order")
 }

@@ -129,6 +129,12 @@ fallback_txt_sitrep_logs <- function(fallback_logs) {
   }
 }
 
+fallback_txt_run_sitrep <- function() {
+  c(
+    ">" = "Run {.run duckplyr::fallback_sitrep()} to review the current settings."
+  )
+}
+
 fallback_txt_help <- function() {
   c(
     "i" = "See {.help duckplyr::fallback} for details."
@@ -140,10 +146,10 @@ fallback_nudge <- function(call_data) {
     fallback_txt_header(),
     "i" = "A fallback situation just occurred. The following information would have been recorded:",
     " " = "{call_data}",
-    ">" = "Run {.run duckplyr::fallback_sitrep()} to review the current settings.",
+    fallback_txt_run_sitrep(),
     ">" = "Run {.run Sys.setenv(DUCKPLYR_FALLBACK_COLLECT = 1)} to enable fallback logging, and {.run Sys.setenv(DUCKPLYR_FALLBACK_VERBOSE = TRUE)} in addition to enable printing of fallback situations to the console.",
     ">" = "Run {.run duckplyr::fallback_review()} to review the available reports, and {.run duckplyr::fallback_upload()} to upload them.",
-    "i" = "See {.help duckplyr::fallback} for details.",
+    fallback_txt_help(),
     "i" = cli::col_silver("This message will be displayed once every eight hours.")
   ))
 }
@@ -251,8 +257,18 @@ on_load({
 })
 
 fallback_autoupload <- function() {
+  if (is.na(tel_fallback_logging())) {
+    msg <- c(
+      fallback_txt_header(),
+      fallback_txt_run_sitrep()
+    )
+
+    packageStartupMessage(cli::format_message(msg))
+    return()
+  }
+
   uploading <- tel_fallback_uploading()
-  if (isTRUE(tel_fallback_uploading())) {
+  if (isTRUE(uploading)) {
     msg <- character()
     suppressMessages(withCallingHandlers(
       fallback_upload(strict = FALSE),
@@ -264,12 +280,11 @@ fallback_autoupload <- function() {
       packageStartupMessage(paste(msg, collapse = "\n"))
     }
   } else if (is.na(uploading)) {
-    fallback_uploading <- tel_fallback_uploading()
     fallback_logs <- tel_fallback_logs()
     if (length(fallback_logs) > 0) {
       msg <- c(
         fallback_txt_header(),
-        fallback_txt_uploading(fallback_uploading),
+        fallback_txt_uploading(uploading),
         fallback_txt_sitrep_logs(fallback_logs),
         "i" = cli::col_silver("This message can be disabled by setting {.envvar DUCKPLYR_FALLBACK_AUTOUPLOAD}.")
       )
