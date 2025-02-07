@@ -1,520 +1,386 @@
-<!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# duckplyr
+<!-- README.md and index.md are generated from README.Rmd. Please edit that file. -->
+
+# duckplyr <a href="https://duckplyr.tidyverse.org"><img src="man/figures/logo.png" align="right" height="138" /></a>
 
 <!-- badges: start -->
 
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental) [![R-CMD-check](https://github.com/duckdblabs/duckplyr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/duckdblabs/duckplyr/actions/workflows/R-CMD-check.yaml)
-
+[![Lifecycle:
+stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+[![R-CMD-check](https://github.com/tidyverse/duckplyr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/tidyverse/duckplyr/actions/workflows/R-CMD-check.yaml)
+[![Codecov test
+coverage](https://codecov.io/gh/tidyverse/duckplyr/graph/badge.svg)](https://app.codecov.io/gh/tidyverse/duckplyr)
 <!-- badges: end -->
 
-The goal of the duckplyr R package is to provide a drop-in replacement for [dplyr](https://dplyr.tidyverse.org/) that uses [DuckDB](https://duckdb.org/) as a backend for fast operation. DuckDB is an in-process OLAP database management system, dplyr is the grammar of data manipulation in the tidyverse.
+> A **drop-in replacement** for dplyr, powered by DuckDB for **speed**.
 
-duckplyr also defines a set of generics that provide a low-level implementer’s interface for dplyr’s high-level user interface.
+[dplyr](https://dplyr.tidyverse.org/) is the grammar of data
+manipulation in the tidyverse. The duckplyr package will run all of your
+existing dplyr code with identical results, using
+[DuckDB](https://duckdb.org/) where possible to compute the results
+faster. In addition, you can analyze larger-than-memory datasets
+straight from files on your disk or from the web.
+
+If you are new to dplyr, the best place to start is the [data
+transformation chapter](https://r4ds.hadley.nz/data-transform) in R for
+Data Science.
 
 ## Installation
 
 Install duckplyr from CRAN with:
 
-<pre class='chroma'>
-<span><span class='nf'><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a></span><span class='o'>(</span><span class='s'>"duckplyr"</span><span class='o'>)</span></span></pre>
+``` r
+install.packages("duckplyr")
+```
 
-You can also install the development version of duckplyr from R-universe:
+You can also install the development version of duckplyr from
+[R-universe](https://tidyverse.r-universe.dev/builds):
 
-<pre class='chroma'>
-<span><span class='nf'><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a></span><span class='o'>(</span><span class='s'>"duckplyr"</span>, repos <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"https://duckdblabs.r-universe.dev"</span>, <span class='s'>"https://cloud.r-project.org"</span><span class='o'>)</span><span class='o'>)</span></span></pre>
+``` r
+install.packages("duckplyr", repos = c("https://tidyverse.r-universe.dev", "https://cloud.r-project.org"))
+```
 
 Or from [GitHub](https://github.com/) with:
 
-<pre class='chroma'>
-<span><span class='c'># install.packages("pak", repos = sprintf("https://r-lib.github.io/p/pak/stable/%s/%s/%s", .Platform$pkgType, R.Version()$os, R.Version()$arch))</span></span>
-<span><span class='nf'>pak</span><span class='nf'>::</span><span class='nf'><a href='https://pak.r-lib.org/reference/pak.html'>pak</a></span><span class='o'>(</span><span class='s'>"duckdblabs/duckplyr"</span><span class='o'>)</span></span></pre>
+``` r
+# install.packages("pak")
+pak::pak("tidyverse/duckplyr")
+```
 
-## Examples
+## Drop-in replacement for dplyr
 
-<pre class='chroma'>
-<span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://conflicted.r-lib.org/'>conflicted</a></span><span class='o'>)</span></span>
-<span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://dplyr.tidyverse.org'>dplyr</a></span><span class='o'>)</span></span>
-<span><span class='nf'><a href='https://conflicted.r-lib.org/reference/conflict_prefer.html'>conflict_prefer</a></span><span class='o'>(</span><span class='s'>"filter"</span>, <span class='s'>"dplyr"</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>[conflicted]</span> Will prefer <span style='color: #0000BB; font-weight: bold;'>dplyr</span>::filter over any</span></span>
-<span><span class='c'>#&gt; other package.</span></span></pre>
+Calling `library(duckplyr)` overwrites dplyr methods, enabling duckplyr
+for the entire session.
 
-There are two ways to use duckplyr.
+``` r
+library(conflicted)
+library(duckplyr)
+#> Loading required package: dplyr
+#> ✔ Overwriting dplyr methods with duckplyr methods.
+#> ℹ Turn off with `duckplyr::methods_restore()`.
+```
 
-1.  To enable duckplyr for individual data frames, use [`duckplyr::as_duckplyr_tibble()`](https://duckdblabs.github.io/duckplyr/reference/as_duckplyr_tibble.html) as the first step in your pipe, without attaching the package.
-2.  By calling [`library(duckplyr)`](https://duckdblabs.github.io/duckplyr/), it overwrites dplyr methods and is automatically enabled for the entire session without having to call `as_duckplyr_tibble()`. To turn this off, call `methods_restore()`.
+``` r
+conflict_prefer("filter", "dplyr", quiet = TRUE)
+```
 
-The examples below illustrate both methods. See also the companion [demo repository](https://github.com/Tmonster/duckplyr_demo) for a use case with a large dataset.
+The following code aggregates the inflight delay by year and month for
+the first half of the year. We use a variant of the
+`nycflights13::flights` dataset, where the timezone has been set to UTC
+to work around a current limitation of duckplyr, see
+[`vignette("limits")`](https://duckplyr.tidyverse.org/articles/limits.html).
 
-### Usage for individual data frames
+``` r
+flights_df()
+#> # A tibble: 336,776 × 19
+#>     year month   day dep_time sched_d…¹ dep_d…² arr_t…³ sched…⁴ arr_d…⁵
+#>    <int> <int> <int>    <int>     <int>   <dbl>   <int>   <int>   <dbl>
+#>  1  2013     1     1      517       515       2     830     819      11
+#>  2  2013     1     1      533       529       4     850     830      20
+#>  3  2013     1     1      542       540       2     923     850      33
+#>  4  2013     1     1      544       545      -1    1004    1022     -18
+#>  5  2013     1     1      554       600      -6     812     837     -25
+#>  6  2013     1     1      554       558      -4     740     728      12
+#>  7  2013     1     1      555       600      -5     913     854      19
+#>  8  2013     1     1      557       600      -3     709     723     -14
+#>  9  2013     1     1      557       600      -3     838     846      -8
+#> 10  2013     1     1      558       600      -2     753     745       8
+#> # ℹ 336,766 more rows
+#> # ℹ abbreviated names: ¹​sched_dep_time, ²​dep_delay, ³​arr_time,
+#> #   ⁴​sched_arr_time, ⁵​arr_delay
+#> # ℹ 10 more variables: carrier <chr>, flight <int>, tailnum <chr>,
+#> #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>,
+#> #   hour <dbl>, minute <dbl>, time_hour <dttm>
 
-This example illustrates usage of duckplyr for individual data frames.
+out <-
+  flights_df() |>
+  filter(!is.na(arr_delay), !is.na(dep_delay)) |>
+  mutate(inflight_delay = arr_delay - dep_delay) |>
+  summarize(
+    .by = c(year, month),
+    mean_inflight_delay = mean(inflight_delay),
+    median_inflight_delay = median(inflight_delay),
+  ) |>
+  filter(month <= 6)
+```
 
-Use [`duckplyr::as_duckplyr_tibble()`](https://duckdblabs.github.io/duckplyr/reference/as_duckplyr_tibble.html) to enable processing with duckdb:
+The result is a plain tibble:
 
-<pre class='chroma'>
-<span><span class='nv'>out</span> <span class='o'>&lt;-</span></span>
-<span>  <span class='nf'>palmerpenguins</span><span class='nf'>::</span><span class='nv'><a href='https://allisonhorst.github.io/palmerpenguins/reference/penguins.html'>penguins</a></span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='c'># CAVEAT: factor columns are not supported yet</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/across.html'>across</a></span><span class='o'>(</span><span class='nf'><a href='https://tidyselect.r-lib.org/reference/where.html'>where</a></span><span class='o'>(</span><span class='nv'>is.factor</span><span class='o'>)</span>, <span class='nv'>as.character</span><span class='o'>)</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'>duckplyr</span><span class='nf'>::</span><span class='nf'><a href='https://duckdblabs.github.io/duckplyr/reference/as_duckplyr_tibble.html'>as_duckplyr_tibble</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>bill_area <span class='o'>=</span> <span class='nv'>bill_length_mm</span> <span class='o'>*</span> <span class='nv'>bill_depth_mm</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='o'>(</span>.by <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>species</span>, <span class='nv'>sex</span><span class='o'>)</span>, mean_bill_area <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>bill_area</span><span class='o'>)</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>species</span> <span class='o'>!=</span> <span class='s'>"Gentoo"</span><span class='o'>)</span></span></pre>
+``` r
+class(out)
+#> [1] "tbl_df"     "tbl"        "data.frame"
+```
 
-The result is a tibble, with its own class.
+Nothing has been computed yet. Querying the number of rows, or a column,
+starts the computation:
 
-<pre class='chroma'>
-<span><span class='nf'><a href='https://rdrr.io/r/base/class.html'>class</a></span><span class='o'>(</span><span class='nv'>out</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] "duckplyr_df" "tbl_df"      "tbl"         "data.frame"</span></span>
-<span><span class='nf'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='o'>(</span><span class='nv'>out</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] "species"        "sex"            "mean_bill_area"</span></span></pre>
+``` r
+out$month
+#> [1] 1 2 3 4 5 6
+```
 
-duckdb is responsible for eventually carrying out the operations. Despite the late filter, the summary is not computed for the Gentoo species.
+Note that, unlike dplyr, the results are not ordered, see `?config` for
+details. However, once materialized, the results are stable:
 
-<pre class='chroma'>
-<span><span class='nv'>out</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/explain.html'>explain</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; ┌───────────────────────────┐</span></span>
-<span><span class='c'>#&gt; │          ORDER_BY         │</span></span>
-<span><span class='c'>#&gt; │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │</span></span>
-<span><span class='c'>#&gt; │          ORDERS:          │</span></span>
-<span><span class='c'>#&gt; │      dataframe_42_42      │</span></span>
-<span><span class='c'>#&gt; │    42.___row_number ASC   │</span></span>
-<span><span class='c'>#&gt; └─────────────┬─────────────┘                             </span></span>
-<span><span class='c'>#&gt; ┌─────────────┴─────────────┐</span></span>
-<span><span class='c'>#&gt; │           FILTER          │</span></span>
-<span><span class='c'>#&gt; │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │</span></span>
-<span><span class='c'>#&gt; │r_base::!=(species, 'Gentoo│</span></span>
-<span><span class='c'>#&gt; │             ')            │</span></span>
-<span><span class='c'>#&gt; │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │</span></span>
-<span><span class='c'>#&gt; │           EC: 34          │</span></span>
-<span><span class='c'>#&gt; └─────────────┬─────────────┘                             </span></span>
-<span><span class='c'>#&gt; ┌─────────────┴─────────────┐</span></span>
-<span><span class='c'>#&gt; │         PROJECTION        │</span></span>
-<span><span class='c'>#&gt; │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │</span></span>
-<span><span class='c'>#&gt; │             #0            │</span></span>
-<span><span class='c'>#&gt; │             #1            │</span></span>
-<span><span class='c'>#&gt; │             #2            │</span></span>
-<span><span class='c'>#&gt; │             #3            │</span></span>
-<span><span class='c'>#&gt; └─────────────┬─────────────┘                             </span></span>
-<span><span class='c'>#&gt; ┌─────────────┴─────────────┐</span></span>
-<span><span class='c'>#&gt; │      STREAMING_WINDOW     │</span></span>
-<span><span class='c'>#&gt; │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │</span></span>
-<span><span class='c'>#&gt; │    ROW_NUMBER() OVER ()   │</span></span>
-<span><span class='c'>#&gt; └─────────────┬─────────────┘                             </span></span>
-<span><span class='c'>#&gt; ┌─────────────┴─────────────┐</span></span>
-<span><span class='c'>#&gt; │          ORDER_BY         │</span></span>
-<span><span class='c'>#&gt; │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │</span></span>
-<span><span class='c'>#&gt; │          ORDERS:          │</span></span>
-<span><span class='c'>#&gt; │      dataframe_42_42      │</span></span>
-<span><span class='c'>#&gt; │    42.___row_number ASC   │</span></span>
-<span><span class='c'>#&gt; └─────────────┬─────────────┘                             </span></span>
-<span><span class='c'>#&gt; ┌─────────────┴─────────────┐</span></span>
-<span><span class='c'>#&gt; │       HASH_GROUP_BY       │</span></span>
-<span><span class='c'>#&gt; │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │</span></span>
-<span><span class='c'>#&gt; │             #0            │</span></span>
-<span><span class='c'>#&gt; │             #1            │</span></span>
-<span><span class='c'>#&gt; │          min(#2)          │</span></span>
-<span><span class='c'>#&gt; │          mean(#3)         │</span></span>
-<span><span class='c'>#&gt; └─────────────┬─────────────┘                             </span></span>
-<span><span class='c'>#&gt; ┌─────────────┴─────────────┐</span></span>
-<span><span class='c'>#&gt; │         PROJECTION        │</span></span>
-<span><span class='c'>#&gt; │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │</span></span>
-<span><span class='c'>#&gt; │          species          │</span></span>
-<span><span class='c'>#&gt; │            sex            │</span></span>
-<span><span class='c'>#&gt; │       ___row_number       │</span></span>
-<span><span class='c'>#&gt; │         bill_area         │</span></span>
-<span><span class='c'>#&gt; └─────────────┬─────────────┘                             </span></span>
-<span><span class='c'>#&gt; ┌─────────────┴─────────────┐</span></span>
-<span><span class='c'>#&gt; │         PROJECTION        │</span></span>
-<span><span class='c'>#&gt; │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │</span></span>
-<span><span class='c'>#&gt; │             #0            │</span></span>
-<span><span class='c'>#&gt; │             #1            │</span></span>
-<span><span class='c'>#&gt; │             #2            │</span></span>
-<span><span class='c'>#&gt; │             #3            │</span></span>
-<span><span class='c'>#&gt; └─────────────┬─────────────┘                             </span></span>
-<span><span class='c'>#&gt; ┌─────────────┴─────────────┐</span></span>
-<span><span class='c'>#&gt; │      STREAMING_WINDOW     │</span></span>
-<span><span class='c'>#&gt; │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │</span></span>
-<span><span class='c'>#&gt; │    ROW_NUMBER() OVER ()   │</span></span>
-<span><span class='c'>#&gt; └─────────────┬─────────────┘                             </span></span>
-<span><span class='c'>#&gt; ┌─────────────┴─────────────┐</span></span>
-<span><span class='c'>#&gt; │         PROJECTION        │</span></span>
-<span><span class='c'>#&gt; │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │</span></span>
-<span><span class='c'>#&gt; │          species          │</span></span>
-<span><span class='c'>#&gt; │            sex            │</span></span>
-<span><span class='c'>#&gt; │         bill_area         │</span></span>
-<span><span class='c'>#&gt; └─────────────┬─────────────┘                             </span></span>
-<span><span class='c'>#&gt; ┌─────────────┴─────────────┐</span></span>
-<span><span class='c'>#&gt; │     R_DATAFRAME_SCAN      │</span></span>
-<span><span class='c'>#&gt; │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │</span></span>
-<span><span class='c'>#&gt; │         data.frame        │</span></span>
-<span><span class='c'>#&gt; │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │</span></span>
-<span><span class='c'>#&gt; │          species          │</span></span>
-<span><span class='c'>#&gt; │       bill_length_mm      │</span></span>
-<span><span class='c'>#&gt; │       bill_depth_mm       │</span></span>
-<span><span class='c'>#&gt; │            sex            │</span></span>
-<span><span class='c'>#&gt; │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │</span></span>
-<span><span class='c'>#&gt; │          EC: 344          │</span></span>
-<span><span class='c'>#&gt; └───────────────────────────┘</span></span></pre>
+``` r
+out
+#> # A tibble: 6 × 4
+#>    year month mean_inflight_delay median_inflight_delay
+#>   <int> <int>               <dbl>                 <dbl>
+#> 1  2013     1               -3.86                    -5
+#> 2  2013     2               -5.15                    -6
+#> 3  2013     3               -7.36                    -9
+#> 4  2013     4               -2.67                    -5
+#> 5  2013     5               -9.37                   -10
+#> 6  2013     6               -4.24                    -7
+```
 
-All data frame operations are supported. Computation happens upon the first request.
+If a computation is not supported by DuckDB, duckplyr will automatically
+fall back to dplyr.
 
-<pre class='chroma'>
-<span><span class='nv'>out</span><span class='o'>$</span><span class='nv'>mean_bill_area</span></span>
-<span><span class='c'>#&gt; materializing:</span></span>
-<span><span class='c'>#&gt; ---------------------</span></span>
-<span><span class='c'>#&gt; --- Relation Tree ---</span></span>
-<span><span class='c'>#&gt; ---------------------</span></span>
-<span><span class='c'>#&gt; Projection [species as species, sex as sex, mean_bill_area as mean_bill_area]</span></span>
-<span><span class='c'>#&gt;   Order [___row_number ASC]</span></span>
-<span><span class='c'>#&gt;     Filter [!=(species, 'Gentoo')]</span></span>
-<span><span class='c'>#&gt;       Projection [species as species, sex as sex, mean_bill_area as mean_bill_area, row_number() OVER () as ___row_number]</span></span>
-<span><span class='c'>#&gt;         Projection [species as species, sex as sex, mean_bill_area as mean_bill_area]</span></span>
-<span><span class='c'>#&gt;           Order [___row_number ASC]</span></span>
-<span><span class='c'>#&gt;             Aggregate [species, sex, min(___row_number), mean(bill_area)]</span></span>
-<span><span class='c'>#&gt;               Projection [species as species, island as island, bill_length_mm as bill_length_mm, bill_depth_mm as bill_depth_mm, flipper_length_mm as flipper_length_mm, body_mass_g as body_mass_g, sex as sex, "year" as year, bill_area as bill_area, row_number() OVER () as ___row_number]</span></span>
-<span><span class='c'>#&gt;                 Projection [species as species, island as island, bill_length_mm as bill_length_mm, bill_depth_mm as bill_depth_mm, flipper_length_mm as flipper_length_mm, body_mass_g as body_mass_g, sex as sex, "year" as year, *(bill_length_mm, bill_depth_mm) as bill_area]</span></span>
-<span><span class='c'>#&gt;                   r_dataframe_scan(0xdeadbeef)</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; ---------------------</span></span>
-<span><span class='c'>#&gt; -- Result Columns  --</span></span>
-<span><span class='c'>#&gt; ---------------------</span></span>
-<span><span class='c'>#&gt; - species (VARCHAR)</span></span>
-<span><span class='c'>#&gt; - sex (VARCHAR)</span></span>
-<span><span class='c'>#&gt; - mean_bill_area (DOUBLE)</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; [1] 770.2627 656.8523 694.9360 819.7503 984.2279</span></span></pre>
+``` r
+flights_df() |>
+  summarize(
+    .by = origin,
+    dest = paste(sort(unique(dest)), collapse = " ")
+  )
+#> # A tibble: 3 × 2
+#>   origin dest                                                          
+#>   <chr>  <chr>                                                         
+#> 1 EWR    ALB ANC ATL AUS AVL BDL BNA BOS BQN BTV BUF BWI BZN CAE CHS C…
+#> 2 LGA    ATL AVL BGR BHM BNA BOS BTV BUF BWI CAE CAK CHO CHS CLE CLT C…
+#> 3 JFK    ABQ ACK ATL AUS BHM BNA BOS BQN BTV BUF BUR BWI CHS CLE CLT C…
+```
 
-After the computation has been carried out, the results are available immediately:
+Restart R, or call `duckplyr::methods_restore()` to revert to the
+default dplyr implementation.
 
-<pre class='chroma'>
-<span><span class='nv'>out</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 3</span></span></span>
-<span><span class='c'>#&gt;   <span style='font-weight: bold;'>species</span>   <span style='font-weight: bold;'>sex</span>    <span style='font-weight: bold;'>mean_bill_area</span></span></span>
-<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>           <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> Adelie    male             770.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> Adelie    female           657.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> Adelie    <span style='color: #BB0000;'>NA</span>               695.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>4</span> Chinstrap female           820.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>5</span> Chinstrap male             984.</span></span></pre>
+``` r
+duckplyr::methods_restore()
+#> ℹ Restoring dplyr methods.
+```
 
-### Session-wide usage
+## Analyzing larger-than-memory data
 
-This example illustrates usage of duckplyr for all data frames in the R session.
+An extended variant of the `nycflights13::flights` dataset is also
+available for download as Parquet files.
 
-Use [`library(duckplyr)`](https://duckdblabs.github.io/duckplyr/) or [`duckplyr::methods_overwrite()`](https://duckdblabs.github.io/duckplyr/reference/methods_overwrite.html) to overwrite dplyr methods and enable processing with duckdb for all data frames:
+``` r
+year <- 2022:2024
+base_url <- "https://blobs.duckdb.org/flight-data-partitioned/"
+files <- paste0("Year=", year, "/data_0.parquet")
+urls <- paste0(base_url, files)
+tibble(urls)
+#> # A tibble: 3 × 1
+#>   urls                                                                 
+#>   <chr>                                                                
+#> 1 https://blobs.duckdb.org/flight-data-partitioned/Year=2022/data_0.pa…
+#> 2 https://blobs.duckdb.org/flight-data-partitioned/Year=2023/data_0.pa…
+#> 3 https://blobs.duckdb.org/flight-data-partitioned/Year=2024/data_0.pa…
+```
 
-<pre class='chroma'>
-<span><span class='nf'>duckplyr</span><span class='nf'>::</span><span class='nf'><a href='https://duckdblabs.github.io/duckplyr/reference/methods_overwrite.html'>methods_overwrite</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> Overwriting <span style='color: #0000BB;'>dplyr</span> methods with <span style='color: #0000BB;'>duckplyr</span> methods.</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Turn off with `duckplyr::methods_restore()`.</span></span></pre>
+Using the [httpfs DuckDB
+extension](https://duckdb.org/docs/extensions/httpfs/overview.html), we
+can query these files directly from R, without even downloading them
+first.
 
-This is the same query as above, without `as_duckplyr_tibble()`:
+``` r
+db_exec("INSTALL httpfs")
+db_exec("LOAD httpfs")
 
-<pre class='chroma'>
-<span><span class='nv'>out</span> <span class='o'>&lt;-</span></span>
-<span>  <span class='nf'>palmerpenguins</span><span class='nf'>::</span><span class='nv'><a href='https://allisonhorst.github.io/palmerpenguins/reference/penguins.html'>penguins</a></span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='c'># CAVEAT: factor columns are not supported yet</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/across.html'>across</a></span><span class='o'>(</span><span class='nf'><a href='https://tidyselect.r-lib.org/reference/where.html'>where</a></span><span class='o'>(</span><span class='nv'>is.factor</span><span class='o'>)</span>, <span class='nv'>as.character</span><span class='o'>)</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>bill_area <span class='o'>=</span> <span class='nv'>bill_length_mm</span> <span class='o'>*</span> <span class='nv'>bill_depth_mm</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='o'>(</span>.by <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>species</span>, <span class='nv'>sex</span><span class='o'>)</span>, mean_bill_area <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>bill_area</span><span class='o'>)</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>species</span> <span class='o'>!=</span> <span class='s'>"Gentoo"</span><span class='o'>)</span></span></pre>
+flights <- read_parquet_duckdb(urls)
+```
 
-The result is a plain tibble now:
+Like with local data frames, queries on the remote data are executed
+lazily. Unlike with local data frames, the default is to disallow
+automatic materialization if the result is too large in order to protect
+memory: the results are not materialized until explicitly requested,
+with a `collect()` call for instance.
 
-<pre class='chroma'>
-<span><span class='nf'><a href='https://rdrr.io/r/base/class.html'>class</a></span><span class='o'>(</span><span class='nv'>out</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] "tbl_df"     "tbl"        "data.frame"</span></span></pre>
+``` r
+nrow(flights)
+#> Error: Materialization would result in 9091 rows, which exceeds the limit of 9090. Use collect() or as_tibble() to materialize.
+```
 
-Querying the number of rows also starts the computation:
+For printing, only the first few rows of the result are fetched.
 
-<pre class='chroma'>
-<span><span class='nf'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='o'>(</span><span class='nv'>out</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; materializing:</span></span>
-<span><span class='c'>#&gt; ---------------------</span></span>
-<span><span class='c'>#&gt; --- Relation Tree ---</span></span>
-<span><span class='c'>#&gt; ---------------------</span></span>
-<span><span class='c'>#&gt; Projection [species as species, sex as sex, mean_bill_area as mean_bill_area]</span></span>
-<span><span class='c'>#&gt;   Order [___row_number ASC]</span></span>
-<span><span class='c'>#&gt;     Filter [!=(species, 'Gentoo')]</span></span>
-<span><span class='c'>#&gt;       Projection [species as species, sex as sex, mean_bill_area as mean_bill_area, row_number() OVER () as ___row_number]</span></span>
-<span><span class='c'>#&gt;         Projection [species as species, sex as sex, mean_bill_area as mean_bill_area]</span></span>
-<span><span class='c'>#&gt;           Order [___row_number ASC]</span></span>
-<span><span class='c'>#&gt;             Aggregate [species, sex, min(___row_number), mean(bill_area)]</span></span>
-<span><span class='c'>#&gt;               Projection [species as species, island as island, bill_length_mm as bill_length_mm, bill_depth_mm as bill_depth_mm, flipper_length_mm as flipper_length_mm, body_mass_g as body_mass_g, sex as sex, "year" as year, bill_area as bill_area, row_number() OVER () as ___row_number]</span></span>
-<span><span class='c'>#&gt;                 Projection [species as species, island as island, bill_length_mm as bill_length_mm, bill_depth_mm as bill_depth_mm, flipper_length_mm as flipper_length_mm, body_mass_g as body_mass_g, sex as sex, "year" as year, *(bill_length_mm, bill_depth_mm) as bill_area]</span></span>
-<span><span class='c'>#&gt;                   r_dataframe_scan(0xdeadbeef)</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; ---------------------</span></span>
-<span><span class='c'>#&gt; -- Result Columns  --</span></span>
-<span><span class='c'>#&gt; ---------------------</span></span>
-<span><span class='c'>#&gt; - species (VARCHAR)</span></span>
-<span><span class='c'>#&gt; - sex (VARCHAR)</span></span>
-<span><span class='c'>#&gt; - mean_bill_area (DOUBLE)</span></span>
-<span><span class='c'>#&gt; [1] 5</span></span></pre>
+``` r
+flights
+#> # A duckplyr data frame: 110 variables
+#>     Year Quarter Month DayofMonth DayOfWeek FlightDate Report…¹ DOT_I…²
+#>    <dbl>   <dbl> <dbl>      <dbl>     <dbl> <date>     <chr>      <dbl>
+#>  1  2022       1     1         14         5 2022-01-14 YX         20452
+#>  2  2022       1     1         15         6 2022-01-15 YX         20452
+#>  3  2022       1     1         16         7 2022-01-16 YX         20452
+#>  4  2022       1     1         17         1 2022-01-17 YX         20452
+#>  5  2022       1     1         18         2 2022-01-18 YX         20452
+#>  6  2022       1     1         19         3 2022-01-19 YX         20452
+#>  7  2022       1     1         20         4 2022-01-20 YX         20452
+#>  8  2022       1     1         21         5 2022-01-21 YX         20452
+#>  9  2022       1     1         22         6 2022-01-22 YX         20452
+#> 10  2022       1     1         23         7 2022-01-23 YX         20452
+#> # ℹ more rows
+#> # ℹ abbreviated names: ¹​Reporting_Airline, ²​DOT_ID_Reporting_Airline
+#> # ℹ 102 more variables: IATA_CODE_Reporting_Airline <chr>,
+#> #   Tail_Number <chr>, Flight_Number_Reporting_Airline <dbl>,
+#> #   OriginAirportID <dbl>, OriginAirportSeqID <dbl>,
+#> #   OriginCityMarketID <dbl>, Origin <chr>, OriginCityName <chr>,
+#> #   OriginState <chr>, OriginStateFips <chr>, OriginStateName <chr>,
+#> #   OriginWac <dbl>, DestAirportID <dbl>, DestAirportSeqID <dbl>,
+#> #   DestCityMarketID <dbl>, Dest <chr>, DestCityName <chr>,
+#> #   DestState <chr>, DestStateFips <chr>, DestStateName <chr>,
+#> #   DestWac <dbl>, CRSDepTime <chr>, DepTime <chr>, DepDelay <dbl>,
+#> #   DepDelayMinutes <dbl>, DepDel15 <dbl>, …
+```
 
-Restart R, or call [`duckplyr::methods_restore()`](https://duckdblabs.github.io/duckplyr/reference/methods_overwrite.html) to revert to the default dplyr implementation.
+``` r
+flights |>
+  count(Year)
+#> # A duckplyr data frame: 2 variables
+#>    Year       n
+#>   <dbl>   <int>
+#> 1  2022 6729125
+#> 2  2023 6847899
+#> 3  2024 3461319
+```
 
-<pre class='chroma'>
-<span><span class='nf'>duckplyr</span><span class='nf'>::</span><span class='nf'><a href='https://duckdblabs.github.io/duckplyr/reference/methods_overwrite.html'>methods_restore</a></span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Restoring <span style='color: #0000BB;'>dplyr</span> methods.</span></span></pre>
+Complex queries can be executed on the remote data. Note how only the
+relevant columns are fetched and the 2024 data isn’t even touched, as
+it’s not needed for the result.
 
-dplyr is active again:
+``` r
+out <-
+  flights |>
+  mutate(InFlightDelay = ArrDelay - DepDelay) |>
+  summarize(
+    .by = c(Year, Month),
+    MeanInFlightDelay = mean(InFlightDelay, na.rm = TRUE),
+    MedianInFlightDelay = median(InFlightDelay, na.rm = TRUE),
+  ) |>
+  filter(Year < 2024)
 
-<pre class='chroma'>
-<span><span class='nf'>palmerpenguins</span><span class='nf'>::</span><span class='nv'><a href='https://allisonhorst.github.io/palmerpenguins/reference/penguins.html'>penguins</a></span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='c'># CAVEAT: factor columns are not supported yet</span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/across.html'>across</a></span><span class='o'>(</span><span class='nf'><a href='https://tidyselect.r-lib.org/reference/where.html'>where</a></span><span class='o'>(</span><span class='nv'>is.factor</span><span class='o'>)</span>, <span class='nv'>as.character</span><span class='o'>)</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='o'>(</span>bill_area <span class='o'>=</span> <span class='nv'>bill_length_mm</span> <span class='o'>*</span> <span class='nv'>bill_depth_mm</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='o'>(</span>.by <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='nv'>species</span>, <span class='nv'>sex</span><span class='o'>)</span>, mean_bill_area <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='o'>(</span><span class='nv'>bill_area</span><span class='o'>)</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='o'>(</span><span class='nv'>species</span> <span class='o'>!=</span> <span class='s'>"Gentoo"</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 5 × 3</span></span></span>
-<span><span class='c'>#&gt;   <span style='font-weight: bold;'>species</span>   <span style='font-weight: bold;'>sex</span>    <span style='font-weight: bold;'>mean_bill_area</span></span></span>
-<span><span class='c'>#&gt;   <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>     <span style='color: #555555; font-style: italic;'>&lt;chr&gt;</span>           <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span> Adelie    male             770.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span> Adelie    female           657.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span> Adelie    <span style='color: #BB0000;'>NA</span>                <span style='color: #BB0000;'>NA</span> </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>4</span> Chinstrap female           820.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>5</span> Chinstrap male             984.</span></span></pre>
+out |>
+  explain()
+#> ┌───────────────────────────┐
+#> │       HASH_GROUP_BY       │
+#> │    ────────────────────   │
+#> │          Groups:          │
+#> │             #0            │
+#> │             #1            │
+#> │                           │
+#> │        Aggregates:        │
+#> │          mean(#2)         │
+#> │         median(#3)        │
+#> │                           │
+#> │       ~6729125 Rows       │
+#> └─────────────┬─────────────┘
+#> ┌─────────────┴─────────────┐
+#> │         PROJECTION        │
+#> │    ────────────────────   │
+#> │            Year           │
+#> │           Month           │
+#> │       InFlightDelay       │
+#> │       InFlightDelay       │
+#> │                           │
+#> │       ~13458250 Rows      │
+#> └─────────────┬─────────────┘
+#> ┌─────────────┴─────────────┐
+#> │         PROJECTION        │
+#> │    ────────────────────   │
+#> │            Year           │
+#> │           Month           │
+#> │       InFlightDelay       │
+#> │                           │
+#> │       ~13458250 Rows      │
+#> └─────────────┬─────────────┘
+#> ┌─────────────┴─────────────┐
+#> │       READ_PARQUET        │
+#> │    ────────────────────   │
+#> │         Function:         │
+#> │        READ_PARQUET       │
+#> │                           │
+#> │        Projections:       │
+#> │            Year           │
+#> │           Month           │
+#> │          DepDelay         │
+#> │          ArrDelay         │
+#> │                           │
+#> │       File Filters:       │
+#> │  (CAST(Year AS DOUBLE) <  │
+#> │           2024.0)         │
+#> │                           │
+#> │    Scanning Files: 2/3    │
+#> │                           │
+#> │       ~13458250 Rows      │
+#> └───────────────────────────┘
 
-## Telemetry
+out |>
+  print() |>
+  system.time()
+#> # A duckplyr data frame: 4 variables
+#>     Year Month MeanInFlightDelay MedianInFlightDelay
+#>    <dbl> <dbl>             <dbl>               <dbl>
+#>  1  2022    11             -5.21                  -7
+#>  2  2023    11             -7.10                  -8
+#>  3  2022     8             -5.27                  -7
+#>  4  2023     4             -4.54                  -6
+#>  5  2022     7             -5.13                  -7
+#>  6  2022     4             -4.88                  -6
+#>  7  2023     8             -5.73                  -7
+#>  8  2023     7             -4.47                  -7
+#>  9  2022     2             -6.52                  -8
+#> 10  2023     5             -6.17                  -7
+#> # ℹ more rows
+#>    user  system elapsed 
+#>   1.145   0.455   9.402
+```
 
-We would like to guide our efforts towards improving duckplyr, focusing on the features with the most impact. To this end, duckplyr collects and uploads telemetry data, but only if permitted by the user:
+Over 10M rows analyzed in about 10 seconds over the internet, that’s not
+bad. Of course, working with Parquet, CSV, or JSON files downloaded
+locally is possible as well.
 
-- No collection will happen unless the user explicitly opts in.
-- Uploads are done upon request only.
-- There is an option to automatically upload when the package is loaded, this is also opt-in.
+For full compatibility, `na.rm = FALSE` by default in the aggregation
+functions:
 
-The data collected contains:
+``` r
+flights |>
+  summarize(mean(ArrDelay - DepDelay))
+#> # A duckplyr data frame: 1 variable
+#>   `mean(ArrDelay - DepDelay)`
+#>                         <dbl>
+#> 1                          NA
+```
 
-- The package version
-- The error message
-- The operation being performed, and the arguments
-  - For the input data frames, only the structure is included (column types only), no column names or data
+## Further reading
 
-The first time the package encounters an unsupported function, data type, or operation, instructions are printed to the console.
+- [`vignette("large")`](https://duckplyr.tidyverse.org/articles/large.html):
+  Tools for working with large data
 
-<pre class='chroma'>
-<span><span class='nf'>palmerpenguins</span><span class='nf'>::</span><span class='nv'><a href='https://allisonhorst.github.io/palmerpenguins/reference/penguins.html'>penguins</a></span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'>duckplyr</span><span class='nf'>::</span><span class='nf'><a href='https://duckdblabs.github.io/duckplyr/reference/as_duckplyr_tibble.html'>as_duckplyr_tibble</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'><a href='https://dplyr.tidyverse.org/reference/transmute.html'>transmute</a></span><span class='o'>(</span>bill_area <span class='o'>=</span> <span class='nv'>bill_length_mm</span> <span class='o'>*</span> <span class='nv'>bill_depth_mm</span><span class='o'>)</span> <span class='o'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span></span>
-<span>  <span class='nf'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='o'>(</span><span class='m'>3</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; The <span style='color: #0000BB;'>duckplyr</span> package is configured to fall back to <span style='color: #0000BB;'>dplyr</span> when it encounters an</span></span>
-<span><span class='c'>#&gt; incompatibility. Fallback events can be collected and uploaded for analysis to</span></span>
-<span><span class='c'>#&gt; guide future development. By default, no data will be collected or uploaded.</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> A fallback situation just occurred. The following information would have been</span></span>
-<span><span class='c'>#&gt;   recorded:</span></span>
-<span><span class='c'>#&gt;   {"version":"0.4.1","message":"Can't convert columns of class &lt;factor&gt; to</span></span>
-<span><span class='c'>#&gt;   relational. Affected</span></span>
-<span><span class='c'>#&gt;   column:\n`...1`.","name":"transmute","x":{"...1":"factor","...2":"factor","...3":"numeric","...4":"numeric","...5":"integer","...6":"integer","...7":"factor","...8":"integer"},"args":{"dots":{"...9":"...3</span></span>
-<span><span class='c'>#&gt;   * ...4"}}}</span></span>
-<span><span class='c'>#&gt; → Run `duckplyr::fallback_sitrep()` to review the current settings.</span></span>
-<span><span class='c'>#&gt; → Run `Sys.setenv(DUCKPLYR_FALLBACK_COLLECT = 1)` to enable fallback logging,</span></span>
-<span><span class='c'>#&gt;   and `Sys.setenv(DUCKPLYR_FALLBACK_VERBOSE = TRUE)` in addition to enable</span></span>
-<span><span class='c'>#&gt;   printing of fallback situations to the console.</span></span>
-<span><span class='c'>#&gt; → Run `duckplyr::fallback_review()` to review the available reports, and</span></span>
-<span><span class='c'>#&gt;   `duckplyr::fallback_upload()` to upload them.</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> See `?duckplyr::fallback()` for details.</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> <span style='color: #555555;'>This message will be displayed once every eight hours.</span></span></span>
-<span><span class='c'>#&gt; materializing:</span></span>
-<span><span class='c'>#&gt; ---------------------</span></span>
-<span><span class='c'>#&gt; --- Relation Tree ---</span></span>
-<span><span class='c'>#&gt; ---------------------</span></span>
-<span><span class='c'>#&gt; Limit 3</span></span>
-<span><span class='c'>#&gt;   r_dataframe_scan(0xdeadbeef)</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; ---------------------</span></span>
-<span><span class='c'>#&gt; -- Result Columns  --</span></span>
-<span><span class='c'>#&gt; ---------------------</span></span>
-<span><span class='c'>#&gt; - bill_area (DOUBLE)</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'># A tibble: 3 × 1</span></span></span>
-<span><span class='c'>#&gt;   <span style='font-weight: bold;'>bill_area</span></span></span>
-<span><span class='c'>#&gt;       <span style='color: #555555; font-style: italic;'>&lt;dbl&gt;</span></span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>1</span>      731.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>2</span>      687.</span></span>
-<span><span class='c'>#&gt; <span style='color: #555555;'>3</span>      725.</span></span></pre>
+- [`vignette("prudence")`](https://duckplyr.tidyverse.org/articles/prudence.html):
+  How duckplyr can help protect memory when working with large data
 
-## How is this different from dbplyr?
+- [`vignette("fallback")`](https://duckplyr.tidyverse.org/articles/fallback.html):
+  How the fallback to dplyr works internally
 
-The duckplyr package is a dplyr backend that uses DuckDB, a high-performance, embeddable OLAP database. It is designed to be a fully compatible drop-in replacement for dplyr, with *exactly* the same syntax and semantics:
+- [`vignette("limits")`](https://duckplyr.tidyverse.org/articles/limits.html):
+  Translation of dplyr employed by duckplyr, and current limitations
 
-- Input and output are data frames or tibbles
-- All dplyr verbs are supported, with fallback
-- All R data types and functions are supported, with fallback
-- No SQL is generated
+- [`vignette("developers")`](https://duckplyr.tidyverse.org/articles/developers.html):
+  Using duckplyr for individual data frames and in other packages
 
-The dbplyr package is a dplyr backend that connects to SQL databases, and is designed to work with various databases that support SQL, including DuckDB. Data must be copied into and collected from the database, and the syntax and semantics are similar but not identical to plain dplyr.
+- [`vignette("telemetry")`](https://duckplyr.tidyverse.org/articles/telemetry.html):
+  Telemetry in duckplyr
 
-## Extensibility
+## Getting help
 
-This package also provides generics, for which other packages may then implement methods.
+If you encounter a clear bug, please file an issue with a minimal
+reproducible example on
+[GitHub](https://github.com/tidyverse/duckplyr/issues). For questions
+and other discussion, please use
+[forum.posit.co](https://forum.posit.co/).
 
-<pre class='chroma'>
-<span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://duckdblabs.github.io/duckplyr/'>duckplyr</a></span><span class='o'>)</span></span></pre>
-<pre class='chroma'>
-<span><span class='c'>#&gt; <span style='color: #00BB00;'>✔</span> Overwriting <span style='color: #0000BB;'>dplyr</span> methods with <span style='color: #0000BB;'>duckplyr</span> methods.</span></span>
-<span><span class='c'>#&gt; <span style='color: #00BBBB;'>ℹ</span> Turn off with `duckplyr::methods_restore()`.</span></span></pre>
-<pre class='chroma'>
-<span><span class='c'># Create a relational to be used by examples below</span></span>
-<span><span class='nv'>new_dfrel</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='o'>{</span></span>
-<span>  <span class='nf'><a href='https://rdrr.io/r/base/stopifnot.html'>stopifnot</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/as.data.frame.html'>is.data.frame</a></span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span><span class='o'>)</span></span>
-<span>  <span class='nf'><a href='https://duckdblabs.github.io/duckplyr/reference/new_relational.html'>new_relational</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span>, class <span class='o'>=</span> <span class='s'>"dfrel"</span><span class='o'>)</span></span>
-<span><span class='o'>}</span></span>
-<span><span class='nv'>mtcars_rel</span> <span class='o'>&lt;-</span> <span class='nf'>new_dfrel</span><span class='o'>(</span><span class='nv'>mtcars</span><span class='o'>[</span><span class='m'>1</span><span class='o'>:</span><span class='m'>5</span>, <span class='m'>1</span><span class='o'>:</span><span class='m'>4</span><span class='o'>]</span><span class='o'>)</span></span>
-<span></span>
-<span><span class='c'># Example 1: return a data.frame</span></span>
-<span><span class='nv'>rel_to_df.dfrel</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>rel</span>, <span class='nv'>...</span><span class='o'>)</span> <span class='o'>{</span></span>
-<span>  <span class='nf'><a href='https://rdrr.io/r/base/class.html'>unclass</a></span><span class='o'>(</span><span class='nv'>rel</span><span class='o'>)</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span></span>
-<span><span class='o'>}</span></span>
-<span><span class='nf'><a href='https://duckdblabs.github.io/duckplyr/reference/new_relational.html'>rel_to_df</a></span><span class='o'>(</span><span class='nv'>mtcars_rel</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt;                    mpg cyl disp  hp</span></span>
-<span><span class='c'>#&gt; Mazda RX4         21.0   6  160 110</span></span>
-<span><span class='c'>#&gt; Mazda RX4 Wag     21.0   6  160 110</span></span>
-<span><span class='c'>#&gt; Datsun 710        22.8   4  108  93</span></span>
-<span><span class='c'>#&gt; Hornet 4 Drive    21.4   6  258 110</span></span>
-<span><span class='c'>#&gt; Hornet Sportabout 18.7   8  360 175</span></span>
-<span></span>
-<span><span class='c'># Example 2: A (random) filter</span></span>
-<span><span class='nv'>rel_filter.dfrel</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>rel</span>, <span class='nv'>exprs</span>, <span class='nv'>...</span><span class='o'>)</span> <span class='o'>{</span></span>
-<span>  <span class='nv'>df</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/class.html'>unclass</a></span><span class='o'>(</span><span class='nv'>rel</span><span class='o'>)</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span></span>
-<span></span>
-<span>  <span class='c'># A real implementation would evaluate the predicates defined</span></span>
-<span>  <span class='c'># by the exprs argument</span></span>
-<span>  <span class='nf'>new_dfrel</span><span class='o'>(</span><span class='nv'>df</span><span class='o'>[</span><span class='nf'><a href='https://rdrr.io/r/base/sample.html'>sample.int</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='o'>(</span><span class='nv'>df</span><span class='o'>)</span>, <span class='m'>3</span>, replace <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span>, <span class='o'>]</span><span class='o'>)</span></span>
-<span><span class='o'>}</span></span>
-<span></span>
-<span><span class='nf'><a href='https://duckdblabs.github.io/duckplyr/reference/new_relational.html'>rel_filter</a></span><span class='o'>(</span></span>
-<span>  <span class='nv'>mtcars_rel</span>,</span>
-<span>  <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span></span>
-<span>    <span class='nf'><a href='https://duckdblabs.github.io/duckplyr/reference/new_relexpr.html'>relexpr_function</a></span><span class='o'>(</span></span>
-<span>      <span class='s'>"gt"</span>,</span>
-<span>      <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='nf'><a href='https://duckdblabs.github.io/duckplyr/reference/new_relexpr.html'>relexpr_reference</a></span><span class='o'>(</span><span class='s'>"cyl"</span><span class='o'>)</span>, <span class='nf'><a href='https://duckdblabs.github.io/duckplyr/reference/new_relexpr.html'>relexpr_constant</a></span><span class='o'>(</span><span class='s'>"6"</span><span class='o'>)</span><span class='o'>)</span></span>
-<span>    <span class='o'>)</span></span>
-<span>  <span class='o'>)</span></span>
-<span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [[1]]</span></span>
-<span><span class='c'>#&gt;                  mpg cyl disp  hp</span></span>
-<span><span class='c'>#&gt; Mazda RX4 Wag   21.0   6  160 110</span></span>
-<span><span class='c'>#&gt; Mazda RX4 Wag.1 21.0   6  160 110</span></span>
-<span><span class='c'>#&gt; Datsun 710      22.8   4  108  93</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; attr(,"class")</span></span>
-<span><span class='c'>#&gt; [1] "dfrel"      "relational"</span></span>
-<span></span>
-<span><span class='c'># Example 3: A custom projection</span></span>
-<span><span class='nv'>rel_project.dfrel</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>rel</span>, <span class='nv'>exprs</span>, <span class='nv'>...</span><span class='o'>)</span> <span class='o'>{</span></span>
-<span>  <span class='nv'>df</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/class.html'>unclass</a></span><span class='o'>(</span><span class='nv'>rel</span><span class='o'>)</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span></span>
-<span></span>
-<span>  <span class='c'># A real implementation would evaluate the expressions defined</span></span>
-<span>  <span class='c'># by the exprs argument</span></span>
-<span>  <span class='nf'>new_dfrel</span><span class='o'>(</span><span class='nv'>df</span><span class='o'>[</span><span class='nf'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/Extremes.html'>min</a></span><span class='o'>(</span><span class='m'>3</span>, <span class='nf'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span><span class='o'>(</span><span class='nv'>df</span><span class='o'>)</span><span class='o'>)</span><span class='o'>)</span><span class='o'>]</span><span class='o'>)</span></span>
-<span><span class='o'>}</span></span>
-<span></span>
-<span><span class='nf'><a href='https://duckdblabs.github.io/duckplyr/reference/new_relational.html'>rel_project</a></span><span class='o'>(</span></span>
-<span>  <span class='nv'>mtcars_rel</span>,</span>
-<span>  <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='nf'><a href='https://duckdblabs.github.io/duckplyr/reference/new_relexpr.html'>relexpr_reference</a></span><span class='o'>(</span><span class='s'>"cyl"</span><span class='o'>)</span>, <span class='nf'><a href='https://duckdblabs.github.io/duckplyr/reference/new_relexpr.html'>relexpr_reference</a></span><span class='o'>(</span><span class='s'>"disp"</span><span class='o'>)</span><span class='o'>)</span></span>
-<span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [[1]]</span></span>
-<span><span class='c'>#&gt;                    mpg cyl disp</span></span>
-<span><span class='c'>#&gt; Mazda RX4         21.0   6  160</span></span>
-<span><span class='c'>#&gt; Mazda RX4 Wag     21.0   6  160</span></span>
-<span><span class='c'>#&gt; Datsun 710        22.8   4  108</span></span>
-<span><span class='c'>#&gt; Hornet 4 Drive    21.4   6  258</span></span>
-<span><span class='c'>#&gt; Hornet Sportabout 18.7   8  360</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; attr(,"class")</span></span>
-<span><span class='c'>#&gt; [1] "dfrel"      "relational"</span></span>
-<span></span>
-<span><span class='c'># Example 4: A custom ordering (eg, ascending by mpg)</span></span>
-<span><span class='nv'>rel_order.dfrel</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>rel</span>, <span class='nv'>exprs</span>, <span class='nv'>...</span><span class='o'>)</span> <span class='o'>{</span></span>
-<span>  <span class='nv'>df</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/class.html'>unclass</a></span><span class='o'>(</span><span class='nv'>rel</span><span class='o'>)</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span></span>
-<span></span>
-<span>  <span class='c'># A real implementation would evaluate the expressions defined</span></span>
-<span>  <span class='c'># by the exprs argument</span></span>
-<span>  <span class='nf'>new_dfrel</span><span class='o'>(</span><span class='nv'>df</span><span class='o'>[</span><span class='nf'><a href='https://rdrr.io/r/base/order.html'>order</a></span><span class='o'>(</span><span class='nv'>df</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span><span class='o'>)</span>, <span class='o'>]</span><span class='o'>)</span></span>
-<span><span class='o'>}</span></span>
-<span></span>
-<span><span class='nf'><a href='https://duckdblabs.github.io/duckplyr/reference/new_relational.html'>rel_order</a></span><span class='o'>(</span></span>
-<span>  <span class='nv'>mtcars_rel</span>,</span>
-<span>  <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='nf'><a href='https://duckdblabs.github.io/duckplyr/reference/new_relexpr.html'>relexpr_reference</a></span><span class='o'>(</span><span class='s'>"mpg"</span><span class='o'>)</span><span class='o'>)</span></span>
-<span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [[1]]</span></span>
-<span><span class='c'>#&gt;                    mpg cyl disp  hp</span></span>
-<span><span class='c'>#&gt; Hornet Sportabout 18.7   8  360 175</span></span>
-<span><span class='c'>#&gt; Mazda RX4         21.0   6  160 110</span></span>
-<span><span class='c'>#&gt; Mazda RX4 Wag     21.0   6  160 110</span></span>
-<span><span class='c'>#&gt; Hornet 4 Drive    21.4   6  258 110</span></span>
-<span><span class='c'>#&gt; Datsun 710        22.8   4  108  93</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; attr(,"class")</span></span>
-<span><span class='c'>#&gt; [1] "dfrel"      "relational"</span></span>
-<span></span>
-<span><span class='c'># Example 5: A custom join</span></span>
-<span><span class='nv'>rel_join.dfrel</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>left</span>, <span class='nv'>right</span>, <span class='nv'>conds</span>, <span class='nv'>join</span>, <span class='nv'>...</span><span class='o'>)</span> <span class='o'>{</span></span>
-<span>  <span class='nv'>left_df</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/class.html'>unclass</a></span><span class='o'>(</span><span class='nv'>left</span><span class='o'>)</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span></span>
-<span>  <span class='nv'>right_df</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/class.html'>unclass</a></span><span class='o'>(</span><span class='nv'>right</span><span class='o'>)</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span></span>
-<span></span>
-<span>  <span class='c'># A real implementation would evaluate the expressions</span></span>
-<span>  <span class='c'># defined by the conds argument,</span></span>
-<span>  <span class='c'># use different join types based on the join argument,</span></span>
-<span>  <span class='c'># and implement the join itself instead of relaying to left_join().</span></span>
-<span>  <span class='nf'>new_dfrel</span><span class='o'>(</span><span class='nf'>dplyr</span><span class='nf'>::</span><span class='nf'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='o'>(</span><span class='nv'>left_df</span>, <span class='nv'>right_df</span><span class='o'>)</span><span class='o'>)</span></span>
-<span><span class='o'>}</span></span>
-<span></span>
-<span><span class='nf'><a href='https://duckdblabs.github.io/duckplyr/reference/new_relational.html'>rel_join</a></span><span class='o'>(</span><span class='nf'>new_dfrel</span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='o'>(</span>mpg <span class='o'>=</span> <span class='m'>21</span><span class='o'>)</span><span class='o'>)</span>, <span class='nv'>mtcars_rel</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; Joining with `by = join_by(mpg)`</span></span>
-<span><span class='c'>#&gt; Joining with `by = join_by(mpg)`</span></span>
-<span><span class='c'>#&gt; [[1]]</span></span>
-<span><span class='c'>#&gt;   mpg cyl disp  hp</span></span>
-<span><span class='c'>#&gt; 1  21   6  160 110</span></span>
-<span><span class='c'>#&gt; 2  21   6  160 110</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; attr(,"class")</span></span>
-<span><span class='c'>#&gt; [1] "dfrel"      "relational"</span></span>
-<span></span>
-<span><span class='c'># Example 6: Limit the maximum rows returned</span></span>
-<span><span class='nv'>rel_limit.dfrel</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>rel</span>, <span class='nv'>n</span>, <span class='nv'>...</span><span class='o'>)</span> <span class='o'>{</span></span>
-<span>  <span class='nv'>df</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/class.html'>unclass</a></span><span class='o'>(</span><span class='nv'>rel</span><span class='o'>)</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span></span>
-<span></span>
-<span>  <span class='nf'>new_dfrel</span><span class='o'>(</span><span class='nv'>df</span><span class='o'>[</span><span class='nf'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span><span class='o'>(</span><span class='nv'>n</span><span class='o'>)</span>, <span class='o'>]</span><span class='o'>)</span></span>
-<span><span class='o'>}</span></span>
-<span></span>
-<span><span class='nf'><a href='https://duckdblabs.github.io/duckplyr/reference/new_relational.html'>rel_limit</a></span><span class='o'>(</span><span class='nv'>mtcars_rel</span>, <span class='m'>3</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [[1]]</span></span>
-<span><span class='c'>#&gt;                mpg cyl disp  hp</span></span>
-<span><span class='c'>#&gt; Mazda RX4     21.0   6  160 110</span></span>
-<span><span class='c'>#&gt; Mazda RX4 Wag 21.0   6  160 110</span></span>
-<span><span class='c'>#&gt; Datsun 710    22.8   4  108  93</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; attr(,"class")</span></span>
-<span><span class='c'>#&gt; [1] "dfrel"      "relational"</span></span>
-<span></span>
-<span><span class='c'># Example 7: Suppress duplicate rows</span></span>
-<span><span class='c'>#  (ignoring row names)</span></span>
-<span><span class='nv'>rel_distinct.dfrel</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>rel</span>, <span class='nv'>...</span><span class='o'>)</span> <span class='o'>{</span></span>
-<span>  <span class='nv'>df</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/class.html'>unclass</a></span><span class='o'>(</span><span class='nv'>rel</span><span class='o'>)</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span></span>
-<span></span>
-<span>  <span class='nf'>new_dfrel</span><span class='o'>(</span><span class='nv'>df</span><span class='o'>[</span><span class='o'>!</span><span class='nf'><a href='https://rdrr.io/r/base/duplicated.html'>duplicated</a></span><span class='o'>(</span><span class='nv'>df</span><span class='o'>)</span>, <span class='o'>]</span><span class='o'>)</span></span>
-<span><span class='o'>}</span></span>
-<span></span>
-<span><span class='nf'><a href='https://duckdblabs.github.io/duckplyr/reference/new_relational.html'>rel_distinct</a></span><span class='o'>(</span><span class='nf'>new_dfrel</span><span class='o'>(</span><span class='nv'>mtcars</span><span class='o'>[</span><span class='m'>1</span><span class='o'>:</span><span class='m'>3</span>, <span class='m'>1</span><span class='o'>:</span><span class='m'>4</span><span class='o'>]</span><span class='o'>)</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [[1]]</span></span>
-<span><span class='c'>#&gt;             mpg cyl disp  hp</span></span>
-<span><span class='c'>#&gt; Mazda RX4  21.0   6  160 110</span></span>
-<span><span class='c'>#&gt; Datsun 710 22.8   4  108  93</span></span>
-<span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; attr(,"class")</span></span>
-<span><span class='c'>#&gt; [1] "dfrel"      "relational"</span></span>
-<span></span>
-<span><span class='c'># Example 8: Return column names</span></span>
-<span><span class='nv'>rel_names.dfrel</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>rel</span>, <span class='nv'>...</span><span class='o'>)</span> <span class='o'>{</span></span>
-<span>  <span class='nv'>df</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/class.html'>unclass</a></span><span class='o'>(</span><span class='nv'>rel</span><span class='o'>)</span><span class='o'>[[</span><span class='m'>1</span><span class='o'>]</span><span class='o'>]</span></span>
-<span></span>
-<span>  <span class='nf'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='o'>(</span><span class='nv'>df</span><span class='o'>)</span></span>
-<span><span class='o'>}</span></span>
-<span></span>
-<span><span class='nf'><a href='https://duckdblabs.github.io/duckplyr/reference/new_relational.html'>rel_names</a></span><span class='o'>(</span><span class='nv'>mtcars_rel</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; [1] "mpg"  "cyl"  "disp" "hp"</span></span></pre>
+## Code of conduct
+
+Please note that this project is released with a [Contributor Code of
+Conduct](https://duckplyr.tidyverse.org/CODE_OF_CONDUCT). By
+participating in this project you agree to abide by its terms.

@@ -16,13 +16,15 @@ as_duckplyr_tibble(.data)
 For \code{as_duckplyr_df()}, an object of class \code{"duckplyr_df"},
 inheriting from the classes of the \code{.data} argument.
 
-For \code{as_duckplyr_df()}, an object of class
+For \code{as_duckplyr_tibble()}, an object of class
 \code{c("duckplyr_df", class(tibble()))} .
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
 These functions convert a data-frame-like input to an object of class \code{"duckpylr_df"}.
 For such objects,
-dplyr verbs such as \code{\link[=mutate]{mutate()}}, \code{\link[=select]{select()}} or \code{\link[=filter]{filter()}}  will attempt to use DuckDB.
+dplyr verbs such as \code{\link[dplyr:mutate]{dplyr::mutate()}}, \code{\link[dplyr:select]{dplyr::select()}} or \code{\link[dplyr:filter]{dplyr::filter()}}  will attempt to use DuckDB.
 If this is not possible, the original dplyr implementation is used.
 
 \code{as_duckplyr_df()} requires the input to be a plain data frame or a tibble,
@@ -38,8 +40,5 @@ for more control over the behavior, see \link{config} for more details.
 \examples{
 tibble(a = 1:3) \%>\%
   mutate(b = a + 1)
-
-tibble(a = 1:3) \%>\%
-  as_duckplyr_df() \%>\%
-  mutate(b = a + 1)
 }
+\keyword{internal}

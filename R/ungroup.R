@@ -2,14 +2,16 @@
 #' @export
 ungroup.duckplyr_df <- function(x, ...) {
   # Our implementation
-  rel_try(
-    "No relational implementation for ungroup()" = TRUE,
+  duckplyr_error <- rel_try(NULL,
+    "No relational implementation for {.code ungroup()}" = TRUE,
     {
       return(out)
     }
   )
 
   # dplyr forward
+  check_prudence(x, duckplyr_error)
+
   ungroup <- dplyr$ungroup.data.frame
   out <- ungroup(x, ...)
   return(out)
@@ -21,7 +23,7 @@ ungroup.duckplyr_df <- function(x, ...) {
 
 duckplyr_ungroup <- function(x, ...) {
   try_fetch(
-    x <- as_duckplyr_df(x),
+    x <- as_duckplyr_df_impl(x),
     error = function(e) {
       testthat::skip(conditionMessage(e))
     }

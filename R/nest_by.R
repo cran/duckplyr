@@ -2,14 +2,16 @@
 #' @export
 nest_by.duckplyr_df <- function(.data, ..., .key = "data", .keep = FALSE) {
   # Our implementation
-  rel_try(
-    "No relational implementation for nest_by()" = TRUE,
+  duckplyr_error <- rel_try(NULL,
+    "No relational implementation for {.code nest_by()}" = TRUE,
     {
       return(out)
     }
   )
 
   # dplyr forward
+  check_prudence(.data, duckplyr_error)
+
   nest_by <- dplyr$nest_by.data.frame
   out <- nest_by(.data, ..., .key = .key, .keep = .keep)
   return(out)
@@ -21,7 +23,7 @@ nest_by.duckplyr_df <- function(.data, ..., .key = "data", .keep = FALSE) {
 
 duckplyr_nest_by <- function(.data, ...) {
   try_fetch(
-    .data <- as_duckplyr_df(.data),
+    .data <- as_duckplyr_df_impl(.data),
     error = function(e) {
       testthat::skip(conditionMessage(e))
     }

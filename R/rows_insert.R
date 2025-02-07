@@ -2,14 +2,16 @@
 #' @export
 rows_insert.duckplyr_df <- function(x, y, by = NULL, ..., conflict = c("error", "ignore"), copy = FALSE, in_place = FALSE) {
   # Our implementation
-  rel_try(
-    "No relational implementation for rows_insert()" = TRUE,
+  duckplyr_error <- rel_try(NULL,
+    "No relational implementation for {.code rows_insert()}" = TRUE,
     {
       return(out)
     }
   )
 
   # dplyr forward
+  check_prudence(x, duckplyr_error)
+
   rows_insert <- dplyr$rows_insert.data.frame
   out <- rows_insert(x, y, by, ..., conflict = conflict, copy = copy, in_place = in_place)
   return(out)
@@ -43,8 +45,8 @@ rows_insert.duckplyr_df <- function(x, y, by = NULL, ..., conflict = c("error", 
 duckplyr_rows_insert <- function(x, y, ...) {
   try_fetch(
     {
-      x <- as_duckplyr_df(x)
-      y <- as_duckplyr_df(y)
+      x <- as_duckplyr_df_impl(x)
+      y <- as_duckplyr_df_impl(y)
     },
     error = function(e) {
       testthat::skip(conditionMessage(e))

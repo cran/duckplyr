@@ -2,15 +2,17 @@
 #' @export
 rowwise.duckplyr_df <- function(data, ...) {
   # Our implementation
-  rel_try(
+  duckplyr_error <- rel_try(NULL,
     # Always fall back to dplyr
-    "No relational implementation for rowwise()" = TRUE,
+    "No relational implementation for {.code rowwise()}" = TRUE,
     {
       return(out)
     }
   )
 
   # dplyr forward
+  check_prudence(data, duckplyr_error)
+
   rowwise <- dplyr$rowwise.data.frame
   out <- rowwise(data, ...)
   return(out)
@@ -22,7 +24,7 @@ rowwise.duckplyr_df <- function(data, ...) {
 
 duckplyr_rowwise <- function(data, ...) {
   try_fetch(
-    data <- as_duckplyr_df(data),
+    data <- as_duckplyr_df_impl(data),
     error = function(e) {
       testthat::skip(conditionMessage(e))
     }

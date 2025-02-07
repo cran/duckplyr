@@ -2,14 +2,16 @@
 #' @export
 rows_update.duckplyr_df <- function(x, y, by = NULL, ..., unmatched = c("error", "ignore"), copy = FALSE, in_place = FALSE) {
   # Our implementation
-  rel_try(
-    "No relational implementation for rows_update()" = TRUE,
+  duckplyr_error <- rel_try(NULL,
+    "No relational implementation for {.code rows_update()}" = TRUE,
     {
       return(out)
     }
   )
 
   # dplyr forward
+  check_prudence(x, duckplyr_error)
+
   rows_update <- dplyr$rows_update.data.frame
   out <- rows_update(x, y, by, ..., unmatched = unmatched, copy = copy, in_place = in_place)
   return(out)
@@ -67,8 +69,8 @@ rows_update.duckplyr_df <- function(x, y, by = NULL, ..., unmatched = c("error",
 duckplyr_rows_update <- function(x, y, ...) {
   try_fetch(
     {
-      x <- as_duckplyr_df(x)
-      y <- as_duckplyr_df(y)
+      x <- as_duckplyr_df_impl(x)
+      y <- as_duckplyr_df_impl(y)
     },
     error = function(e) {
       testthat::skip(conditionMessage(e))

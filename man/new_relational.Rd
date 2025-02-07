@@ -137,10 +137,10 @@ to be used by \code{\link[utils:head]{utils::head()}}.
 to be used by \code{\link[dplyr:distinct]{dplyr::distinct()}}.
 
 \code{rel_set_intersect()} returns rows present in both tables,
-to be used by \code{\link[=intersect]{intersect()}}.
+to be used by \code{\link[generics:setops]{generics::intersect()}}.
 
 \code{rel_set_diff()} returns rows present in any of both tables,
-to be used by \code{\link[=setdiff]{setdiff()}}.
+to be used by \code{\link[generics:setops]{generics::setdiff()}}.
 
 \code{rel_set_symdiff()} returns rows present in any of both tables,
 to be used by \code{\link[dplyr:setops]{dplyr::symdiff()}}.
@@ -213,7 +213,7 @@ rel_order(
   mtcars_rel,
   list(relexpr_reference("mpg"))
 )
-\dontshow{if (requireNamespace("dplyr", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (requireNamespace("dplyr", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 rel_join.dfrel <- function(left, right, conds, join, ...) {
   left_df <- unclass(left)[[1]]
   right_df <- unclass(right)[[1]]

@@ -1,5 +1,104 @@
 <!-- NEWS.md is maintained by https://fledge.cynkra.com, contributors should not edit this file -->
 
+# duckplyr 1.0.0 (2025-02-02)
+
+## Features
+
+### Large data
+
+- Improved support for handling large data from files and S3: ingestion with `read_parquet_duckdb()` and others, and materialization with `as_duckdb_tibble()`, `compute.duckplyr_df()` and `compute_file()`. See `vignette("large")` for details.
+
+- Control automatic materialization of duckplyr frames with the new `prudence` argument to `as_duckdb_tibble()`, `duckdb_tibble()`, `compute.duckplyr_df()` and `compute_file()`. See `vignette("prudence")` for details.
+
+### New functions
+
+- `read_csv_duckdb()` and others, deprecating `duckplyr_df_from_csv()` and `df_from_csv()` (#210, #396, #459).
+
+- `read_sql_duckdb()` (experimental) to run SQL queries against the default DuckDB connection and return the result as a duckplyr frame (duckdb/duckdb-r#32, #397).
+
+- `db_exec()` to execute configuration queries against the default duckdb connection (#39, #165, #227, #404, #459).
+
+- `duckdb_tibble()` (#382, #457).
+
+- `as_duckdb_tibble()`, replaces `as_duckplyr_tibble()` and `as_duckplyr_df()` (#383, #457) and supports dbplyr connections to a duckdb database (#86, #211, #226).
+
+- `compute_parquet()` and `compute_csv()`, implement `compute.duckplyr_df()` (#409, #430).
+
+- `fallback_config()` to create a configuration file for the settings that do not affect behavior (#216, #426).
+
+- `is_duckdb_tibble()`, deprecates `is_duckplyr_df()` (#391, #392).
+
+- `last_rel()` to retrieve the last relation object used in materialization (#209, #375).
+
+- Add `"prudent_duckplyr_df"` class that stops automatic materialization and requires `collect()` (#381, #390).
+
+### Translations
+
+- Partial support for `across()` in `mutate()` and `summarise()` (#296, #306, #318, @lionel-, @DavisVaughan).
+
+- Implement `na.rm` handling for `sum()`, `min()`, `max()`, `any()` and `all()`, with fallback for window functions (#205, #566).
+
+- Add support for `sub()` and `gsub()` (@toppyy, #420).
+
+- Handle `dplyr::desc()` (#550).
+
+- Avoid forwarding `is.na()` to `is.nan()` to support non-numeric data, avoid checking roundtrip for timestamp data (#482).
+
+- Correctly handle missing values in `if_else()`.
+
+- Limit number of items that can be handled with `%in%` (#319).
+
+- `duckdb_tibble()` checks if columns can be represented in DuckDB (#537).
+
+- Fall back to dplyr when passing `multiple` with joins (#323).
+
+### Error messages
+
+- Improve fallback error message by explicitly materializing (#432, #456).
+
+- Point to the native CSV reader if encountering data frames read with readr (#127, #469).
+
+- Improve `as_duckdb_tibble()` error message for invalid `x` (@maelle, #339).
+
+### Behavior
+
+- Depend on dplyr instead of reexporting all generics (#405). Nothing changes for users in scripts. When using duckplyr in a package, you now also need to import dplyr.
+
+- Fallback logging is now on by default, can be disabled with configuration (#422).
+
+- The default DuckDB connection is now based on a file, the location defaults to a subdirectory of `tempdir()` and can be controlled with the `DUCKPLYR_TEMP_DIR` environment variable (#439, #448, #561).
+
+- `collect()` returns a tibble (#438, #447).
+
+- `explain()` returns the input, invisibly (#331).
+
+## Bug fixes
+
+- Compute ptype only for join columns in a safe way without materialization, not for the entire data frame (#289).
+
+- Internal `expr_scrub()` (used for telemetry) can handle function-definitions (@toppyy, #268, #271).
+
+- Harden telemetry code against invalid arguments (#321).
+
+## Documentation
+
+- New articles: `vignette("large")`, `vignette("prudence")`, `vignette("fallback")`, `vignette("limits")`, `vignette("developers")`, `vignette("telemetry")` (#207, #504).
+
+- New `flights_df()` used instead of `palmerpenguins::penguins` (#408).
+
+- Move to the tidyverse GitHub organization, new repository URL <https://github.com/tidyverse/duckplyr/> (#225).
+
+- Avoid base pipe in examples for compatibility with R 4.0.0 (#463, #466).
+
+## Performance
+
+- Comparison expressions are translated in a way that allows them to be pushed down to Parquet (@toppyy, #270).
+
+- Printing a duckplyr frame no longer materializes (#255, #378).
+
+- Prefer `vctrs::new_data_frame()` over `tibble()` (#500).
+
+
 # duckplyr 0.4.1 (2024-07-11)
 
 ## Features

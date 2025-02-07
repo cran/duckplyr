@@ -2,14 +2,16 @@
 #' @export
 cross_join.duckplyr_df <- function(x, y, ..., copy = FALSE, suffix = c(".x", ".y")) {
   # Our implementation
-  rel_try(
-    "No relational implementation for cross_join()" = TRUE,
+  duckplyr_error <- rel_try(NULL,
+    "No relational implementation for {.code cross_join()}" = TRUE,
     {
       return(out)
     }
   )
 
   # dplyr forward
+  check_prudence(x, duckplyr_error)
+
   cross_join <- dplyr$cross_join.data.frame
   out <- cross_join(x, y, ..., copy = copy, suffix = suffix)
   return(out)
@@ -56,8 +58,8 @@ cross_join.duckplyr_df <- function(x, y, ..., copy = FALSE, suffix = c(".x", ".y
 duckplyr_cross_join <- function(x, y, ...) {
   try_fetch(
     {
-      x <- as_duckplyr_df(x)
-      y <- as_duckplyr_df(y)
+      x <- as_duckplyr_df_impl(x)
+      y <- as_duckplyr_df_impl(y)
     },
     error = function(e) {
       testthat::skip(conditionMessage(e))

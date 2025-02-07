@@ -1,14 +1,37 @@
-telemetry <- new_environment()
+try_list <- function(...) {
+  out <- vector("list", length = ...length())
+  for (i in seq_len(...length())) {
+    # Single-bracket assignment for the handling of NULLs
+    out[i] <- list(tryCatch(
+      ...elt(i),
+      error = function(e) {
+        paste0("<Error: ", conditionMessage(e), ">")
+      }
+    ))
+  }
+  names(out) <- ...names()
+  out
+}
+
+on_load({
+  # ...names() needs R 4.1:
+  if (getRversion() < "4.1") {
+    env <- environment()
+    assign("try_list", list, env)
+  }
+})
 
 tel_fallback_logging <- function() {
   val <- Sys.getenv("DUCKPLYR_FALLBACK_COLLECT")
   if (val == "") {
-    return(NA)
+    return(TRUE)
   }
-  if (!grepl("^[0-9]+$", val)) {
-    return(FALSE)
+  if (grepl("^[0-9]+$", val)) {
+    out <- (as.integer(val) >= 1)
+  } else {
+    out <- FALSE
   }
-  as.integer(val) >= 1
+  structure(out, val = val)
 }
 
 tel_fallback_verbose <- function() {
@@ -16,7 +39,7 @@ tel_fallback_verbose <- function() {
   val == "TRUE"
 }
 
-tel_fallback_uploading <- function() {
+tel_fallback_autoupload <- function() {
   val <- Sys.getenv("DUCKPLYR_FALLBACK_AUTOUPLOAD")
   if (val == "") {
     return(NA)
@@ -76,33 +99,12 @@ tel_fallback_logs <- function(oldest = NULL, newest = NULL, detail = FALSE, envi
 
 tel_collect <- function(cnd, call) {
   logging <- tel_fallback_logging()
-  if (!isTRUE(logging) && !is.na(logging)) {
+  if (!isTRUE(logging)) {
     return()
   }
 
-  if (is.na(logging)) {
-    # Deferred evaluation of call_to_json(...)
-    tel_ask(call_to_json(cnd, call))
-    return()
-  }
+  call_json <- call_to_json(cnd, call)
 
-  tel_record(call_to_json(cnd, call))
-}
-
-tel_ask <- function(call_json) {
-  time <- Sys.time()
-  old_time <- telemetry$time
-  eight_hours <- 60 * 60 * 8
-  if (!is.null(old_time) && time - old_time < eight_hours) {
-    return()
-  }
-
-  telemetry$time <- time
-
-  fallback_nudge(call_json)
-}
-
-tel_record <- function(call_json) {
   telemetry_path <- tel_fallback_log_dir()
   telemetry_file <- file.path(telemetry_path, paste0(Sys.getpid(), ".ndjson"))
 
@@ -237,9 +239,9 @@ expr_to_json <- function(x, name_map) {
   expr_deparse(scrubbed, width = 500L)
 }
 
-expr_scrub <- function(x, name_map) {
+expr_scrub <- function(x, name_map = character()) {
   do_scrub <- function(xx, callee = FALSE) {
-    if (is.character(xx))  {
+    if (is.character(xx)) {
       return("<character>")
     } else if (is.factor(xx)) {
       return("<factor>")
@@ -247,6 +249,9 @@ expr_scrub <- function(x, name_map) {
       # Needed for R 4.4
       return(xx)
     } else if (is.atomic(xx)) {
+      return(xx)
+    } else if (is_missing(xx)) {
+      # Arguments without default values are empty
       return(xx)
     } else if (is_symbol(xx)) {
       if (callee) {
@@ -264,6 +269,8 @@ expr_scrub <- function(x, name_map) {
     } else if (is_call(xx)) {
       args <- map(as.list(xx)[-1], do_scrub)
       call2(do_scrub(xx[[1]], callee = TRUE), !!!args)
+    } else if (is_pairlist(xx)) {
+      as.pairlist(map(as.list(xx), do_scrub))
     } else {
       paste0("Don't know how to scrub ", paste(class(xx), collapse = "/"))
     }

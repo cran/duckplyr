@@ -7,15 +7,17 @@ group_map.duckplyr_df <- function(.data, .f, ..., .keep = FALSE, keep = deprecat
   }
 
   # Our implementation
-  rel_try(
+  duckplyr_error <- rel_try(NULL,
     # Always fall back to dplyr
-    "No relational implementation for group_map()" = TRUE,
+    "No relational implementation for {.code group_map()}" = TRUE,
     {
       return(out)
     }
   )
 
   # dplyr forward
+  check_prudence(.data, duckplyr_error)
+
   group_map <- dplyr$group_map.data.frame
   out <- group_map(.data, .f, ..., .keep = .keep)
   return(out)
@@ -33,7 +35,7 @@ group_map.duckplyr_df <- function(.data, .f, ..., .keep = FALSE, keep = deprecat
   } else {
     group_split(.data)
   }
-  keys  <- group_keys(.data)
+  keys <- group_keys(.data)
   group_keys <- map(seq_len(nrow(keys)), function(i) keys[i, , drop = FALSE])
 
   if (length(chunks)) {
@@ -46,7 +48,7 @@ group_map.duckplyr_df <- function(.data, .f, ..., .keep = FALSE, keep = deprecat
 
 duckplyr_group_map <- function(.data, ...) {
   try_fetch(
-    .data <- as_duckplyr_df(.data),
+    .data <- as_duckplyr_df_impl(.data),
     error = function(e) {
       testthat::skip(conditionMessage(e))
     }

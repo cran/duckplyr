@@ -2,15 +2,17 @@
 #' @export
 group_trim.duckplyr_df <- function(.tbl, .drop = group_by_drop_default(.tbl)) {
   # Our implementation
-  rel_try(
+  duckplyr_error <- rel_try(NULL,
     # Always fall back to dplyr
-    "No relational implementation for group_trim()" = TRUE,
+    "No relational implementation for {.code group_trim()}" = TRUE,
     {
       return(out)
     }
   )
 
   # dplyr forward
+  check_prudence(.tbl, duckplyr_error)
+
   group_trim <- dplyr$group_trim.data.frame
   out <- group_trim(.tbl, .drop)
   return(out)
@@ -21,7 +23,7 @@ group_trim.duckplyr_df <- function(.tbl, .drop = group_by_drop_default(.tbl)) {
 
 duckplyr_group_trim <- function(.tbl, ...) {
   try_fetch(
-    .tbl <- as_duckplyr_df(.tbl),
+    .tbl <- as_duckplyr_df_impl(.tbl),
     error = function(e) {
       testthat::skip(conditionMessage(e))
     }

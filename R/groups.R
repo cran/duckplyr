@@ -2,15 +2,17 @@
 #' @export
 groups.duckplyr_df <- function(x) {
   # Our implementation
-  rel_try(
+  duckplyr_error <- rel_try(NULL,
     # Always fall back to dplyr
-    "No relational implementation for groups()" = TRUE,
+    "No relational implementation for {.code groups()}" = TRUE,
     {
       return(out)
     }
   )
 
   # dplyr forward
+  check_prudence(x, duckplyr_error)
+
   groups <- dplyr$groups.data.frame
   out <- groups(x)
   return(out)
@@ -21,7 +23,7 @@ groups.duckplyr_df <- function(x) {
 
 duckplyr_groups <- function(x, ...) {
   try_fetch(
-    x <- as_duckplyr_df(x),
+    x <- as_duckplyr_df_impl(x),
     error = function(e) {
       testthat::skip(conditionMessage(e))
     }

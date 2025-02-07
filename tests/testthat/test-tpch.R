@@ -1,5 +1,5 @@
 test_that("TPCH queries can be parsed and run", {
-  customer <- tibble::tibble(
+  customer <- duckdb_tibble(
     c_custkey = integer(0),
     c_name = character(0),
     c_address = character(0),
@@ -8,10 +8,10 @@ test_that("TPCH queries can be parsed and run", {
     c_acctbal = numeric(0),
     c_mktsegment = character(0),
     c_comment = character(0),
-  ) %>%
-    as_duckplyr_df()
+    .prudence = "stingy"
+  )
 
-  lineitem <- tibble::tibble(
+  lineitem <- duckdb_tibble(
     l_orderkey = integer(0),
     l_partkey = integer(0),
     l_suppkey = integer(0),
@@ -28,18 +28,18 @@ test_that("TPCH queries can be parsed and run", {
     l_shipinstruct = character(0),
     l_shipmode = character(0),
     l_comment = character(0),
-  ) %>%
-    as_duckplyr_df()
+    .prudence = "stingy"
+  )
 
-  nation <- tibble::tibble(
+  nation <- duckdb_tibble(
     n_nationkey = integer(0),
     n_name = character(0),
     n_regionkey = integer(0),
     n_comment = character(0),
-  ) %>%
-    as_duckplyr_df()
+    .prudence = "stingy"
+  )
 
-  orders <- tibble::tibble(
+  orders <- duckdb_tibble(
     o_orderkey = integer(0),
     o_custkey = integer(0),
     o_orderstatus = character(0),
@@ -49,10 +49,10 @@ test_that("TPCH queries can be parsed and run", {
     o_clerk = character(0),
     o_shippriority = integer(0),
     o_comment = character(0),
-  ) %>%
-    as_duckplyr_df()
+    .prudence = "stingy"
+  )
 
-  part <- tibble::tibble(
+  part <- duckdb_tibble(
     p_partkey = integer(0),
     p_name = character(0),
     p_mfgr = character(0),
@@ -62,26 +62,26 @@ test_that("TPCH queries can be parsed and run", {
     p_container = character(0),
     p_retailprice = numeric(0),
     p_comment = character(0),
-  ) %>%
-    as_duckplyr_df()
+    .prudence = "stingy"
+  )
 
-  partsupp <- tibble::tibble(
+  partsupp <- duckdb_tibble(
     ps_partkey = integer(0),
     ps_suppkey = integer(0),
     ps_availqty = integer(0),
     ps_supplycost = numeric(0),
     ps_comment = character(0),
-  ) %>%
-    as_duckplyr_df()
+    .prudence = "stingy"
+  )
 
-  region <- tibble::tibble(
+  region <- duckdb_tibble(
     r_regionkey = integer(0),
     r_name = character(0),
     r_comment = character(0),
-  ) %>%
-    as_duckplyr_df()
+    .prudence = "stingy"
+  )
 
-  supplier <- tibble::tibble(
+  supplier <- duckdb_tibble(
     s_suppkey = integer(0),
     s_name = character(0),
     s_address = character(0),
@@ -89,11 +89,11 @@ test_that("TPCH queries can be parsed and run", {
     s_phone = character(0),
     s_acctbal = numeric(0),
     s_comment = character(0),
-  ) %>%
-    as_duckplyr_df()
+    .prudence = "stingy"
+  )
 
   withr::local_envvar(DUCKPLYR_FORCE = TRUE)
-  local_options(duckdb.materialize_message = FALSE)
+  local_options(duckdb.materialize_callback = NULL)
 
   local_bindings(
     customer = customer,

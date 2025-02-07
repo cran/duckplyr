@@ -2,14 +2,16 @@
 #' @export
 rename_with.duckplyr_df <- function(.data, .fn, .cols = everything(), ...) {
   # Our implementation
-  rel_try(
-    "No relational implementation for rename_with()" = TRUE,
+  duckplyr_error <- rel_try(NULL,
+    "No relational implementation for {.code rename_with()}" = TRUE,
     {
       return(out)
     }
   )
 
   # dplyr forward
+  check_prudence(.data, duckplyr_error)
+
   rename_with <- dplyr$rename_with.data.frame
   out <- rename_with(.data, .fn, {{ .cols }}, ...)
   return(out)
@@ -42,7 +44,7 @@ rename_with.duckplyr_df <- function(.data, .fn, .cols = everything(), ...) {
 
 duckplyr_rename_with <- function(.data, ...) {
   try_fetch(
-    .data <- as_duckplyr_df(.data),
+    .data <- as_duckplyr_df_impl(.data),
     error = function(e) {
       testthat::skip(conditionMessage(e))
     }

@@ -2,15 +2,17 @@
 #' @export
 group_keys.duckplyr_df <- function(.tbl, ...) {
   # Our implementation
-  rel_try(
+  duckplyr_error <- rel_try(NULL,
     # Always fall back to dplyr
-    "No relational implementation for group_keys()" = TRUE,
+    "No relational implementation for {.code group_keys()}" = TRUE,
     {
       return(out)
     }
   )
 
   # dplyr forward
+  check_prudence(.tbl, duckplyr_error)
+
   group_keys <- dplyr$group_keys.data.frame
   out <- group_keys(.tbl, ...)
   return(out)
@@ -30,7 +32,7 @@ group_keys.duckplyr_df <- function(.tbl, ...) {
 
 duckplyr_group_keys <- function(.tbl, ...) {
   try_fetch(
-    .tbl <- as_duckplyr_df(.tbl),
+    .tbl <- as_duckplyr_df_impl(.tbl),
     error = function(e) {
       testthat::skip(conditionMessage(e))
     }

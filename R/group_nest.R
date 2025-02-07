@@ -2,15 +2,17 @@
 #' @export
 group_nest.duckplyr_df <- function(.tbl, ..., .key = "data", keep = FALSE) {
   # Our implementation
-  rel_try(
+  duckplyr_error <- rel_try(NULL,
     # Always fall back to dplyr
-    "No relational implementation for group_nest()" = TRUE,
+    "No relational implementation for {.code group_nest()}" = TRUE,
     {
       return(out)
     }
   )
 
   # dplyr forward
+  check_prudence(.tbl, duckplyr_error)
+
   group_nest <- dplyr$group_nest.data.frame
   out <- group_nest(.tbl, ..., .key = .key, keep = keep)
   return(out)
@@ -25,7 +27,7 @@ group_nest.duckplyr_df <- function(.tbl, ..., .key = "data", keep = FALSE) {
 
 duckplyr_group_nest <- function(.tbl, ...) {
   try_fetch(
-    .tbl <- as_duckplyr_df(.tbl),
+    .tbl <- as_duckplyr_df_impl(.tbl),
     error = function(e) {
       testthat::skip(conditionMessage(e))
     }

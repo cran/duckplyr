@@ -2,14 +2,16 @@
 #' @export
 reframe.duckplyr_df <- function(.data, ..., .by = NULL) {
   # Our implementation
-  rel_try(
-    "No relational implementation for reframe()" = TRUE,
+  duckplyr_error <- rel_try(NULL,
+    "No relational implementation for {.code reframe()}" = TRUE,
     {
       return(out)
     }
   )
 
   # dplyr forward
+  check_prudence(.data, duckplyr_error)
+
   reframe <- dplyr$reframe.data.frame
   out <- reframe(.data, ..., .by = {{ .by }})
   return(out)
@@ -31,7 +33,7 @@ reframe.duckplyr_df <- function(.data, ..., .by = NULL) {
 
 duckplyr_reframe <- function(.data, ...) {
   try_fetch(
-    .data <- as_duckplyr_df(.data),
+    .data <- as_duckplyr_df_impl(.data),
     error = function(e) {
       testthat::skip(conditionMessage(e))
     }

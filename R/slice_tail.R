@@ -2,14 +2,16 @@
 #' @export
 slice_tail.duckplyr_df <- function(.data, ..., n, prop, by = NULL) {
   # Our implementation
-  rel_try(
-    "No relational implementation for slice_tail()" = TRUE,
+  duckplyr_error <- rel_try(NULL,
+    "No relational implementation for {.code slice_tail()}" = TRUE,
     {
       return(out)
     }
   )
 
   # dplyr forward
+  check_prudence(.data, duckplyr_error)
+
   slice_tail <- dplyr$slice_tail.data.frame
   out <- slice_tail(.data, ..., n = n, prop = prop, by = {{ by }})
   return(out)
@@ -30,7 +32,7 @@ slice_tail.duckplyr_df <- function(.data, ..., n, prop, by = NULL) {
 
 duckplyr_slice_tail <- function(.data, ...) {
   try_fetch(
-    .data <- as_duckplyr_df(.data),
+    .data <- as_duckplyr_df_impl(.data),
     error = function(e) {
       testthat::skip(conditionMessage(e))
     }

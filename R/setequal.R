@@ -2,14 +2,16 @@
 #' @export
 setequal.duckplyr_df <- function(x, y, ...) {
   # Our implementation
-  rel_try(
-    "No relational implementation for setequal()" = TRUE,
+  duckplyr_error <- rel_try(NULL,
+    "No relational implementation for {.code setequal()}" = TRUE,
     {
       return(out)
     }
   )
 
   # dplyr forward
+  check_prudence(x, duckplyr_error)
+
   setequal <- dplyr$setequal.data.frame
   out <- setequal(x, y, ...)
   return(out)
@@ -25,8 +27,8 @@ setequal.duckplyr_df <- function(x, y, ...) {
 duckplyr_setequal <- function(x, y, ...) {
   try_fetch(
     {
-      x <- as_duckplyr_df(x)
-      y <- as_duckplyr_df(y)
+      x <- as_duckplyr_df_impl(x)
+      y <- as_duckplyr_df_impl(y)
     },
     error = function(e) {
       testthat::skip(conditionMessage(e))

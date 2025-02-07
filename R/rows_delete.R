@@ -2,14 +2,16 @@
 #' @export
 rows_delete.duckplyr_df <- function(x, y, by = NULL, ..., unmatched = c("error", "ignore"), copy = FALSE, in_place = FALSE) {
   # Our implementation
-  rel_try(
-    "No relational implementation for rows_delete()" = TRUE,
+  duckplyr_error <- rel_try(NULL,
+    "No relational implementation for {.code rows_delete()}" = TRUE,
     {
       return(out)
     }
   )
 
   # dplyr forward
+  check_prudence(x, duckplyr_error)
+
   rows_delete <- dplyr$rows_delete.data.frame
   out <- rows_delete(x, y, by, ..., unmatched = unmatched, copy = copy, in_place = in_place)
   return(out)
@@ -55,8 +57,8 @@ rows_delete.duckplyr_df <- function(x, y, by = NULL, ..., unmatched = c("error",
 duckplyr_rows_delete <- function(x, y, ...) {
   try_fetch(
     {
-      x <- as_duckplyr_df(x)
-      y <- as_duckplyr_df(y)
+      x <- as_duckplyr_df_impl(x)
+      y <- as_duckplyr_df_impl(y)
     },
     error = function(e) {
       testthat::skip(conditionMessage(e))

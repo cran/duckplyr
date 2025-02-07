@@ -12,14 +12,16 @@ nest_join.duckplyr_df <- function(x, y, by = NULL, copy = FALSE, keep = NULL, na
   }
 
   # Our implementation
-  rel_try(
-    "No relational implementation for nest_join()" = TRUE,
+  duckplyr_error <- rel_try(NULL,
+    "No relational implementation for {.code nest_join()}" = TRUE,
     {
       return(out)
     }
   )
 
   # dplyr forward
+  check_prudence(x, duckplyr_error)
+
   x_df <- x
   class(x_df) <- setdiff(class(x_df), "duckplyr_df")
   y_df <- y
@@ -122,8 +124,8 @@ duckplyr_nest_join <- function(x, y, by = NULL, copy = FALSE, keep = NULL, name 
 
   try_fetch(
     {
-      x <- as_duckplyr_df(x)
-      y <- as_duckplyr_df(y)
+      x <- as_duckplyr_df_impl(x)
+      y <- as_duckplyr_df_impl(y)
     },
     error = function(e) {
       testthat::skip(conditionMessage(e))

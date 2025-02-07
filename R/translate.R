@@ -1,21 +1,23 @@
 # Documented in `.github/CONTRIBUTING.md`
 
-rel_find_call <- function(fun, env) {
+rel_find_call <- function(fun, env, call = caller_env()) {
   name <- as.character(fun)
 
   if (name[[1]] == "::") {
     # Fully qualified name, no check needed
     return(c(name[[2]], name[[3]]))
   } else if (length(name) != 1) {
-    cli::cli_abort("Can't translate function {.code {expr_deparse(fun)}}.")
+    cli::cli_abort("Can't translate function {.code {expr_deparse(fun)}}.", call = call)
   }
 
   # Order from https://docs.google.com/spreadsheets/d/1j3AFOKiAknTGpXU1uSH7JzzscgYjVbUEwmdRHS7268E/edit?gid=769885824#gid=769885824,
   # generated as `expr_result` by 63-gh-detail.R
 
-  pkg <- switch(name,
+  # Remember to update limits.Rmd when adding new functions!
+  pkgs <- switch(name,
     # Handled in a special way, not mentioned here
-    # "desc" = "dplyr",
+    "desc" = "dplyr",
+
     "==" = "base",
     "/" = "base",
     "$" = "base", # very special, also with constant folding
@@ -46,6 +48,8 @@ rel_find_call <- function(fun, env) {
     # "^" = "base",
     "min" = "base",
     # "replace" = "base",
+    "sub" = "base",
+    "gsub" = "base",
     "grepl" = "base",
     # ":" = "base",
     # "as.character" = "base",
@@ -53,7 +57,7 @@ rel_find_call <- function(fun, env) {
     # "round" = "base",
     # "paste0" = "base",
     # "length" = "base",
-    # ".data$" = "dplyr", # implemented
+    # ".data$" = "dplyr",
     "sd" = "stats",
     # "[[" = "base", # won't implement?
     # "gsub" = "base",
@@ -61,7 +65,7 @@ rel_find_call <- function(fun, env) {
     "median" = "stats",
     # "~" = "base", # won't implement?
     # "unique" = "base", # what's the use case?
-    # ".$" = "dplyr", # won't implement?
+    # ".$" = "dplyr",
     # "%>%" = "magrittr", # with the help of magrittr?
     # "as.Date" = "base",
     "as.integer" = "base",
@@ -72,35 +76,28 @@ rel_find_call <- function(fun, env) {
     # "rev" = "base", # what's the use case?
     # "seq" = "base", # what's the use case?
     # "sqrt" = "base",
-    # "abs" = "base",
+    "abs" = "base",
     "if_else" = "dplyr",
-
+    #
     "any" = "base",
+    "all" = "base",
     "suppressWarnings" = "base",
     "lag" = "dplyr",
     "lead" = "dplyr",
-    "first" = "dplyr",
-    "last" = "dplyr",
-    "nth" = "dplyr",
     "log10" = "base",
     "log" = "base",
-    "rank" = "dplyr",
-    "dense_rank" = "dplyr",
-    "percent_rank" = "dplyr",
-    "cume_dist" = "dplyr",
-    "ntile" = "dplyr",
     "hour" = "lubridate",
     "minute" = "lubridate",
     "second" = "lubridate",
     "wday" = "lubridate",
     "strftime" = "base",
-    "abs" = "base",
     "substr" = "base",
     NULL
   )
+  # Remember to update limits.Rmd when adding new functions!
 
-  if (is.null(pkg)) {
-    cli::cli_abort("No translation for function {.code {name}}.")
+  if (is.null(pkgs)) {
+    cli::cli_abort("No translation for function {.fun {name}}.", call = call)
   }
 
   # https://github.com/tidyverse/dplyr/pull/7046
@@ -108,34 +105,81 @@ rel_find_call <- function(fun, env) {
     return(c("dplyr", "n"))
   }
 
-  fun_val <- get0(fun, env, mode = "function", inherits = TRUE)
+  fun_val <- get0(as.character(fun), env, mode = "function", inherits = TRUE)
 
-  if (!identical(fun_val, get(name, envir = asNamespace(pkg)))) {
-    cli::cli_abort("Function {.code {name}} does not map to {.code {pkg}::{name}}.")
+  for (pkg in pkgs) {
+    if (identical(fun_val, get(name, envir = asNamespace(pkg)))) {
+      return(c(pkg, name))
+    }
   }
 
-  c(pkg, name)
+  if (length(pkgs) == 1) {
+    cli::cli_abort("Function {.fun {name}} does not map to {.fun {pkgs}::{name}}.", call = call)
+  } else {
+    cli::cli_abort("Function {.fun {name}} does not map to the corresponding function in {.pkg {pkgs}}.", call = call)
+  }
+}
+
+infer_class_of_expr <- function(expr, data) {
+  if (typeof(expr) == "symbol") {
+    name <- as.character(expr)
+    if (name %in% names(data)) {
+      return(class(data[[name]])[[1]])
+    }
+  }
+  return(class(expr)[[1]])
+}
+
+classes_are_comparable <- function(left, right) {
+  if (left == "integer" && right == "numeric") {
+    return(TRUE)
+  }
+  if (left == "numeric" && right == "integer") {
+    return(TRUE)
+  }
+  left == right
 }
 
 rel_translate_lang <- function(
-    expr,
-    do_translate,
-    # FIXME: Perform constant folding instead
-    names_data,
-    env,
-    # FIXME: Perform constant folding instead
-    partition,
-    in_window,
-    need_window
+  expr,
+  do_translate,
+  data,
+  # FIXME: Perform constant folding instead
+  env,
+  # FIXME: Perform constant folding instead
+  partition,
+  in_window,
+  need_window,
+  call = caller_env()
 ) {
-  pkg_name <- rel_find_call(expr[[1]], env)
+  pkg_name <- rel_find_call(expr[[1]], env, call = call)
   pkg <- pkg_name[[1]]
   name <- pkg_name[[2]]
 
-  if (!(name %in% c("wday", "strftime", "lag", "lead"))) {
+
+  if (name %in% c(">", "<", "==", ">=", "<=")) {
+    if (length(expr) != 3) {
+      cli::cli_abort("Expected three expressions for comparison. Got {length(expr)}", call = call)
+    }
+
+    class_left <- infer_class_of_expr(expr[[2]], data)
+    class_right <- infer_class_of_expr(expr[[3]], data)
+
+    if (classes_are_comparable(class_left, class_right)) {
+      return(
+        relexpr_comparison(
+          name,
+          list(do_translate(expr[[2]]), do_translate(expr[[3]]))
+        )
+      )
+    }
+  }
+
+
+  if (!(name %in% c("wday", "strftime", "lag", "lead", "sum", "min", "max", "any", "all", "mean", "median", "sd"))) {
     if (!is.null(names(expr)) && any(names(expr) != "")) {
-      # Fix grepl() logic below when allowing matching by argument name
-      cli::cli_abort("Can't translate named argument {.code {name}({names(expr)[names(expr) != ''][[1]]} = )}.")
+      # Fix grepl() and sum()/min()/max() logic below when allowing matching by argument name
+      cli::cli_abort("Can't translate named argument {.code {name}({names(expr)[names(expr) != ''][[1]]} = )}.", call = call)
     }
   }
 
@@ -146,30 +190,28 @@ rel_translate_lang <- function(
     # Hack
     "wday" = {
       if (!is.null(pkg) && pkg != "lubridate") {
-        cli::cli_abort("Don't know how to translate {.code {pkg}::{name}}.")
+        cli::cli_abort("Don't know how to translate {.code {pkg}::{name}}.", call = call)
       }
-      def <- lubridate::wday
-      call <- match.call(def, expr, envir = env)
+      call <- call_match(expr, lubridate::wday, dots_env = env)
       args <- as.list(call[-1])
       bad <- !(names(args) %in% c("x"))
       if (any(bad)) {
-        cli::cli_abort("{name}({names(args)[which(bad)[[1]]]} = ) not supported")
+        cli::cli_abort("{name}({names(args)[which(bad)[[1]]]} = ) not supported", call = call)
       }
       if (!is.null(getOption("lubridate.week.start"))) {
-        cli::cli_abort('{.code wday()} with {.code option("lubridate.week.start")} not supported')
+        cli::cli_abort('{.code wday()} with {.code option("lubridate.week.start")} not supported', call = call)
       }
     },
     "strftime" = {
-      def <- strftime
-      call <- match.call(def, expr, envir = env)
+      call <- call_match(expr, strftime, dots_env = env)
       args <- as.list(call[-1])
       bad <- !(names(args) %in% c("x", "format"))
       if (any(bad)) {
-        cli::cli_abort("{name}({names(args)[which(bad)[[1]]]} = ) not supported")
+        cli::cli_abort("{name}({names(args)[which(bad)[[1]]]} = ) not supported", call = call)
       }
     },
     "%in%" = {
-      values <- eval_tidy(expr[[3]], data = new_failing_mask(names_data), env = env)
+      values <- eval_tidy(expr[[3]], data = new_failing_mask(names(data)), env = env)
       if (length(values) == 0) {
         return(relexpr_constant(FALSE))
       }
@@ -184,6 +226,10 @@ rel_translate_lang <- function(
         }
       } else {
         has_na <- FALSE
+      }
+
+      if (length(values) > 100) {
+        cli::cli_abort("Can't translate {.code {name}} with more than 100 values.", call = call)
       }
 
       consts <- map(values, do_translate)
@@ -204,32 +250,43 @@ rel_translate_lang <- function(
         if (exists(var_name, envir = env)) {
           return(do_translate(get(var_name, env), in_window = in_window))
         } else {
-          cli::cli_abort("internal: object not found, should also be triggered by the dplyr fallback")
+          cli::cli_abort("object not found, should also be triggered by the dplyr fallback", call = call)
         }
       }
     }
   )
 
   aliases <- c(
-    sd = "stddev",
-    first = "first_value",
-    last = "last_value",
-    nth = "nth_value",
+    "sd" = "stddev",
+    "first" = "first_value",
+    "last" = "last_value",
+    "nth" = "nth_value",
     "/" = "___divide",
     "log10" = "___log10",
     "log" = "___log",
     "as.integer" = "r_base::as.integer",
+    "<" = "r_base::<",
+    "<=" = "r_base::<=",
+    ">" = "r_base::>",
+    ">=" = "r_base::>=",
+    "==" = "r_base::==",
+    "!=" = "r_base::!=",
+
     NULL
   )
 
   known_window <- c(
     # Window functions
-    "rank", "dense_rank", "percent_rank",
-    "row_number", "first", "last", "nth",
-    "cume_dist", "lead", "lag", "ntile",
+    "row_number",
+    # Not yet implemented
+    "ntile",
+    "first", "last", "nth",
+    # Difficult to implement
+    "rank", "dense_rank", "percent_rank", "cume_dist",
+    "lead", "lag",
 
     # Aggregates
-    "sum", "mean", "sd", "min", "max", "median",
+    "sum", "min", "max", "any", "all", "mean", "sd", "median",
     #
     NULL
   )
@@ -237,19 +294,20 @@ rel_translate_lang <- function(
   window <- need_window && (name %in% known_window)
 
   if (name %in% names(aliases)) {
-    name <- aliases[[name]]
-    if (grepl("^r_base::", name)) {
+    aliased_name <- aliases[[name]]
+    if (grepl("^r_base::", aliased_name)) {
       meta_ext_register()
     }
+  } else {
+    aliased_name <- name
   }
-  # name <- aliases[name] %|% name
 
   order_bys <- list()
   offset_expr <- NULL
   default_expr <- NULL
   if (name %in% c("lag", "lead")) {
     # x, n = 1L, default = NULL, order_by = NULL
-    expr <- match.call(lag, expr)
+    expr <- call_match(expr, lag, dots_env = env)
 
     offset_expr <- relexpr_constant(expr$n %||% 1L)
     expr$n <- NULL
@@ -265,15 +323,67 @@ rel_translate_lang <- function(
     }
   }
 
+  # Other primitives: prod, range
+  # Other aggregates: var(), cum*(), quantile()
+  if (name %in% c("sum", "min", "max", "any", "all", "mean", "sd", "median")) {
+    is_primitive <- (name %in% c("sum", "min", "max", "any", "all"))
+
+    if (is_primitive) {
+      def_primitive <- function(..., na.rm = FALSE) {}
+      def <- def_primitive
+      good_names <- c("", "na.rm")
+      unnamed_args <- 1
+    } else {
+      def_regular <- function(x, ..., na.rm = FALSE) {}
+      def <- def_regular
+      good_names <- c("x", "na.rm")
+      unnamed_args <- 0
+    }
+
+    expr <- call_match(expr, def, dots_env = env)
+    args <- as.list(expr[-1])
+    bad <- !(names(args) %in% good_names)
+    if (sum(names2(args) == "") != unnamed_args) {
+      cli::cli_abort("{.fun {name}} needs exactly one argument besides the optional {.arg na.rm}", call = call)
+    }
+    if (any(bad)) {
+      cli::cli_abort("{.code {name}({names(args)[which(bad)[[1]]]} = )} not supported", call = call)
+    }
+
+    na_rm <- FALSE
+    if (length(args) > 1) {
+      na_rm <- eval(args[[2]], env)
+    }
+
+    if (window) {
+      if (identical(na_rm, FALSE)) {
+        cli::cli_abort(call = call, c(
+          "{.code {name}(na.rm = FALSE)} not supported in window functions",
+          i = "Use {.code {name}(na.rm = TRUE)} after checking for missing values"
+        ))
+      } else if (!identical(na_rm, TRUE)) {
+        cli::cli_abort("Invalid value for {.arg na.rm} in call to {.fun {name}}", call = call)
+      }
+    } else {
+      if (identical(na_rm, FALSE)) {
+        aliased_name <- paste0("___", name, "_na") # ___sum_na, ___min_na, ___max_na
+      } else if (!identical(na_rm, TRUE)) {
+        cli::cli_abort("Invalid value for {.arg na.rm} in call to {.fun {name}}", call = call)
+      }
+    }
+
+    expr <- expr[1:2]
+  }
+
   args <- map(as.list(expr[-1]), do_translate, in_window = in_window || window)
 
   if (name == "grepl") {
     if (!inherits(args[[1]], "relational_relexpr_constant")) {
-      cli::cli_abort("Only constant patterns are supported in {.code grepl()}")
+      cli::cli_abort("Only constant patterns are supported in {.fun grepl}", call = call)
     }
   }
 
-  fun <- relexpr_function(name, args)
+  fun <- relexpr_function(aliased_name, args)
   if (window) {
     partitions <- map(partition, relexpr_reference)
     fun <- relexpr_window(
@@ -293,12 +403,14 @@ rel_translate_lang <- function(
 }
 
 rel_translate <- function(
-    quo, data,
-    alias = NULL,
-    partition = NULL,
-    need_window = FALSE,
-    names_data = names(data),
-    names_forbidden = NULL) {
+  quo,
+  data,
+  alias = NULL,
+  partition = NULL,
+  need_window = FALSE,
+  names_forbidden = NULL,
+  call = caller_env()
+) {
   if (is_expression(quo)) {
     expr <- quo
     env <- baseenv()
@@ -306,7 +418,6 @@ rel_translate <- function(
     expr <- quo_get_expr(quo)
     env <- quo_get_env(quo)
   }
-
   used <- character()
 
   do_translate <- function(expr, in_window = FALSE, top_level = FALSE) {
@@ -320,9 +431,9 @@ rel_translate <- function(
       #
       symbol = {
         if (as.character(expr) %in% names_forbidden) {
-          cli::cli_abort("Can't reuse summary variable {.var {as.character(expr)}}.")
+          cli::cli_abort("Can't reuse summary variable {.var {as.character(expr)}}.", call = call)
         }
-        if (as.character(expr) %in% names_data) {
+        if (as.character(expr) %in% names(data)) {
           ref <- as.character(expr)
           if (!(ref %in% used)) {
             used <<- c(used, ref)
@@ -337,14 +448,15 @@ rel_translate <- function(
       language = rel_translate_lang(
         expr,
         do_translate,
-        names_data,
+        data,
         env,
         partition,
         in_window,
-        need_window
+        need_window,
+        call = call
       ),
       #
-      cli::cli_abort("Internal: Unknown type {.val {typeof(expr)}}")
+      cli::cli_abort("Internal: Unknown type {.val {typeof(expr)}}", call = call)
     )
   }
 

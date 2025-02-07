@@ -1,5 +1,8 @@
 #' Read Parquet, CSV, and other files using DuckDB
 #'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
 #' `df_from_file()` uses arbitrary table functions to read data.
 #' See <https://duckdb.org/docs/data/overview> for a documentation
 #' of the available functions and their options.
@@ -24,14 +27,16 @@
 #'   `duckplyr_df_from_file()`, extended by the provided `class`.
 #'
 #' @export
+#' @keywords internal
 df_from_file <- function(path,
                          table_function,
                          ...,
                          options = list(),
                          class = NULL) {
   check_dots_empty()
+  lifecycle::deprecate_soft("1.0.0", "df_from_file()", "read_file_duckdb()")
 
-  if (!rlang::is_bare_character(path)) {
+  if (!rlang::is_character(path)) {
     cli::cli_abort("{.arg path} must be a character vector.")
   }
 
@@ -53,7 +58,7 @@ df_from_file <- function(path,
     options
   )
 
-  meta_rel_register_file(out, path, table_function, options)
+  meta_rel_register_file(out, table_function, path, options)
 
   out <- duckdb$rel_to_altrep(out)
   class(out) <- unique(c(class, "data.frame"), fromLast = TRUE)
@@ -74,9 +79,10 @@ duckplyr_df_from_file <- function(
     options = list(),
     class = NULL) {
   check_dots_empty()
+  lifecycle::deprecate_soft("1.0.0", "duckplyr_df_from_file()", "read_file_duckdb()")
 
   out <- df_from_file(path, table_function, options = options, class = class)
-  as_duckplyr_df(out)
+  as_duckplyr_df_impl(out)
 }
 
 default_df_class <- function() {

@@ -2,15 +2,17 @@
 #' @export
 group_by.duckplyr_df <- function(.data, ..., .add = FALSE, .drop = group_by_drop_default(.data)) {
   # Our implementation
-  rel_try(
+  duckplyr_error <- rel_try(NULL,
     # Always fall back to dplyr
-    "No relational implementation for group_by()" = TRUE,
+    "Try {.code summarise(.by = ...)} or {.code mutate(.by = ...)} instead of {.code group_by()} and {.code ungroup()}." = TRUE,
     {
       return(out)
     }
   )
 
   # dplyr forward
+  check_prudence(.data, duckplyr_error)
+
   group_by <- dplyr$group_by.data.frame
   out <- group_by(.data, ..., .add = .add, .drop = .drop)
   return(out)
@@ -27,7 +29,7 @@ group_by.duckplyr_df <- function(.data, ..., .add = FALSE, .drop = group_by_drop
 
 duckplyr_group_by <- function(.data, ...) {
   try_fetch(
-    .data <- as_duckplyr_df(.data),
+    .data <- as_duckplyr_df_impl(.data),
     error = function(e) {
       testthat::skip(conditionMessage(e))
     }

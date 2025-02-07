@@ -7,24 +7,18 @@
 The behavior of duckplyr can be fine-tuned with several environment variables,
 and one option.
 }
-\section{Options}{
-
-
-\code{duckdb.materialize_message}: Set to \code{FALSE} to turn off diagnostic output from duckdb
-on data frame materialization.
-Currenty set to \code{TRUE} when duckplyr is loaded.
-}
-
 \section{Environment variables}{
 
 
+\code{DUCKPLYR_TEMP_DIR}: Set to a path where temporary files can be created.
+By default, \code{\link[=tempdir]{tempdir()}} is used.
+
 \code{DUCKPLYR_OUTPUT_ORDER}: If \code{TRUE}, row output order is preserved.
 The default may change the row order where dplyr would keep it stable.
+Preserving the order leads to more complicated execution plans
+with less potential for optimization, and thus may be slower.
 
 \code{DUCKPLYR_FORCE}: If \code{TRUE}, fail if duckdb cannot handle a request.
-
-\code{DUCKPLYR_FALLBACK_INFO}: If \code{TRUE}, print a message when a fallback to dplyr occurs
-because duckdb cannot handle a request.
 
 \code{DUCKPLYR_CHECK_ROUNDTRIP}: If \code{TRUE}, check if all columns are roundtripped perfectly
 when creating a relational object from a data frame,
@@ -38,30 +32,19 @@ Currently unused.
 \code{DUCKPLYR_METHODS_OVERWRITE}: If \code{TRUE}, call \code{methods_overwrite()}
 when the package is loaded.
 
-See \link{fallback} for more options related to logging and uploading of fallback events.
+See \link{fallback} for more options related to printing, logging, and uploading
+of fallback events.
 }
 
 \examples{
-# options(duckdb.materialize_message = FALSE)
-data.frame(a = 3:1) \%>\%
-  as_duckplyr_df() \%>\%
-  inner_join(data.frame(a = 1:4), by = "a")
-
-rlang::with_options(duckdb.materialize_message = FALSE, {
-  data.frame(a = 3:1) \%>\%
-    as_duckplyr_df() \%>\%
-    inner_join(data.frame(a = 1:4), by = "a") \%>\%
-    print()
-})
-
 # Sys.setenv(DUCKPLYR_OUTPUT_ORDER = TRUE)
 data.frame(a = 3:1) \%>\%
-  as_duckplyr_df() \%>\%
+  as_duckdb_tibble() \%>\%
   inner_join(data.frame(a = 1:4), by = "a")
 
 withr::with_envvar(c(DUCKPLYR_OUTPUT_ORDER = "TRUE"), {
   data.frame(a = 3:1) \%>\%
-    as_duckplyr_df() \%>\%
+    as_duckdb_tibble() \%>\%
     inner_join(data.frame(a = 1:4), by = "a")
 })
 
@@ -71,19 +54,19 @@ add_one <- function(x) {
 }
 
 data.frame(a = 3:1) \%>\%
-  as_duckplyr_df() \%>\%
+  as_duckdb_tibble() \%>\%
   mutate(b = add_one(a))
 
 try(withr::with_envvar(c(DUCKPLYR_FORCE = "TRUE"), {
   data.frame(a = 3:1) \%>\%
-    as_duckplyr_df() \%>\%
+    as_duckdb_tibble() \%>\%
     mutate(b = add_one(a))
 }))
 
 # Sys.setenv(DUCKPLYR_FALLBACK_INFO = TRUE)
 withr::with_envvar(c(DUCKPLYR_FALLBACK_INFO = "TRUE"), {
   data.frame(a = 3:1) \%>\%
-    as_duckplyr_df() \%>\%
+    as_duckdb_tibble() \%>\%
     mutate(b = add_one(a))
 })
 }

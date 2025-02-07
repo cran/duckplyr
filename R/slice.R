@@ -2,14 +2,16 @@
 #' @export
 slice.duckplyr_df <- function(.data, ..., .by = NULL, .preserve = FALSE) {
   # Our implementation
-  rel_try(
-    "No relational implementation for slice()" = TRUE,
+  duckplyr_error <- rel_try(NULL,
+    "No relational implementation for {.code slice()}" = TRUE,
     {
       return(out)
     }
   )
 
   # dplyr forward
+  check_prudence(.data, duckplyr_error)
+
   slice <- dplyr$slice.data.frame
   out <- slice(.data, ..., .by = {{ .by }}, .preserve = .preserve)
   return(out)
@@ -32,7 +34,7 @@ slice.duckplyr_df <- function(.data, ..., .by = NULL, .preserve = FALSE) {
 
 duckplyr_slice <- function(.data, ...) {
   try_fetch(
-    .data <- as_duckplyr_df(.data),
+    .data <- as_duckplyr_df_impl(.data),
     error = function(e) {
       testthat::skip(conditionMessage(e))
     }

@@ -2,14 +2,16 @@
 #' @export
 do.duckplyr_df <- function(.data, ...) {
   # Our implementation
-  rel_try(
-    "No relational implementation for do()" = TRUE,
+  duckplyr_error <- rel_try(NULL,
+    "No relational implementation for {.code do()}" = TRUE,
     {
       return(out)
     }
   )
 
   # dplyr forward
+  check_prudence(.data, duckplyr_error)
+
   do <- dplyr$do.data.frame
   out <- do(.data, ...)
   return(out)
@@ -39,7 +41,7 @@ do.duckplyr_df <- function(.data, ...) {
 
 duckplyr_do <- function(.data, ...) {
   try_fetch(
-    .data <- as_duckplyr_df(.data),
+    .data <- as_duckplyr_df_impl(.data),
     error = function(e) {
       testthat::skip(conditionMessage(e))
     }

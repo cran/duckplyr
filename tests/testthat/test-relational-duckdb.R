@@ -24,11 +24,17 @@ test_that("duckdb_rel_from_df()", {
     # Ingestion only
     df$DATE_INTEGER <- NULL
     df$TIME_SECONDS_INTEGER <- NULL
-    # https://github.com/duckdb/duckdb/issues/8585
-    df$TIMESTAMP[] <- round(as.numeric(df$TIMESTAMP))
   }
 
   expect_silent(duckdb_rel_from_df(df))
+
+  expect_identical(
+    map(df, vec_ptype_safe),
+    map(df, vec_ptype)
+  )
+
+  # FIXME: Test that vec_ptype_safe() does not materialize (#149),
+  # remove test-altrep.R
 
   skip_if(Sys.getenv("DUCKPLYR_CHECK_ROUNDTRIP") == "TRUE")
 
@@ -52,6 +58,8 @@ test_that("duckdb_rel_from_df() and changing column names", {
 })
 
 test_that("rel_aggregate()", {
+  skip_if_not_installed("palmerpenguins")
+
   expr_species <- relexpr_reference("species")
   expr_aggregate <- relexpr_function(alias = "mean_bill_length_mm", "avg", list(
     relexpr_reference("bill_length_mm")
@@ -63,7 +71,7 @@ test_that("rel_aggregate()", {
     mutate(species = as.character(species)) %>%
     mutate(island = as.character(island)) %>%
     mutate(sex = as.character(sex)) %>%
-    as_duckplyr_df() %>%
+    as_duckdb_tibble() %>%
     duckdb_rel_from_df() %>%
     rel_aggregate(list(expr_species), list(expr_aggregate))
 
@@ -73,7 +81,7 @@ test_that("rel_aggregate()", {
     mutate(species = as.character(species)) %>%
     mutate(island = as.character(island)) %>%
     mutate(sex = as.character(sex)) %>%
-    as_duckplyr_df() %>%
+    as_duckdb_tibble() %>%
     duckdb_rel_from_df() %>%
     rel_aggregate(list(), list(expr_aggregate))
 
@@ -90,15 +98,37 @@ test_that("duckdb_rel_from_df() uses materialized results", {
   skip_if(identical(Sys.getenv("R_COVR"), "true"))
 
   withr::local_envvar(DUCKPLYR_FORCE = TRUE)
-  withr::local_options(duckdb.materialize_message = TRUE)
+  n_calls <- 0
+  withr::local_options(duckdb.materialize_callback = function(...) {
+    n_calls <<- n_calls + 1
+  })
 
   df <-
     data.frame(a = 1) %>%
     duckplyr_filter(a == 1)
 
-  expect_snapshot(transform = function(x) gsub("0x[0-9a-f]+", "0xdeadbeef", x), {
-    duckdb_rel_from_df(df)
-    nrow(df)
+  transform <- function(x) {
+    x <- gsub("0x[0-9a-f]+", "0xdeadbeef", x)
+    x
+  }
+
+  expect_equal(n_calls, 0)
+
+  expect_snapshot(transform = transform, {
     duckdb_rel_from_df(df)
   })
+
+  expect_equal(n_calls, 0)
+
+  expect_snapshot(transform = transform, {
+    nrow(df)
+  })
+
+  expect_equal(n_calls, 1)
+
+  expect_snapshot(transform = transform, {
+    duckdb_rel_from_df(df)
+  })
+
+  expect_equal(n_calls, 1)
 })

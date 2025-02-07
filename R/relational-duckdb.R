@@ -4,30 +4,36 @@
 # we need a finalizer to disconnect on exit otherwise we get a warning
 default_duckdb_connection <- new.env(parent = emptyenv())
 get_default_duckdb_connection <- function() {
-  if (!exists("con", default_duckdb_connection)) {
+  if (is.null(default_duckdb_connection$con)) {
     default_duckdb_connection$con <- create_default_duckdb_connection()
-
-    reg.finalizer(default_duckdb_connection, onexit = TRUE, function(e) {
-      DBI::dbDisconnect(e$con, shutdown = TRUE)
-    })
+    reg.finalizer(default_duckdb_connection, onexit = TRUE, reset_default_duckdb_connection)
   }
   default_duckdb_connection$con
+}
+
+reset_default_duckdb_connection <- function(e = NULL) {
+  if (is.null(e)) {
+    e <- default_duckdb_connection
+  }
+  DBI::dbDisconnect(e$con)
+  # duckdb::duckdb_shutdown(e$con@driver)
+  e$con <- NULL
 }
 
 duckplyr_macros <- c(
   # https://github.com/duckdb/duckdb-r/pull/156
   "___null" = "() AS CAST(NULL AS BOOLEAN)",
-
-  "<" = '(x, y) AS "r_base::<"(x, y)',
-  "<=" = '(x, y) AS "r_base::<="(x, y)',
-  ">" = '(x, y) AS "r_base::>"(x, y)',
-  ">=" = '(x, y) AS "r_base::>="(x, y)',
-  "==" = '(x, y) AS "r_base::=="(x, y)',
-  "!=" = '(x, y) AS "r_base::!="(x, y)',
+  #
+  "<" = '(x, y) AS (x < y)',
+  "<=" = '(x, y) AS (x <= y)',
+  ">" = '(x, y) AS (x > y)',
+  ">=" = '(x, y) AS (x >= y)',
+  "==" = '(x, y) AS (x == y)',
+  "!=" = '(x, y) AS (x != y)',
   #
   "___divide" = "(x, y) AS CASE WHEN y = 0 THEN CASE WHEN x = 0 THEN CAST('NaN' AS double) WHEN x > 0 THEN CAST('+Infinity' AS double) ELSE CAST('-Infinity' AS double) END ELSE CAST(x AS double) / y END",
   #
-  "is.na" = "(x) AS (x IS NULL OR isnan(x))",
+  "is.na" = "(x) AS (x IS NULL)",
   "n" = "() AS CAST(COUNT(*) AS int32)",
   #
   "___log10" = "(x) AS CASE WHEN x < 0 THEN CAST('NaN' AS double) WHEN x = 0 THEN CAST('-Inf' AS double) ELSE log10(x) END",
@@ -37,31 +43,44 @@ duckplyr_macros <- c(
   # https://github.com/duckdb/duckdb/discussions/8599
   # "as.Date" = '(x) AS strptime(x, \'%Y-%m-%d\')',
 
+  "sub" = "(pattern, replacement, x) AS (regexp_replace(x, pattern, replacement))",
+  "gsub" = "(pattern, replacement, x) AS (regexp_replace(x, pattern, replacement, 'g'))",
   "grepl" = "(pattern, x) AS (CASE WHEN x IS NULL THEN FALSE ELSE regexp_matches(x, pattern) END)",
-  "if_else" = "(test, yes, no) AS (CASE WHEN test THEN yes ELSE no END)",
+  "if_else" = "(test, yes, no) AS (CASE WHEN test IS NULL THEN NULL ELSE CASE WHEN test THEN yes ELSE no END END)",
   "|" = "(x, y) AS (x OR y)",
   "&" = "(x, y) AS (x AND y)",
   "!" = "(x) AS (NOT x)",
-  "any" = "(x) AS (bool_or(x))",
   "n_distinct" = "(x) AS (COUNT(DISTINCT x))",
   #
   "wday" = "(x) AS CAST(weekday(CAST (x AS DATE)) + 1 AS int32)",
   #
-  "___eq_na_matches_na" = '(x, y) AS (x IS NOT DISTINCT FROM y)',
+  "___eq_na_matches_na" = "(x, y) AS (x IS NOT DISTINCT FROM y)",
   "___coalesce" = "(x, y) AS COALESCE(x, y)",
   #
   # FIXME: Need a better way?
   "suppressWarnings" = "(x) AS (x)",
   #
+  "___sum_na" = "(x) AS (CASE WHEN SUM(CASE WHEN x IS NULL THEN 1 ELSE 0 END) > 0 THEN NULL ELSE SUM(x) END)",
+  "___min_na" = "(x) AS (CASE WHEN SUM(CASE WHEN x IS NULL THEN 1 ELSE 0 END) > 0 THEN NULL ELSE MIN(x) END)",
+  "___max_na" = "(x) AS (CASE WHEN SUM(CASE WHEN x IS NULL THEN 1 ELSE 0 END) > 0 THEN NULL ELSE MAX(x) END)",
+  "___any_na" = "(x) AS (CASE WHEN SUM(CASE WHEN x IS NULL THEN 1 ELSE 0 END) > 0 THEN NULL ELSE bool_or(x) END)",
+  "___all_na" = "(x) AS (CASE WHEN SUM(CASE WHEN x IS NULL THEN 1 ELSE 0 END) > 0 THEN NULL ELSE bool_and(x) END)",
+  "___mean_na" = "(x) AS (CASE WHEN SUM(CASE WHEN x IS NULL THEN 1 ELSE 0 END) > 0 THEN NULL ELSE AVG(x) END)",
+  "___sd_na" = "(x) AS (CASE WHEN SUM(CASE WHEN x IS NULL THEN 1 ELSE 0 END) > 0 THEN NULL ELSE STDDEV(x) END)",
+  "___median_na" = "(x) AS (CASE WHEN SUM(CASE WHEN x IS NULL THEN 1 ELSE 0 END) > 0 THEN NULL ELSE percentile_cont(0.5) WITHIN GROUP (ORDER BY x) END)",
+  #
   NULL
 )
 
 create_default_duckdb_connection <- function() {
-  drv <- duckdb::duckdb()
+  dbroot <- Sys.getenv("DUCKPLYR_TEMP_DIR", file.path(tempdir(), "duckplyr"))
+  dbdir <- tempfile("duckplyr", tmpdir = dbroot, fileext = ".duckdb")
+  dir.create(dbroot, recursive = TRUE, showWarnings = FALSE)
+
+  drv <- duckdb::duckdb(dbdir = dbdir)
   con <- DBI::dbConnect(drv)
 
-  # DBI::dbExecute(con, "set memory_limit='1GB'")
-  DBI::dbExecute(con, paste0("pragma temp_directory='", tempdir(), "'"))
+  DBI::dbExecute(con, paste0("pragma temp_directory='", dbroot, "'"))
 
   duckdb$rapi_load_rfuns(drv@database_ref)
 
@@ -91,8 +110,8 @@ duckdb_rel_from_df <- function(df) {
     return(rel)
   }
 
-  if (!is_duckplyr_df(df)) {
-    df <- as_duckplyr_df(df)
+  if (!is_duckdb_tibble(df)) {
+    df <- as_duckplyr_df_impl(df)
   }
 
   out <- check_df_for_rel(df)
@@ -106,29 +125,37 @@ duckdb_rel_from_df <- function(df) {
 }
 
 # FIXME: This should be duckdb's responsibility
-check_df_for_rel <- function(df) {
+check_df_for_rel <- function(df, call = caller_env()) {
   rni <- .row_names_info(df, 0L)
   if (is.character(rni)) {
-    cli::cli_abort("Need data frame without row names to convert to relational, got character row names.")
+    cli::cli_abort("Need data frame without row names to convert to relational, got character row names.", call = call)
   }
   if (length(rni) != 0) {
     if (length(rni) != 2L || !is.na(rni[[1]])) {
-      cli::cli_abort("Need data frame without row names to convert to relational, got numeric row names.")
+      cli::cli_abort("Need data frame without row names to convert to relational, got numeric row names.", call = call)
     }
+  }
+
+  if (length(df) == 0L) {
+    cli::cli_abort("Can't convert empty data frame to relational.", call = call)
   }
 
   for (i in seq_along(df)) {
     col <- .subset2(df, i)
     if (!is.null(names(col))) {
-      cli::cli_abort("Can't convert named vectors to relational. Affected column: {.var {names(df)[[i]]}}.")
+      cli::cli_abort("Can't convert named vectors to relational. Affected column: {.var {names(df)[[i]]}}.", call = call)
     }
     if (!is.null(dim(col))) {
-      cli::cli_abort("Can't convert arrays or matrices to relational. Affected column: {.var {names(df)[[i]]}}.")
+      cli::cli_abort("Can't convert arrays or matrices to relational. Affected column: {.var {names(df)[[i]]}}.", call = call)
     }
     if (isS4(col)) {
-      cli::cli_abort("Can't convert S4 columns to relational. Affected column: {.var {names(df)[[i]]}}.")
+      cli::cli_abort("Can't convert S4 columns to relational. Affected column: {.var {names(df)[[i]]}}.", call = call)
     }
-    # https://github.com/duckdb/duckdb/issues/8561
+
+    # Factors: https://github.com/duckdb/duckdb/issues/8561
+
+    # When adding new classes, make sure to adapt the first test in test-relational-duckdb.R
+
     col_class <- class(col)
     if (length(col_class) == 1) {
       valid <- col_class %in% c("logical", "integer", "numeric", "character", "Date", "difftime")
@@ -138,7 +165,7 @@ check_df_for_rel <- function(df) {
       valid <- FALSE
     }
     if (!valid) {
-      cli::cli_abort("Can't convert columns of class {.cls {col_class}} to relational. Affected column: {.var {names(df)[[i]]}}.")
+      cli::cli_abort("Can't convert columns of class {.cls {col_class}} to relational. Affected column: {.var {names(df)[[i]]}}.", call = call)
     }
   }
 
@@ -152,10 +179,10 @@ check_df_for_rel <- function(df) {
 
   roundtrip <- duckdb$rapi_rel_to_altrep(out)
   if (Sys.getenv("DUCKPLYR_CHECK_ROUNDTRIP") == "TRUE") {
-    rlang::with_options(duckdb.materialize_message = FALSE, {
+    rlang::with_options(duckdb.materialize_callback = NULL, {
       for (i in seq_along(df)) {
         if (!identical(df[[i]], roundtrip[[i]])) {
-          cli::cli_abort("Imperfect roundtrip. Affected column: {.var {names(df)[[i]]}}.")
+          cli::cli_abort("Imperfect roundtrip. Affected column: {.var {names(df)[[i]]}}.", call = call)
         }
       }
     })
@@ -164,15 +191,7 @@ check_df_for_rel <- function(df) {
       df_attrib <- attributes(df[[i]])
       roundtrip_attrib <- attributes(roundtrip[[i]])
       if (!identical(df_attrib, roundtrip_attrib)) {
-        cli::cli_abort("Attributes are lost during conversion. Affected column: {.var {names(df)[[i]]}}.")
-      }
-      # Always check roundtrip for timestamp columns
-      # duckdb uses microsecond precision only, this is in some cases
-      # less than R does
-      if (inherits(df[[i]], "POSIXct")) {
-        if (!identical(df[[i]], roundtrip[[i]])) {
-          cli::cli_abort("Imperfect roundtrip. Affected column: {.var {names(df)[[i]]}}.")
-        }
+        cli::cli_abort("Attributes are lost during conversion. Affected column: {.var {names(df)[[i]]}}.", call = call)
       }
     }
   }
@@ -180,13 +199,40 @@ check_df_for_rel <- function(df) {
   out
 }
 
-#' @export
-rel_to_df.duckdb_relation <- function(rel, ...) {
-  if (anyDuplicated(tolower(names(rel)))) {
-    cli::cli_abort("Column names are case-insensitive in duckdb, fallback required.")
+# https://github.com/r-lib/vctrs/issues/1956
+vec_ptype_safe <- function(x) {
+  if (inherits(x, "Date")) {
+    return(new_date())
   }
 
-  duckdb$rel_to_altrep(rel)
+  exec(structure, vec_ptype(unclass(x)), !!!attributes(x))
+}
+
+#' @export
+rel_to_df.duckdb_relation <- function(
+  rel,
+  ...,
+  prudence = NULL,
+  allow_materialization = TRUE,
+  n_rows = Inf,
+  n_cells = Inf
+) {
+  if (is.null(prudence)) {
+    # Legacy
+    return(duckdb$rel_to_altrep(rel, allow_materialization, n_rows, n_cells))
+  }
+
+  # Same code in new_duckdb_tibble(), to avoid recursion there
+  prudence_parsed <- prudence_parse(prudence)
+  out <- duckdb$rel_to_altrep(
+    rel,
+    # FIXME: Remove allow_materialization with duckdb >= 1.2.0
+    allow_materialization = prudence_parsed$allow_materialization,
+    n_rows = prudence_parsed$n_rows,
+    n_cells = prudence_parsed$n_cells
+  )
+
+  new_duckdb_tibble(out, prudence = prudence)
 }
 
 #' @export
@@ -213,6 +259,8 @@ rel_project.duckdb_relation <- function(rel, exprs, ...) {
     list(!!!to_duckdb_exprs_meta(exprs))
   )))
 
+  check_duplicate_names(out)
+
   out
 }
 
@@ -233,12 +281,13 @@ rel_aggregate.duckdb_relation <- function(rel, groups, aggregates, ...) {
     aggregates = list(!!!to_duckdb_exprs_meta(aggregates))
   )))
 
+  check_duplicate_names(out)
+
   out
 }
 
 #' @export
 rel_order.duckdb_relation <- function(rel, orders, ascending = NULL, ...) {
-
   duckdb_orders <- to_duckdb_exprs(orders)
 
   out <- duckdb$rel_order(rel, duckdb_orders, ascending)
@@ -279,6 +328,8 @@ rel_join.duckdb_relation <- function(left, right, conds, join, join_ref_type, ..
       !!join_ref_type
     )))
   }
+
+  check_duplicate_names(out)
 
   out
 }
@@ -360,8 +411,7 @@ rel_explain.duckdb_relation <- function(rel, ...) {
 }
 
 #' @export
-rel_alias.duckdb_relation <- function(rel, ...) {
-}
+rel_alias.duckdb_relation <- function(rel, ...) {}
 
 #' @export
 rel_set_alias.duckdb_relation <- function(rel, alias, ...) {
@@ -393,6 +443,13 @@ to_duckdb_expr <- function(x) {
       }
       out
     },
+    relational_relexpr_comparison = {
+      out <- duckdb$expr_comparison(x$cmp_op, to_duckdb_exprs(x$exprs))
+      if (!is.null(x$alias)) {
+          duckdb$expr_set_alias(out, x$alias)
+      }
+      out
+    },
     relational_relexpr_function = {
       out <- duckdb$expr_function(x$name, to_duckdb_exprs(x$args))
       if (!is.null(x$alias)) {
@@ -415,7 +472,8 @@ to_duckdb_expr <- function(x) {
     },
     relational_relexpr_constant = {
       # FIXME: Should be duckdb's responsibility
-      check_df_for_rel(tibble(constant = x$val))
+      # Example: https://github.com/dschafer/activatr/issues/18
+      check_df_for_rel(vctrs::new_data_frame(list(constant = x$val)))
 
       if ("experimental" %in% names(formals(duckdb$expr_constant))) {
         experimental <- (Sys.getenv("DUCKPLYR_EXPERIMENTAL") == "TRUE")
@@ -445,6 +503,17 @@ to_duckdb_expr_meta <- function(x) {
         args <- c(args, meta_rel_get(x$rel)$name)
       }
       out <- expr(duckdb$expr_reference(!!!args))
+      if (!is.null(x$alias)) {
+        out <- expr({
+          tmp_expr <- !!out
+          duckdb$expr_set_alias(tmp_expr, !!x$alias)
+          tmp_expr
+        })
+      }
+      out
+    },
+    relational_relexpr_comparison = {
+      out <- expr(duckdb$expr_comparison(!!x$cmp_op, list(!!!to_duckdb_exprs_meta(x$exprs))))
       if (!is.null(x$alias)) {
         out <- expr({
           tmp_expr <- !!out
@@ -507,4 +576,11 @@ to_duckdb_expr_meta <- function(x) {
     NULL = expr(NULL),
     cli::cli_abort("Unknown expr class: {.cls {class(x)}}")
   )
+}
+
+check_duplicate_names <- function(rel) {
+  # https://github.com/duckdb/duckdb/discussions/14682
+  if (anyDuplicated(tolower(duckdb$rel_names(rel)))) {
+    cli::cli_abort("Column names are case-insensitive in duckdb, fallback required.")
+  }
 }

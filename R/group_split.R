@@ -7,15 +7,17 @@ group_split.duckplyr_df <- function(.tbl, ..., .keep = TRUE, keep = deprecated()
   }
 
   # Our implementation
-  rel_try(
+  duckplyr_error <- rel_try(NULL,
     # Always fall back to dplyr
-    "No relational implementation for group_split()" = TRUE,
+    "No relational implementation for {.code group_split()}" = TRUE,
     {
       return(out)
     }
   )
 
   # dplyr forward
+  check_prudence(.tbl, duckplyr_error)
+
   group_split <- dplyr$group_split.data.frame
   out <- group_split(.tbl, ..., .keep = .keep)
   return(out)
@@ -31,7 +33,7 @@ group_split.duckplyr_df <- function(.tbl, ..., .keep = TRUE, keep = deprecated()
 
 duckplyr_group_split <- function(.tbl, ...) {
   try_fetch(
-    .tbl <- as_duckplyr_df(.tbl),
+    .tbl <- as_duckplyr_df_impl(.tbl),
     error = function(e) {
       testthat::skip(conditionMessage(e))
     }
