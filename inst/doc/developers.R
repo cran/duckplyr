@@ -21,54 +21,54 @@ knitr::opts_chunk$set(
 Sys.setenv(DUCKPLYR_FALLBACK_COLLECT = 0)
 
 ## ----attach-------------------------------------------------------------------
-library(conflicted)
-library(dplyr)
-conflict_prefer("filter", "dplyr")
+# library(conflicted)
+# library(dplyr)
+# conflict_prefer("filter", "dplyr")
 
 ## -----------------------------------------------------------------------------
-lazy <-
-  duckplyr::flights_df() |>
-  duckplyr::as_duckdb_tibble() |>
-  mutate(inflight_delay = arr_delay - dep_delay) |>
-  summarize(
-    .by = c(year, month),
-    mean_inflight_delay = mean(inflight_delay, na.rm = TRUE),
-    median_inflight_delay = median(inflight_delay, na.rm = TRUE),
-  ) |>
-  filter(month <= 6)
+# lazy <-
+#   duckplyr::flights_df() |>
+#   duckplyr::as_duckdb_tibble() |>
+#   mutate(inflight_delay = arr_delay - dep_delay) |>
+#   summarize(
+#     .by = c(year, month),
+#     mean_inflight_delay = mean(inflight_delay, na.rm = TRUE),
+#     median_inflight_delay = median(inflight_delay, na.rm = TRUE),
+#   ) |>
+#   filter(month <= 6)
 
 ## -----------------------------------------------------------------------------
-class(lazy)
-
-names(lazy)
-
-## -----------------------------------------------------------------------------
-lazy |>
-  explain()
+# class(lazy)
+# 
+# names(lazy)
 
 ## -----------------------------------------------------------------------------
-lazy$mean_inflight_delay
+# lazy |>
+#   explain()
 
 ## -----------------------------------------------------------------------------
-lazy
+# lazy$mean_inflight_delay
 
 ## -----------------------------------------------------------------------------
-library(duckplyr)
+# lazy
 
-methods_restore()
+## -----------------------------------------------------------------------------
+# library(duckplyr)
+# 
+# methods_restore()
 
 ## ----error = TRUE-------------------------------------------------------------
 try({
-flights_df() |>
-  mutate(inflight_delay = arr_delay - dep_delay) |>
-  explain()
+# flights_df() |>
+#   mutate(inflight_delay = arr_delay - dep_delay) |>
+#   explain()
 })
 
 ## -----------------------------------------------------------------------------
-data <- duckdb_tibble(
-  x = 1:3,
-  y = 5,
-  z = letters[1:3]
-)
-data
+# data <- duckdb_tibble(
+#   x = 1:3,
+#   y = 5,
+#   z = letters[1:3]
+# )
+# data
 
