@@ -1,5 +1,12 @@
 <!-- NEWS.md is maintained by https://fledge.cynkra.com, contributors should not edit this file -->
 
+# duckplyr 1.1.1 (2025-07-29)
+
+## Chore
+
+- Fix CRAN failure with `_R_CHECK_THINGS_IN_OTHER_DIRS_=true`.
+
+
 # duckplyr 1.1.0 (2025-05-08)
 
 This release improves compatibility with dbplyr and DuckDB.

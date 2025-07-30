@@ -23,49 +23,49 @@ options(conflicts.policy = list(warn = FALSE))
 Sys.setenv(DUCKPLYR_FALLBACK_COLLECT = 0)
 
 ## ----attach-------------------------------------------------------------------
-# library(conflicted)
-# library(dplyr)
-# conflict_prefer("filter", "dplyr")
+library(conflicted)
+library(dplyr)
+conflict_prefer("filter", "dplyr")
 
 ## -----------------------------------------------------------------------------
-# duckdb <-
-#   duckplyr::duckdb_tibble(a = 1:3) |>
-#   arrange(desc(a)) |>
-#   mutate(b = a + 1) |>
-#   select(-a)
+duckdb <-
+  duckplyr::duckdb_tibble(a = 1:3) |>
+  arrange(desc(a)) |>
+  mutate(b = a + 1) |>
+  select(-a)
 
 ## -----------------------------------------------------------------------------
-# duckdb |>
-#   explain()
+duckdb |>
+  explain()
 
 ## -----------------------------------------------------------------------------
-# duckplyr::last_rel()
+duckplyr::last_rel()
 
 ## -----------------------------------------------------------------------------
-# duckdb |> collect()
-# duckplyr::last_rel()
+duckdb |> collect()
+duckplyr::last_rel()
 
 ## -----------------------------------------------------------------------------
-# verbose_plus_one <- function(x) {
-#   message("Adding one to ", paste(x, collapse = ", "))
-#   x + 1
-# }
-# 
-# fallback <-
-#   duckplyr::duckdb_tibble(a = 1:3) |>
-#   arrange(desc(a)) |>
-#   mutate(b = verbose_plus_one(a)) |>
-#   select(-a)
+verbose_plus_one <- function(x) {
+  message("Adding one to ", paste(x, collapse = ", "))
+  x + 1
+}
+
+fallback <-
+  duckplyr::duckdb_tibble(a = 1:3) |>
+  arrange(desc(a)) |>
+  mutate(b = verbose_plus_one(a)) |>
+  select(-a)
 
 ## -----------------------------------------------------------------------------
-# duckplyr::last_rel()
+duckplyr::last_rel()
 
 ## -----------------------------------------------------------------------------
-# fallback |>
-#   explain()
+fallback |>
+  explain()
 
 ## -----------------------------------------------------------------------------
-# fallback |> collect()
-# 
-# duckplyr::last_rel()
+fallback |> collect()
+
+duckplyr::last_rel()
 

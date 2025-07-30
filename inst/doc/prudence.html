@@ -349,7 +349,9 @@ a seamless dplyr-like experience while remaining cautious of memory
 usage.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(conflicted)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">conflict_prefer</span>(<span class="st">&quot;filter&quot;</span>, <span class="st">&quot;dplyr&quot;</span>)</span></code></pre></div>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">conflict_prefer</span>(<span class="st">&quot;filter&quot;</span>, <span class="st">&quot;dplyr&quot;</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt; [conflicted] Removing existing preference.</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt; [conflicted] Will prefer dplyr::filter over any other package.</span></span></code></pre></div>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
 <p>From a user’s perspective, data frames backed by duckplyr, with class
@@ -361,12 +363,21 @@ identically. Conceptually, duckplyr frames are “eager”:</p>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  duckplyr<span class="sc">::</span><span class="fu">duckdb_tibble</span>(<span class="at">x =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>) <span class="sc">|&gt;</span></span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">y =</span> x <span class="sc">+</span> <span class="dv">1</span>)</span>
 <span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>df</span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="fu">class</span>(df)</span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>df<span class="sc">$</span>y</span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="fu">nrow</span>(df)</span></code></pre></div>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; # A duckplyr data frame: 2 variables</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt;       x     y</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt;   &lt;int&gt; &lt;dbl&gt;</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; 1     1     2</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; 2     2     3</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; 3     3     4</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="fu">class</span>(df)</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; [1] &quot;duckplyr_df&quot; &quot;tbl_df&quot;      &quot;tbl&quot;         &quot;data.frame&quot;</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>df<span class="sc">$</span>y</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; [1] 2 3 4</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="fu">nrow</span>(df)</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt; [1] 3</span></span></code></pre></div>
 <p>Under the hood, two key differences provide improved performance and
 usability:</p>
 <ul>
@@ -411,16 +422,102 @@ month:</p>
 <span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>      <span class="at">max_arr_delay =</span> <span class="fu">max</span>(arr_delay),</span>
 <span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>      <span class="at">median_arr_delay =</span> <span class="fu">median</span>(arr_delay),</span>
 <span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>    )</span>
-<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>)</span></code></pre></div>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>)</span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt;    user  system elapsed </span></span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt;   0.003   0.004   0.007</span></span></code></pre></div>
 <p>Setting up the pipeline is fast, the size of the data does not affect
 the setup costs. Because the computation is deferred, DuckDB can
 optimize the whole pipeline, which can be seen in the output below:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>mean_arr_delay_ewr <span class="sc">|&gt;</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="fu">explain</span>()</span></code></pre></div>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="fu">explain</span>()</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; ┌---------------------------┐</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; │         PROJECTION        │</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; │    --------------------   │</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; │           month           │</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; │       mean_arr_delay      │</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; │       min_arr_delay       │</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; │       max_arr_delay       │</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt; │      median_arr_delay     │</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt; │                           │</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt; │        ~61046 Rows        │</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt; └-------------┬-------------┘</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt; ┌-------------┴-------------┐</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt; │         PROJECTION        │</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt; │    --------------------   │</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt; │           month           │</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co">#&gt; │     (sum(CASE  WHEN (     │</span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="co">#&gt; │ (arr_delay IS NULL)) THEN │</span></span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="co">#&gt; │ (CAST(1 AS INTEGER)) ELSE │</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="co">#&gt; │  CAST(0 AS INTEGER) </span><span class="re">END</span><span class="co">) &gt;│</span></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a><span class="co">#&gt; │             0)            │</span></span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a><span class="co">#&gt; │       avg(arr_delay)      │</span></span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a><span class="co">#&gt; │       min(arr_delay)      │</span></span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a><span class="co">#&gt; │       max(arr_delay)      │</span></span>
+<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a><span class="co">#&gt; │  quantile_cont(arr_delay) │</span></span>
+<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a><span class="co">#&gt; │                           │</span></span>
+<span id="cb4-28"><a href="#cb4-28" tabindex="-1"></a><span class="co">#&gt; │        ~61046 Rows        │</span></span>
+<span id="cb4-29"><a href="#cb4-29" tabindex="-1"></a><span class="co">#&gt; └-------------┬-------------┘</span></span>
+<span id="cb4-30"><a href="#cb4-30" tabindex="-1"></a><span class="co">#&gt; ┌-------------┴-------------┐</span></span>
+<span id="cb4-31"><a href="#cb4-31" tabindex="-1"></a><span class="co">#&gt; │       HASH_GROUP_BY       │</span></span>
+<span id="cb4-32"><a href="#cb4-32" tabindex="-1"></a><span class="co">#&gt; │    --------------------   │</span></span>
+<span id="cb4-33"><a href="#cb4-33" tabindex="-1"></a><span class="co">#&gt; │         Groups: #0        │</span></span>
+<span id="cb4-34"><a href="#cb4-34" tabindex="-1"></a><span class="co">#&gt; │                           │</span></span>
+<span id="cb4-35"><a href="#cb4-35" tabindex="-1"></a><span class="co">#&gt; │        Aggregates:        │</span></span>
+<span id="cb4-36"><a href="#cb4-36" tabindex="-1"></a><span class="co">#&gt; │    sum_no_overflow(#1)    │</span></span>
+<span id="cb4-37"><a href="#cb4-37" tabindex="-1"></a><span class="co">#&gt; │          avg(#2)          │</span></span>
+<span id="cb4-38"><a href="#cb4-38" tabindex="-1"></a><span class="co">#&gt; │          min(#3)          │</span></span>
+<span id="cb4-39"><a href="#cb4-39" tabindex="-1"></a><span class="co">#&gt; │          max(#4)          │</span></span>
+<span id="cb4-40"><a href="#cb4-40" tabindex="-1"></a><span class="co">#&gt; │     quantile_cont(#5)     │</span></span>
+<span id="cb4-41"><a href="#cb4-41" tabindex="-1"></a><span class="co">#&gt; │                           │</span></span>
+<span id="cb4-42"><a href="#cb4-42" tabindex="-1"></a><span class="co">#&gt; │        ~61046 Rows        │</span></span>
+<span id="cb4-43"><a href="#cb4-43" tabindex="-1"></a><span class="co">#&gt; └-------------┬-------------┘</span></span>
+<span id="cb4-44"><a href="#cb4-44" tabindex="-1"></a><span class="co">#&gt; ┌-------------┴-------------┐</span></span>
+<span id="cb4-45"><a href="#cb4-45" tabindex="-1"></a><span class="co">#&gt; │         PROJECTION        │</span></span>
+<span id="cb4-46"><a href="#cb4-46" tabindex="-1"></a><span class="co">#&gt; │    --------------------   │</span></span>
+<span id="cb4-47"><a href="#cb4-47" tabindex="-1"></a><span class="co">#&gt; │           month           │</span></span>
+<span id="cb4-48"><a href="#cb4-48" tabindex="-1"></a><span class="co">#&gt; │ CASE  WHEN ((arr_delay IS │</span></span>
+<span id="cb4-49"><a href="#cb4-49" tabindex="-1"></a><span class="co">#&gt; │ NULL)) THEN (1) ELSE 0 </span><span class="re">END</span><span class="co">│</span></span>
+<span id="cb4-50"><a href="#cb4-50" tabindex="-1"></a><span class="co">#&gt; │         arr_delay         │</span></span>
+<span id="cb4-51"><a href="#cb4-51" tabindex="-1"></a><span class="co">#&gt; │         arr_delay         │</span></span>
+<span id="cb4-52"><a href="#cb4-52" tabindex="-1"></a><span class="co">#&gt; │         arr_delay         │</span></span>
+<span id="cb4-53"><a href="#cb4-53" tabindex="-1"></a><span class="co">#&gt; │         arr_delay         │</span></span>
+<span id="cb4-54"><a href="#cb4-54" tabindex="-1"></a><span class="co">#&gt; │                           │</span></span>
+<span id="cb4-55"><a href="#cb4-55" tabindex="-1"></a><span class="co">#&gt; │        ~67355 Rows        │</span></span>
+<span id="cb4-56"><a href="#cb4-56" tabindex="-1"></a><span class="co">#&gt; └-------------┬-------------┘</span></span>
+<span id="cb4-57"><a href="#cb4-57" tabindex="-1"></a><span class="co">#&gt; ┌-------------┴-------------┐</span></span>
+<span id="cb4-58"><a href="#cb4-58" tabindex="-1"></a><span class="co">#&gt; │         PROJECTION        │</span></span>
+<span id="cb4-59"><a href="#cb4-59" tabindex="-1"></a><span class="co">#&gt; │    --------------------   │</span></span>
+<span id="cb4-60"><a href="#cb4-60" tabindex="-1"></a><span class="co">#&gt; │             #0            │</span></span>
+<span id="cb4-61"><a href="#cb4-61" tabindex="-1"></a><span class="co">#&gt; │             #1            │</span></span>
+<span id="cb4-62"><a href="#cb4-62" tabindex="-1"></a><span class="co">#&gt; │                           │</span></span>
+<span id="cb4-63"><a href="#cb4-63" tabindex="-1"></a><span class="co">#&gt; │        ~67355 Rows        │</span></span>
+<span id="cb4-64"><a href="#cb4-64" tabindex="-1"></a><span class="co">#&gt; └-------------┬-------------┘</span></span>
+<span id="cb4-65"><a href="#cb4-65" tabindex="-1"></a><span class="co">#&gt; ┌-------------┴-------------┐</span></span>
+<span id="cb4-66"><a href="#cb4-66" tabindex="-1"></a><span class="co">#&gt; │           FILTER          │</span></span>
+<span id="cb4-67"><a href="#cb4-67" tabindex="-1"></a><span class="co">#&gt; │    --------------------   │</span></span>
+<span id="cb4-68"><a href="#cb4-68" tabindex="-1"></a><span class="co">#&gt; │ ((NOT (arr_delay IS NULL))│</span></span>
+<span id="cb4-69"><a href="#cb4-69" tabindex="-1"></a><span class="co">#&gt; │    AND (origin = &#39;EWR&#39;))  │</span></span>
+<span id="cb4-70"><a href="#cb4-70" tabindex="-1"></a><span class="co">#&gt; │                           │</span></span>
+<span id="cb4-71"><a href="#cb4-71" tabindex="-1"></a><span class="co">#&gt; │        ~67355 Rows        │</span></span>
+<span id="cb4-72"><a href="#cb4-72" tabindex="-1"></a><span class="co">#&gt; └-------------┬-------------┘</span></span>
+<span id="cb4-73"><a href="#cb4-73" tabindex="-1"></a><span class="co">#&gt; ┌-------------┴-------------┐</span></span>
+<span id="cb4-74"><a href="#cb4-74" tabindex="-1"></a><span class="co">#&gt; │     R_DATAFRAME_SCAN      │</span></span>
+<span id="cb4-75"><a href="#cb4-75" tabindex="-1"></a><span class="co">#&gt; │    --------------------   │</span></span>
+<span id="cb4-76"><a href="#cb4-76" tabindex="-1"></a><span class="co">#&gt; │      Text: data.frame     │</span></span>
+<span id="cb4-77"><a href="#cb4-77" tabindex="-1"></a><span class="co">#&gt; │                           │</span></span>
+<span id="cb4-78"><a href="#cb4-78" tabindex="-1"></a><span class="co">#&gt; │        Projections:       │</span></span>
+<span id="cb4-79"><a href="#cb4-79" tabindex="-1"></a><span class="co">#&gt; │           month           │</span></span>
+<span id="cb4-80"><a href="#cb4-80" tabindex="-1"></a><span class="co">#&gt; │         arr_delay         │</span></span>
+<span id="cb4-81"><a href="#cb4-81" tabindex="-1"></a><span class="co">#&gt; │           origin          │</span></span>
+<span id="cb4-82"><a href="#cb4-82" tabindex="-1"></a><span class="co">#&gt; │                           │</span></span>
+<span id="cb4-83"><a href="#cb4-83" tabindex="-1"></a><span class="co">#&gt; │        ~336776 Rows       │</span></span>
+<span id="cb4-84"><a href="#cb4-84" tabindex="-1"></a><span class="co">#&gt; └---------------------------┘</span></span></code></pre></div>
 <p>The first step in the pipeline is to prune the unneeded columns, only
 <code>origin</code>, <code>month</code>, and <code>arr_delay</code> are
 kept. The result becomes available when accessed:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">system.time</span>(mean_arr_delay_ewr<span class="sc">$</span>mean_arr_delay[[<span class="dv">1</span>]])</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">system.time</span>(mean_arr_delay_ewr<span class="sc">$</span>mean_arr_delay[[<span class="dv">1</span>]])</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt;    user  system elapsed </span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt;   0.011   0.001   0.008</span></span></code></pre></div>
 </div>
 <div id="comparison" class="section level3">
 <h3>Comparison</h3>
@@ -473,7 +570,9 @@ optimization:</p>
 <span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>      <span class="at">max_arr_delay =</span> <span class="fu">max</span>(arr_delay),</span>
 <span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>      <span class="at">median_arr_delay =</span> <span class="fu">median</span>(arr_delay),</span>
 <span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>    )</span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>)</span></code></pre></div>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>)</span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt;    user  system elapsed </span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt;   0.003   0.003   0.005</span></span></code></pre></div>
 <p>See also the <a href="https://duckdb.org/2024/04/02/duckplyr.html">duckplyr: dplyr
 Powered by DuckDB</a> blog post for more information.</p>
 </div>
@@ -523,17 +622,42 @@ discussed further below.</p>
 <p>The data can be displayed, and column names and types can be
 accessed.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>flights_stingy</span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="fu">names</span>(flights_stingy)[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>]</span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a></span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="fu">class</span>(flights_stingy)</span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a></span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="fu">class</span>(flights_stingy[[<span class="dv">1</span>]])</span></code></pre></div>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co">#&gt; # A duckplyr data frame: 19 variables</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt;     year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt;    &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt;  1  2013     1     1      517            515         2      830            819</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt;  2  2013     1     1      533            529         4      850            830</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt;  3  2013     1     1      542            540         2      923            850</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt;  4  2013     1     1      544            545        -1     1004           1022</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt;  5  2013     1     1      554            600        -6      812            837</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt;  6  2013     1     1      554            558        -4      740            728</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt;  7  2013     1     1      555            600        -5      913            854</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt;  8  2013     1     1      557            600        -3      709            723</span></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt;  9  2013     1     1      557            600        -3      838            846</span></span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="co">#&gt; 10  2013     1     1      558            600        -2      753            745</span></span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="co">#&gt; # ℹ more rows</span></span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="co">#&gt; # ℹ 11 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,</span></span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="co">#&gt; #   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,</span></span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="co">#&gt; #   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</span></span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a><span class="fu">names</span>(flights_stingy)[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>]</span>
+<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;year&quot;           &quot;month&quot;          &quot;day&quot;            &quot;dep_time&quot;      </span></span>
+<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a><span class="co">#&gt;  [5] &quot;sched_dep_time&quot; &quot;dep_delay&quot;      &quot;arr_time&quot;       &quot;sched_arr_time&quot;</span></span>
+<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a><span class="co">#&gt;  [9] &quot;arr_delay&quot;      &quot;carrier&quot;</span></span>
+<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a></span>
+<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a><span class="fu">class</span>(flights_stingy)</span>
+<span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a><span class="co">#&gt; [1] &quot;prudent_duckplyr_df&quot; &quot;duckplyr_df&quot;         &quot;tbl_df&quot;             </span></span>
+<span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a><span class="co">#&gt; [4] &quot;tbl&quot;                 &quot;data.frame&quot;</span></span>
+<span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a></span>
+<span id="cb8-29"><a href="#cb8-29" tabindex="-1"></a><span class="fu">class</span>(flights_stingy[[<span class="dv">1</span>]])</span>
+<span id="cb8-30"><a href="#cb8-30" tabindex="-1"></a><span class="co">#&gt; [1] &quot;integer&quot;</span></span></code></pre></div>
 <p>On the other hand, accessing a column or requesting the number of
 rows triggers an error:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">nrow</span>(flights_stingy)</span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>flights_stingy[[<span class="dv">1</span>]]</span></code></pre></div>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="co">#&gt; Error: Materialization is disabled, use collect() or as_tibble() to materialize.</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>flights_stingy[[<span class="dv">1</span>]]</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt; Error: Materialization is disabled, use collect() or as_tibble() to materialize.</span></span></code></pre></div>
 <p>This means that stingy duckplyr frames can also be used to enforce
 DuckDB operation for a pipeline.</p>
 </div>
@@ -548,14 +672,28 @@ fallbacks to dplyr are not possible.</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>flights_stingy <span class="sc">|&gt;</span></span>
 <span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  <span class="fu">group_by</span>(origin) <span class="sc">|&gt;</span></span>
 <span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">n =</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span></span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code></pre></div>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt; Error in `group_by()`:</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; ! This operation cannot be carried out by DuckDB, and the input is a</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt;   stingy duckplyr frame.</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt; • Try `summarise(.by = ...)` or `mutate(.by = ...)` instead of `group_by()` and</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co">#&gt;   `ungroup()`.</span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt; ℹ Use `compute(prudence = &quot;lavish&quot;)` to materialize to temporary storage and</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co">#&gt;   continue with duckplyr.</span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#&gt; ℹ See `vignette(&quot;prudence&quot;)` for other options.</span></span></code></pre></div>
 <p>The same pipeline with a lavish frame works, but the computation is
 carried out by dplyr:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>flights_stingy <span class="sc">|&gt;</span></span>
 <span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>  duckplyr<span class="sc">::</span><span class="fu">as_duckdb_tibble</span>(<span class="at">prudence =</span> <span class="st">&quot;lavish&quot;</span>) <span class="sc">|&gt;</span></span>
 <span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  <span class="fu">group_by</span>(origin) <span class="sc">|&gt;</span></span>
 <span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">n =</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span></span>
-<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code></pre></div>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co">#&gt; # A tibble: 3 × 2</span></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co">#&gt;   origin      n</span></span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;   &lt;int&gt;</span></span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="co">#&gt; 1 EWR    120835</span></span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="co">#&gt; 2 JFK    111279</span></span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="co">#&gt; 3 LGA    104662</span></span></code></pre></div>
 <p>By using operations supported by duckplyr and avoiding fallbacks as
 much as possible, your pipelines will be executed by DuckDB in an
 optimized way.</p>
@@ -570,19 +708,23 @@ of the returned object:</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>flights_stingy <span class="sc">|&gt;</span></span>
 <span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>  duckplyr<span class="sc">::</span><span class="fu">as_duckdb_tibble</span>(<span class="at">prudence =</span> <span class="st">&quot;lavish&quot;</span>) <span class="sc">|&gt;</span></span>
 <span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>  <span class="fu">class</span>()</span>
-<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a></span>
-<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>flights_stingy <span class="sc">|&gt;</span></span>
-<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>  <span class="fu">collect</span>() <span class="sc">|&gt;</span></span>
-<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a>  <span class="fu">class</span>()</span></code></pre></div>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co">#&gt; [1] &quot;duckplyr_df&quot; &quot;tbl_df&quot;      &quot;tbl&quot;         &quot;data.frame&quot;</span></span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>flights_stingy <span class="sc">|&gt;</span></span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a>  <span class="fu">collect</span>() <span class="sc">|&gt;</span></span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a>  <span class="fu">class</span>()</span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="co">#&gt; [1] &quot;tbl_df&quot;     &quot;tbl&quot;        &quot;data.frame&quot;</span></span></code></pre></div>
 <p>The same behavior is achieved with <code>as_tibble()</code> and
 <code>as.data.frame()</code>:</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>flights_stingy <span class="sc">|&gt;</span></span>
 <span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span></span>
 <span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  <span class="fu">class</span>()</span>
-<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a></span>
-<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>flights_stingy <span class="sc">|&gt;</span></span>
-<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">|&gt;</span></span>
-<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a>  <span class="fu">class</span>()</span></code></pre></div>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co">#&gt; [1] &quot;tbl_df&quot;     &quot;tbl&quot;        &quot;data.frame&quot;</span></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>flights_stingy <span class="sc">|&gt;</span></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">|&gt;</span></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a>  <span class="fu">class</span>()</span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="co">#&gt; [1] &quot;data.frame&quot;</span></span></code></pre></div>
 </div>
 <div id="comparison-1" class="section level3">
 <h3>Comparison</h3>
@@ -600,20 +742,23 @@ are no lavish frames: collection always needs to be explicit.</p>
 allowed for data up to a certain size, measured in cells (values) and
 rows in the resulting data frame.</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">nrow</span>(flights)</span>
-<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>flights_partial <span class="ot">&lt;-</span></span>
-<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>  flights <span class="sc">|&gt;</span></span>
-<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>  duckplyr<span class="sc">::</span><span class="fu">as_duckdb_tibble</span>(<span class="at">prudence =</span> <span class="st">&quot;thrifty&quot;</span>)</span></code></pre></div>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="co">#&gt; [1] 336776</span></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>flights_partial <span class="ot">&lt;-</span></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>  flights <span class="sc">|&gt;</span></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>  duckplyr<span class="sc">::</span><span class="fu">as_duckdb_tibble</span>(<span class="at">prudence =</span> <span class="st">&quot;thrifty&quot;</span>)</span></code></pre></div>
 <p>With this setting, the data is materialized only if the result has
 fewer than 1,000,000 cells (rows multiplied by columns).</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>flights_partial <span class="sc">|&gt;</span></span>
 <span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>  <span class="fu">select</span>(origin, dest, dep_delay, arr_delay) <span class="sc">|&gt;</span></span>
-<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>  <span class="fu">nrow</span>()</span></code></pre></div>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>  <span class="fu">nrow</span>()</span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">#&gt; Error: Materialization would result in more than 250000 rows. Use collect() or as_tibble() to materialize.</span></span></code></pre></div>
 <p>The original input is too large to be materialized, so the operation
 fails. On the other hand, the result after aggregation is small enough
 to be materialized:</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>flights_partial <span class="sc">|&gt;</span></span>
 <span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>  <span class="fu">count</span>(origin) <span class="sc">|&gt;</span></span>
-<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>  <span class="fu">nrow</span>()</span></code></pre></div>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>  <span class="fu">nrow</span>()</span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="co">#&gt; [1] 3</span></span></code></pre></div>
 <p>Thrifty is a good choice for data sets where the cost of
 materializing the data is prohibitive only for large results. This is
 the default for the ingestion functions like

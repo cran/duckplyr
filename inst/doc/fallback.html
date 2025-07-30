@@ -345,7 +345,9 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 support for all dplyr verbs and R functions.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(conflicted)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">conflict_prefer</span>(<span class="st">&quot;filter&quot;</span>, <span class="st">&quot;dplyr&quot;</span>)</span></code></pre></div>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">conflict_prefer</span>(<span class="st">&quot;filter&quot;</span>, <span class="st">&quot;dplyr&quot;</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt; [conflicted] Removing existing preference.</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt; [conflicted] Will prefer dplyr::filter over any other package.</span></span></code></pre></div>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
 <p>The duckplyr package aims at providing a fully compatible drop-in
@@ -371,7 +373,28 @@ dplyr, guaranteeing identical behavior.</li>
 <p>The <code>explain()</code> function shows what happens under the
 hood:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>duckdb <span class="sc">|&gt;</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="fu">explain</span>()</span></code></pre></div>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="fu">explain</span>()</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; ┌---------------------------┐</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; │         PROJECTION        │</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; │    --------------------   │</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt; │             b             │</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; │                           │</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; │          ~3 Rows          │</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt; └-------------┬-------------┘</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt; ┌-------------┴-------------┐</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt; │          ORDER_BY         │</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; │    --------------------   │</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt; │      dataframe_42_42      │</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt; │        1876.a DESC        │</span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt; └-------------┬-------------┘</span></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt; ┌-------------┴-------------┐</span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt; │     R_DATAFRAME_SCAN      │</span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt; │    --------------------   │</span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt; │      Text: data.frame     │</span></span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt; │       Projections: a      │</span></span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt; │                           │</span></span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt; │          ~3 Rows          │</span></span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="co">#&gt; └---------------------------┘</span></span></code></pre></div>
 <p>The plan shows three operations:</p>
 <ul>
 <li>a data frame scan (the input),</li>
@@ -391,11 +414,46 @@ plan. The duckplyr package translates dplyr verbs into relation
 objects.</p>
 <p>The <code>last_rel()</code> function shows the last relation that has
 been materialized:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>duckplyr<span class="sc">::</span><span class="fu">last_rel</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>duckplyr<span class="sc">::</span><span class="fu">last_rel</span>()</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; DuckDB Relation: </span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; ---------------------</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; --- Relation Tree ---</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; ---------------------</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; Filter [(&quot;month&quot; &lt;= 6.0)]</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt;   Aggregate [&quot;year&quot;, &quot;month&quot;, mean(inflight_delay), median(inflight_delay)]</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt;     Projection [&quot;year&quot; as year, &quot;month&quot; as month, &quot;day&quot; as day, dep_time as dep_time, sched_dep_time as sched_dep_time, dep_delay as dep_delay, arr_time as arr_time, sched_arr_time as sched_arr_time, arr_delay as arr_delay, carrier as carrier, flight as flight, tailnum as tailnum, origin as origin, dest as dest, air_time as air_time, distance as distance, &quot;hour&quot; as hour, &quot;minute&quot; as minute, time_hour as time_hour, &quot;-&quot;(arr_delay, dep_delay) as inflight_delay]</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt;       r_dataframe_scan(0xdeadbeef)</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt; ---------------------</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt; -- Result Columns  --</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt; ---------------------</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt; - year (INTEGER)</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt; - month (INTEGER)</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt; - mean_inflight_delay (DOUBLE)</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt; - median_inflight_delay (DOUBLE)</span></span></code></pre></div>
 <p>It is <code>NULL</code> because nothing has been computed yet.
 Converting the object to a data frame triggers the computation:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>duckdb <span class="sc">|&gt;</span> <span class="fu">collect</span>()</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>duckplyr<span class="sc">::</span><span class="fu">last_rel</span>()</span></code></pre></div>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; # A tibble: 3 × 1</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt;       b</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt;   &lt;dbl&gt;</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; 1     4</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; 2     3</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; 3     2</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>duckplyr<span class="sc">::</span><span class="fu">last_rel</span>()</span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; DuckDB Relation: </span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; ---------------------</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; --- Relation Tree ---</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; ---------------------</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; Projection [b as b]</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt;   Projection [a as a, &quot;+&quot;(a, 1.0) as b]</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt;     Order [a DESC]</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt;       r_dataframe_scan(0xdeadbeef)</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt; ---------------------</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt; -- Result Columns  --</span></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt; ---------------------</span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt; - b (DOUBLE)</span></span></code></pre></div>
 <p>The <code>last_rel()</code> function now shows a relation that
 describes logical plan for executing the whole pipeline.</p>
 </div>
@@ -412,12 +470,24 @@ and triggers a dplyr fallback:</p>
 <span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>  duckplyr<span class="sc">::</span><span class="fu">duckdb_tibble</span>(<span class="at">a =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>) <span class="sc">|&gt;</span></span>
 <span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(a)) <span class="sc">|&gt;</span></span>
 <span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">b =</span> <span class="fu">verbose_plus_one</span>(a)) <span class="sc">|&gt;</span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>a)</span></code></pre></div>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>a)</span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; Adding one to 3, 2, 1</span></span></code></pre></div>
 <p>The <code>verbose_plus_one()</code> function is not supported by
 DuckDB, so the <code>mutate()</code> step is forwarded to dplyr and
 already executed (eagerly) when the pipeline is defined. This is
 confirmed by the <code>last_rel()</code> function:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>duckplyr<span class="sc">::</span><span class="fu">last_rel</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>duckplyr<span class="sc">::</span><span class="fu">last_rel</span>()</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="co">#&gt; DuckDB Relation: </span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt; ---------------------</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt; --- Relation Tree ---</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt; ---------------------</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; Order [a DESC]</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt;   r_dataframe_scan(0xdeadbeef)</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; ---------------------</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt; -- Result Columns  --</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; ---------------------</span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; - a (INTEGER)</span></span></code></pre></div>
 <p>Only the <code>arrange()</code> step is executed by DuckDB. Because
 the dplyr implementation of <code>mutate()</code> needs the data before
 it can proceed, the data is first converted to a data frame, and this
@@ -425,15 +495,40 @@ triggers the materialization of the first step.</p>
 <p>The <code>explain()</code> function also confirms indirectly that at
 least a part of the operation is handled by dplyr:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>fallback <span class="sc">|&gt;</span></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="fu">explain</span>()</span></code></pre></div>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="fu">explain</span>()</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; ┌---------------------------┐</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt; │     R_DATAFRAME_SCAN      │</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt; │    --------------------   │</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; │      Text: data.frame     │</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; │       Projections: b      │</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt; │                           │</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt; │          ~3 Rows          │</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; └---------------------------┘</span></span></code></pre></div>
 <p>The final plan now only consists of a data frame scan. This is the
 result of the <code>mutate()</code> step, which at this stage already
 has been executed by dplyr.</p>
 <p>Converting the final object to a data frame triggers the rest of the
 computation:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>fallback <span class="sc">|&gt;</span> <span class="fu">collect</span>()</span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>duckplyr<span class="sc">::</span><span class="fu">last_rel</span>()</span></code></pre></div>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="co">#&gt; # A tibble: 3 × 1</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co">#&gt;       b</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co">#&gt;   &lt;dbl&gt;</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt; 1     4</span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt; 2     3</span></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt; 3     2</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>duckplyr<span class="sc">::</span><span class="fu">last_rel</span>()</span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt; DuckDB Relation: </span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt; ---------------------</span></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt; --- Relation Tree ---</span></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt; ---------------------</span></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt; Projection [b as b]</span></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt;   r_dataframe_scan(0xdeadbeef)</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt; ---------------------</span></span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co">#&gt; -- Result Columns  --</span></span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt; ---------------------</span></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt; - b (DOUBLE)</span></span></code></pre></div>
 <p>The <code>last_rel()</code> function confirms that only the final
 <code>select()</code> is handled by DuckDB again.</p>
 </div>

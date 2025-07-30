@@ -23,41 +23,41 @@ options(conflicts.policy = list(warn = FALSE))
 Sys.setenv(DUCKPLYR_FALLBACK_COLLECT = 0)
 
 ## ----attach-------------------------------------------------------------------
-# library(conflicted)
-# library(duckplyr)
-# conflict_prefer("filter", "dplyr")
+library(conflicted)
+library(duckplyr)
+conflict_prefer("filter", "dplyr")
 
 ## -----------------------------------------------------------------------------
-# df <- duckdb_tibble(a = 2L)
-# df
-# 
-# tbl <- as_tbl(df)
-# tbl
+df <- duckdb_tibble(a = 2L)
+df
+
+tbl <- as_tbl(df)
+tbl
 
 ## -----------------------------------------------------------------------------
-# tbl %>%
-#   mutate(b = sql("a + 1"), c = least_common_multiple(a, b)) %>%
-#   show_query()
+tbl %>%
+  mutate(b = sql("a + 1"), c = least_common_multiple(a, b)) %>%
+  show_query()
 
 ## ----error = TRUE-------------------------------------------------------------
 try({
-# least_common_multiple(2, 3)
+least_common_multiple(2, 3)
 })
 
 ## -----------------------------------------------------------------------------
-# tbl %>%
-#   mutate(b = sql("a + 1"), c = least_common_multiple(a, b))
+tbl %>%
+  mutate(b = sql("a + 1"), c = least_common_multiple(a, b))
 
 ## -----------------------------------------------------------------------------
-# tbl %>%
-#   mutate(b = sql("a + 1"), c = least_common_multiple(a, b)) %>%
-#   as_duckdb_tibble()
+tbl %>%
+  mutate(b = sql("a + 1"), c = least_common_multiple(a, b)) %>%
+  as_duckdb_tibble()
 
 ## -----------------------------------------------------------------------------
-# duckdb_tibble(a = 2L, b = 3L) %>%
-#   mutate(c = dd$least_common_multiple(a, b))
+duckdb_tibble(a = 2L, b = 3L) %>%
+  mutate(c = dd$least_common_multiple(a, b))
 
 ## -----------------------------------------------------------------------------
-# duckdb_tibble(a = "dbplyr", b = "duckplyr") %>%
-#   mutate(c = dd$damerau_levenshtein(a, b))
+duckdb_tibble(a = "dbplyr", b = "duckplyr") %>%
+  mutate(c = dd$damerau_levenshtein(a, b))
 

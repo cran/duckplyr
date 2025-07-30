@@ -347,7 +347,9 @@ duckplyr. Two options are discussed: interoperability with dbplyr and
 the use of DuckDB’s functions in duckplyr.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(conflicted)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(duckplyr)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">conflict_prefer</span>(<span class="st">&quot;filter&quot;</span>, <span class="st">&quot;dplyr&quot;</span>)</span></code></pre></div>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">conflict_prefer</span>(<span class="st">&quot;filter&quot;</span>, <span class="st">&quot;dplyr&quot;</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt; [conflicted] Removing existing preference.</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt; [conflicted] Will prefer dplyr::filter over any other package.</span></span></code></pre></div>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
 <p>The duckplyr package is a drop-in replacement for dplyr, designed to
@@ -378,9 +380,18 @@ duckplyr 1.1.0, transparently converts a duckplyr frame to a dbplyr
 <code>tbl</code> object:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">duckdb_tibble</span>(<span class="at">a =</span> <span class="dv">2</span><span class="dt">L</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>df</span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>tbl <span class="ot">&lt;-</span> <span class="fu">as_tbl</span>(df)</span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>tbl</span></code></pre></div>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; # A duckplyr data frame: 1 variable</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt;       a</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt;   &lt;int&gt;</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; 1     2</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>tbl <span class="ot">&lt;-</span> <span class="fu">as_tbl</span>(df)</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>tbl</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;as_tbl_duckplyr_lHzw1zo832&gt; [?? x 1]</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v1.3.2 [kirill@Darwin 24.5.0:R 4.5.1//private/var/folders/dj/yhk9rkx97wn_ykqtnmk18xvc0000gn/T/RtmpgMPot1/duckplyr/duckplyr764d4ec0f8d5.duckdb]</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt;       a</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt;   &lt;int&gt;</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt; 1     2</span></span></code></pre></div>
 <p>It achieves this by creating a temporary view that points to the
 relational object created internally by duckplyr, in the same DBI
 connection as the duckplyr object. No data is copied in this operation.
@@ -390,17 +401,33 @@ scope.</p>
 <code>sql()</code> or by relying on dbplyr’s passthrough feature.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>tbl <span class="sc">%&gt;%</span></span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">b =</span> <span class="fu">sql</span>(<span class="st">&quot;a + 1&quot;</span>), <span class="at">c =</span> <span class="fu">least_common_multiple</span>(a, b)) <span class="sc">%&gt;%</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="fu">show_query</span>()</span></code></pre></div>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="fu">show_query</span>()</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; &lt;SQL&gt;</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; SELECT q01.*, least_common_multiple(a, b) AS c</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt; FROM (</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt;   SELECT as_tbl_duckplyr_lHzw1zo832.*, a + 1 AS b</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt;   FROM as_tbl_duckplyr_lHzw1zo832</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt; ) q01</span></span></code></pre></div>
 <p>There is no R function called <code>least_common_multiple()</code>,
 it is interpreted as a SQL function.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">least_common_multiple</span>(<span class="dv">2</span>, <span class="dv">3</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">least_common_multiple</span>(<span class="dv">2</span>, <span class="dv">3</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; Error in least_common_multiple(2, 3): could not find function &quot;least_common_multiple&quot;</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>tbl <span class="sc">%&gt;%</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">b =</span> <span class="fu">sql</span>(<span class="st">&quot;a + 1&quot;</span>), <span class="at">c =</span> <span class="fu">least_common_multiple</span>(a, b))</span></code></pre></div>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">b =</span> <span class="fu">sql</span>(<span class="st">&quot;a + 1&quot;</span>), <span class="at">c =</span> <span class="fu">least_common_multiple</span>(a, b))</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; # Source:   SQL [?? x 3]</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v1.3.2 [kirill@Darwin 24.5.0:R 4.5.1//private/var/folders/dj/yhk9rkx97wn_ykqtnmk18xvc0000gn/T/RtmpgMPot1/duckplyr/duckplyr764d4ec0f8d5.duckdb]</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt;       a     b     c</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt;   &lt;int&gt; &lt;int&gt; &lt;dbl&gt;</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; 1     2     3     6</span></span></code></pre></div>
 <p>To continue processing with duckplyr, use
 <code>as_duckdb_tibble()</code>:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>tbl <span class="sc">%&gt;%</span></span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">b =</span> <span class="fu">sql</span>(<span class="st">&quot;a + 1&quot;</span>), <span class="at">c =</span> <span class="fu">least_common_multiple</span>(a, b)) <span class="sc">%&gt;%</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="fu">as_duckdb_tibble</span>()</span></code></pre></div>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="fu">as_duckdb_tibble</span>()</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; # A duckplyr data frame: 3 variables</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt;       a     b     c</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt;   &lt;int&gt; &lt;int&gt; &lt;dbl&gt;</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; 1     2     3     6</span></span></code></pre></div>
 </div>
 <div id="call-arbitrary-functions-in-duckplyr" class="section level2">
 <h2>Call arbitrary functions in duckplyr</h2>
@@ -408,7 +435,11 @@ it is interpreted as a SQL function.</p>
 arbitrary DuckDB functions directly from duckplyr, without going through
 SQL:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">duckdb_tibble</span>(<span class="at">a =</span> <span class="dv">2</span><span class="dt">L</span>, <span class="at">b =</span> <span class="dv">3</span><span class="dt">L</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">c =</span> dd<span class="sc">$</span><span class="fu">least_common_multiple</span>(a, b))</span></code></pre></div>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">c =</span> dd<span class="sc">$</span><span class="fu">least_common_multiple</span>(a, b))</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt; # A duckplyr data frame: 3 variables</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt;       a     b     c</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt;   &lt;int&gt; &lt;int&gt; &lt;dbl&gt;</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; 1     2     3     6</span></span></code></pre></div>
 <p>The <code>dd</code> prefix has been picked for the following
 reasons:</p>
 <ul>
@@ -432,7 +463,11 @@ package</div>
 <p>This package is not necessary to use duckplyr, and the list of
 functions is incomplete and growing. In case you’re wondering:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">duckdb_tibble</span>(<span class="at">a =</span> <span class="st">&quot;dbplyr&quot;</span>, <span class="at">b =</span> <span class="st">&quot;duckplyr&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">c =</span> dd<span class="sc">$</span><span class="fu">damerau_levenshtein</span>(a, b))</span></code></pre></div>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">c =</span> dd<span class="sc">$</span><span class="fu">damerau_levenshtein</span>(a, b))</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; # A duckplyr data frame: 3 variables</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt;   a      b            c</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;  &lt;chr&gt;    &lt;dbl&gt;</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; 1 dbplyr duckplyr     3</span></span></code></pre></div>
 </div>
 <div id="conclusion" class="section level2">
 <h2>Conclusion</h2>
