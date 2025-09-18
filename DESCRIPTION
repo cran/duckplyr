@@ -1,7 +1,7 @@
 Type: Package
 Package: duckplyr
 Title: A 'DuckDB'-Backed Version of 'dplyr'
-Version: 1.1.1
+Version: 1.1.2
 Authors@R: c(
     person("Hannes", "Mühleisen", role = "aut",
            comment = c(ORCID = "0000-0001-8552-0029")),
@@ -35,14 +35,14 @@ Config/testthat/parallel: false
 Config/testthat/start-first: rel_api, tpch, as_duckplyr_df,
         dplyr-mutate, dplyr-filter, dplyr-count-tally
 Encoding: UTF-8
-RoxygenNote: 7.3.2.9000
+RoxygenNote: 7.3.3.9000
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2025-07-30 04:16:34 UTC; kirill
+Packaged: 2025-09-18 02:46:43 UTC; kirill
 Author: Hannes Mühleisen [aut] (ORCID: <https://orcid.org/0000-0001-8552-0029>),
   Kirill Müller [aut, cre] (ORCID:
     <https://orcid.org/0000-0002-1416-3412>),
   Posit Software, PBC [cph, fnd] (ROR: <https://ror.org/03wc8by49>)
 Maintainer: Kirill Müller <kirill@cynkra.com>
 Repository: CRAN
-Date/Publication: 2025-07-30 05:00:03 UTC
+Date/Publication: 2025-09-18 07:00:08 UTC

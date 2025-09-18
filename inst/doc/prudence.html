@@ -424,7 +424,7 @@ month:</p>
 <span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>    )</span>
 <span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>)</span>
 <span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt;    user  system elapsed </span></span>
-<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt;   0.003   0.004   0.007</span></span></code></pre></div>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt;   0.003   0.003   0.006</span></span></code></pre></div>
 <p>Setting up the pipeline is fast, the size of the data does not affect
 the setup costs. Because the computation is deferred, DuckDB can
 optimize the whole pipeline, which can be seen in the output below:</p>
@@ -517,7 +517,7 @@ optimize the whole pipeline, which can be seen in the output below:</p>
 kept. The result becomes available when accessed:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">system.time</span>(mean_arr_delay_ewr<span class="sc">$</span>mean_arr_delay[[<span class="dv">1</span>]])</span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt;    user  system elapsed </span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt;   0.011   0.001   0.008</span></span></code></pre></div>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt;   0.011   0.001   0.009</span></span></code></pre></div>
 </div>
 <div id="comparison" class="section level3">
 <h3>Comparison</h3>
@@ -572,7 +572,7 @@ optimization:</p>
 <span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>    )</span>
 <span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>)</span>
 <span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt;    user  system elapsed </span></span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt;   0.003   0.003   0.005</span></span></code></pre></div>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt;   0.002   0.002   0.006</span></span></code></pre></div>
 <p>See also the <a href="https://duckdb.org/2024/04/02/duckplyr.html">duckplyr: dplyr
 Powered by DuckDB</a> blog post for more information.</p>
 </div>
@@ -760,9 +760,25 @@ to be materialized:</p>
 <span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>  <span class="fu">nrow</span>()</span>
 <span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="co">#&gt; [1] 3</span></span></code></pre></div>
 <p>Thrifty is a good choice for data sets where the cost of
-materializing the data is prohibitive only for large results. This is
-the default for the ingestion functions like
-<code>read_parquet_duckdb()</code>.</p>
+materializing the data is prohibitive only for large results.</p>
+<div id="file-ingestion-and-custom-limits" class="section level3">
+<h3>File ingestion and custom limits</h3>
+<p>Thrifty is the default for the ingestion functions like
+<code>read_parquet_duckdb()</code>. Here, the limit is adapted depending
+on the source of the data:</p>
+<ul>
+<li>For local files, the limit is 1,000,000 cells.</li>
+<li>For remote files (if the file name starts with a URL protocol
+specifier), the limit is 1,000 cells.</li>
+</ul>
+<p>A custom limit can be set by passing a named vector to
+<code>prudence</code>, with elements <code>cells</code> and/or
+<code>rows</code>:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="fu">read_parquet_duckdb</span>(</span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>  <span class="st">&quot;personas.parquet&quot;</span>,</span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a>  <span class="at">prudence =</span> <span class="fu">c</span>(<span class="at">cells =</span> <span class="dv">10000</span>, <span class="at">rows =</span> <span class="dv">1000</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a>)</span></code></pre></div>
+</div>
 </div>
 <div id="conclusion" class="section level2">
 <h2>Conclusion</h2>

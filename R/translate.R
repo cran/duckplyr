@@ -104,9 +104,8 @@ rel_find_call_candidates <- function(fun, call = caller_env()) {
   } else if (name[[1]] == "::") {
     my_pkg <- name[[2]]
     name <- name[[3]]
-    pkgs <- rel_find_packages(name)
 
-    if (my_pkg %in% pkgs) {
+    if (my_pkg == "dd" || my_pkg %in% rel_find_packages(name)) {
       # Package name provided by the user, shortcut if found in list of packages
       # (requires non-NULL pkgs), no check needed
       return(list(
@@ -206,8 +205,15 @@ rel_translate_lang <- function(
 
   # Special case: passthrough to DuckDB
   if (pkg == "dd") {
+    args_r <- as.list(expr[-1])
+
     # FIXME: How to deal with window functions?
-    args <- map(as.list(expr[-1]), do_translate, in_window = in_window)
+    args <- map(args_r, do_translate, in_window = in_window)
+
+    if (!is.null(names(args_r))) {
+      need_names <- (names(args_r) != "")
+      args[need_names] <- map2(args[need_names], names(args_r)[need_names], relexpr_set_alias)
+    }
     fun <- relexpr_function(name, args)
     return(fun)
   }
@@ -290,7 +296,7 @@ rel_translate_lang <- function(
       consts <- map(values, do_translate)
       ops <- map(consts, ~ list(lhs, .x))
       cmp <- map(ops, relexpr_function, name = "r_base::==")
-      alt <- reduce(cmp, function(.x, .y) {
+      alt <- bisect_reduce(cmp, function(.x, .y) {
         relexpr_function("|", list(.x, .y))
       })
       coalesce <- relexpr_function("___coalesce", list(alt, relexpr_constant(has_na)))

@@ -689,7 +689,7 @@ a constant with up to 100 values:</p>
 <span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="co">#&gt; │          ORDER_BY         │</span></span>
 <span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="co">#&gt; │    --------------------   │</span></span>
 <span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a><span class="co">#&gt; │      dataframe_42_42      │</span></span>
-<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a><span class="co">#&gt; │        5378.a DESC        │</span></span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a><span class="co">#&gt; │        1310.a DESC        │</span></span>
 <span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a><span class="co">#&gt; └-------------┬-------------┘</span></span>
 <span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a><span class="co">#&gt; ┌-------------┴-------------┐</span></span>
 <span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a><span class="co">#&gt; │     R_DATAFRAME_SCAN      │</span></span>
@@ -734,7 +734,7 @@ default.</p>
 <span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a><span class="co">#&gt; # A duckplyr data frame: 1 variable</span></span>
 <span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a><span class="co">#&gt;   `paste(day, collapse = &quot; &quot;)`                                                  </span></span>
 <span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;                                                                         </span></span>
-<span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a><span class="co">#&gt; 1 2 10 18 28 29 11 15 16 22 26 31 4 23 24 1 21 25 5 9 14 17 30 7 8 13 19 27 3 6…</span></span>
+<span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a><span class="co">#&gt; 1 7 8 13 19 27 2 10 18 28 29 1 21 25 5 9 14 17 30 3 6 12 20 11 15 16 22 26 31 4…</span></span>
 <span id="cb19-9"><a href="#cb19-9" tabindex="-1"></a></span>
 <span id="cb19-10"><a href="#cb19-10" tabindex="-1"></a>duckplyr<span class="sc">::</span><span class="fu">flights_df</span>() <span class="sc">|&gt;</span></span>
 <span id="cb19-11"><a href="#cb19-11" tabindex="-1"></a>  <span class="fu">distinct</span>(day) <span class="sc">|&gt;</span></span>
@@ -742,7 +742,7 @@ default.</p>
 <span id="cb19-13"><a href="#cb19-13" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 1</span></span>
 <span id="cb19-14"><a href="#cb19-14" tabindex="-1"></a><span class="co">#&gt;   `paste(day, collapse = &quot; &quot;)`                                                  </span></span>
 <span id="cb19-15"><a href="#cb19-15" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;                                                                         </span></span>
-<span id="cb19-16"><a href="#cb19-16" tabindex="-1"></a><span class="co">#&gt; 1 11 15 16 22 26 31 3 6 12 20 2 10 18 28 29 1 21 25 7 8 13 19 27 4 23 24 5 9 14…</span></span></code></pre></div>
+<span id="cb19-16"><a href="#cb19-16" tabindex="-1"></a><span class="co">#&gt; 1 2 10 18 28 29 5 9 14 17 30 3 6 12 20 11 15 16 22 26 31 4 23 24 7 8 13 19 27 1…</span></span></code></pre></div>
 <p>This can be changed globally with the
 <code>DUCKPLYR_OUTPUT_ORDER</code> environment variable, see
 <code>?config</code> for details. With this setting, the output order is
@@ -786,7 +786,7 @@ work.</p>
 <span id="cb20-36"><a href="#cb20-36" tabindex="-1"></a><span class="co">#&gt; │          ORDER_BY         │</span></span>
 <span id="cb20-37"><a href="#cb20-37" tabindex="-1"></a><span class="co">#&gt; │    --------------------   │</span></span>
 <span id="cb20-38"><a href="#cb20-38" tabindex="-1"></a><span class="co">#&gt; │      dataframe_42_42      │</span></span>
-<span id="cb20-39"><a href="#cb20-39" tabindex="-1"></a><span class="co">#&gt; │42.___row_number ASC│</span></span>
+<span id="cb20-39"><a href="#cb20-39" tabindex="-1"></a><span class="co">#&gt; │ 42.___row_number ASC │</span></span>
 <span id="cb20-40"><a href="#cb20-40" tabindex="-1"></a><span class="co">#&gt; └-------------┬-------------┘</span></span>
 <span id="cb20-41"><a href="#cb20-41" tabindex="-1"></a><span class="co">#&gt; ┌-------------┴-------------┐</span></span>
 <span id="cb20-42"><a href="#cb20-42" tabindex="-1"></a><span class="co">#&gt; │         PROJECTION        │</span></span>

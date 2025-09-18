@@ -1,5 +1,20 @@
 <!-- NEWS.md is maintained by https://fledge.cynkra.com, contributors should not edit this file -->
 
+# duckplyr 1.1.2 (2025-09-17)
+
+## Features
+
+- Fully support `dd::...()` syntax (#795).
+
+- Threshold for `prudence = "thrifty"` is reduced to 1000 cells when the data comes from a remote data source.
+
+- Support named arguments for `dd::...()` functions.
+
+## Performance
+
+- Generate a more balanced expresion when translating `%in%` to avoid performance problems in duckdb v1.4.0.
+
+
 # duckplyr 1.1.1 (2025-07-29)
 
 ## Chore
