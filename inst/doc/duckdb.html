@@ -387,8 +387,8 @@ duckplyr 1.1.0, transparently converts a duckplyr frame to a dbplyr
 <span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a></span>
 <span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>tbl <span class="ot">&lt;-</span> <span class="fu">as_tbl</span>(df)</span>
 <span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>tbl</span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;as_tbl_duckplyr_aUxmAvYlJ3&gt; [?? x 1]</span></span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v1.3.2 [kirill@Darwin 24.6.0:R 4.5.1//private/var/folders/dj/yhk9rkx97wn_ykqtnmk18xvc0000gn/T/RtmpxuyAIW/duckplyr/duckplyrc79111f07e57.duckdb]</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;as_tbl_duckplyr_PPyjeiXg8Q&gt; [?? x 1]</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v1.3.2 [kirill@Darwin 24.6.0:R 4.5.1//private/var/folders/dj/yhk9rkx97wn_ykqtnmk18xvc0000gn/T/Rtmp1Dqfm2/duckplyr/duckplyr115f7566f9262.duckdb]</span></span>
 <span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt;       a</span></span>
 <span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt;   &lt;int&gt;</span></span>
 <span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt; 1     2</span></span></code></pre></div>
@@ -405,8 +405,8 @@ scope.</p>
 <span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; &lt;SQL&gt;</span></span>
 <span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; SELECT q01.*, least_common_multiple(a, b) AS c</span></span>
 <span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt; FROM (</span></span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt;   SELECT as_tbl_duckplyr_aUxmAvYlJ3.*, a + 1 AS b</span></span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt;   FROM as_tbl_duckplyr_aUxmAvYlJ3</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt;   SELECT as_tbl_duckplyr_PPyjeiXg8Q.*, a + 1 AS b</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt;   FROM as_tbl_duckplyr_PPyjeiXg8Q</span></span>
 <span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt; ) q01</span></span></code></pre></div>
 <p>There is no R function called <code>least_common_multiple()</code>,
 it is interpreted as a SQL function.</p>
@@ -415,7 +415,7 @@ it is interpreted as a SQL function.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>tbl <span class="sc">%&gt;%</span></span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">b =</span> <span class="fu">sql</span>(<span class="st">&quot;a + 1&quot;</span>), <span class="at">c =</span> <span class="fu">least_common_multiple</span>(a, b))</span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; # Source:   SQL [?? x 3]</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v1.3.2 [kirill@Darwin 24.6.0:R 4.5.1//private/var/folders/dj/yhk9rkx97wn_ykqtnmk18xvc0000gn/T/RtmpxuyAIW/duckplyr/duckplyrc79111f07e57.duckdb]</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v1.3.2 [kirill@Darwin 24.6.0:R 4.5.1//private/var/folders/dj/yhk9rkx97wn_ykqtnmk18xvc0000gn/T/Rtmp1Dqfm2/duckplyr/duckplyr115f7566f9262.duckdb]</span></span>
 <span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt;       a     b     c</span></span>
 <span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt;   &lt;int&gt; &lt;int&gt; &lt;dbl&gt;</span></span>
 <span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; 1     2     3     6</span></span></code></pre></div>

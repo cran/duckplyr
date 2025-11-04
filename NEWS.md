@@ -1,5 +1,20 @@
 <!-- NEWS.md is maintained by https://fledge.cynkra.com, contributors should not edit this file -->
 
+# duckplyr 1.1.3 (2025-11-04)
+
+## Features
+
+- `read_file_duckdb()` only wraps `path` into a list if the length is not equal to one, to support `read_stat()`.
+
+## Continuous integration
+
+- Avoid example failing in R 4.2 and older.
+
+## Documentation
+
+- Add "Supported by Posit" badge.
+
+
 # duckplyr 1.1.2 (2025-09-17)
 
 ## Features
