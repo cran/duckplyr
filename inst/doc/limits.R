@@ -209,3 +209,17 @@ duckplyr::duckdb_tibble(a = c(NA, NaN)) |>
 tibble(a = c(NA, NaN)) |>
   mutate(is.na(a))
 
+## -----------------------------------------------------------------------------
+# mtcars has character row names
+head(rownames(mtcars))
+# After conversion, the row names are lost
+mtcars |>
+  duckplyr::as_duckdb_tibble() |>
+  head()
+
+## -----------------------------------------------------------------------------
+mtcars |>
+  tibble::rownames_to_column("name") |>
+  duckplyr::as_duckdb_tibble() |>
+  head()
+

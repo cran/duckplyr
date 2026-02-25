@@ -40,21 +40,24 @@ quo_eval_fns <- dplyr$quo_eval_fns
 sample_int <- dplyr$sample_int
 some <- dplyr$some
 tally_n <- dplyr$tally_n
+vec_case_match <- dplyr$vec_case_match
+replace_when <- dplyr$replace_when
 
 # Only for dead legacy code?
 add_count_impl <- dplyr$add_count_impl
 arrange_rows <- dplyr$arrange_rows
 check_frac <- dplyr$check_frac
 check_size <- dplyr$check_size
-coalesce <- dplyr$coalesce
 commas <- dplyr$commas
 compact_null <- dplyr$compact_null
+compat_wt <- dplyr$compat_wt
 distinct_prepare <- dplyr$distinct_prepare
 dplyr_col_select <- dplyr$dplyr_col_select
 dplyr_local_slice_by_arg <- dplyr$dplyr_local_slice_by_arg
 dplyr_new_list <- dplyr$dplyr_new_list
 ensure_group_vars <- dplyr$ensure_group_vars
 env_bind_do_pronouns <- dplyr$env_bind_do_pronouns
+filter_impl <- dplyr$filter_impl
 filter_rows <- dplyr$filter_rows
 groups <- dplyr$groups
 group_nest_impl <- dplyr$group_nest_impl
@@ -80,7 +83,6 @@ rowwise_df <- dplyr$rowwise_df
 slice_rows <- dplyr$slice_rows
 summarise_build <- dplyr$summarise_build
 summarise_cols <- dplyr$summarise_cols
-summarise_deprecate_variable_size <- dplyr$summarise_deprecate_variable_size
 the <- dplyr$the
 tick_if_needed <- dplyr$tick_if_needed
 warn_join_cross_by <- dplyr$warn_join_cross_by

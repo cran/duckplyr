@@ -439,7 +439,7 @@ to a table:</p>
 <span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>dbplyr_data <span class="ot">&lt;-</span> <span class="fu">tbl</span>(con, <span class="st">&quot;data&quot;</span>)</span>
 <span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>dbplyr_data</span>
 <span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;&quot;data&quot;&gt; [?? x 2]</span></span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v1.3.2 [kirill@Darwin 24.6.0:R 4.5.1//private/var/folders/dj/yhk9rkx97wn_ykqtnmk18xvc0000gn/T/Rtmp1Dqfm2/file115f738fb1270.duckdb]</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB 1.4.4 [root@Darwin 25.3.0:R 4.5.2//private/var/folders/dj/yhk9rkx97wn_ykqtnmk18xvc0000gn/T/RtmpRHYrRs/file11f1d11a67805.duckdb]</span></span>
 <span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt;       x y    </span></span>
 <span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt;   &lt;int&gt; &lt;chr&gt;</span></span>
 <span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt; 1     1 a    </span></span>
@@ -464,7 +464,7 @@ to a table:</p>
 <span id="cb4-30"><a href="#cb4-30" tabindex="-1"></a><span class="co">#&gt; │             x             │</span></span>
 <span id="cb4-31"><a href="#cb4-31" tabindex="-1"></a><span class="co">#&gt; │             y             │</span></span>
 <span id="cb4-32"><a href="#cb4-32" tabindex="-1"></a><span class="co">#&gt; │                           │</span></span>
-<span id="cb4-33"><a href="#cb4-33" tabindex="-1"></a><span class="co">#&gt; │          ~3 Rows          │</span></span>
+<span id="cb4-33"><a href="#cb4-33" tabindex="-1"></a><span class="co">#&gt; │          ~3 rows          │</span></span>
 <span id="cb4-34"><a href="#cb4-34" tabindex="-1"></a><span class="co">#&gt; └---------------------------┘</span></span></code></pre></div>
 <p>The <code>explain()</code> output shows that the data is actually
 coming from a DuckDB table. The <code>as_duckdb_tibble()</code> function
@@ -491,7 +491,7 @@ can then be used to seamlessly convert the data to a duckplyr frame:</p>
 <span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt; │             x             │</span></span>
 <span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt; │             y             │</span></span>
 <span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt; │                           │</span></span>
-<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt; │          ~3 Rows          │</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt; │          ~3 rows          │</span></span>
 <span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt; └---------------------------┘</span></span></code></pre></div>
 <p>This only works for DuckDB connections. For other databases, turn the
 data into an R data frame or export it to a file before using
@@ -524,12 +524,23 @@ reader:</li>
 </ul>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>readr<span class="sc">::</span><span class="fu">read_csv</span>(<span class="st">&quot;a</span><span class="sc">\n</span><span class="st">1&quot;</span>, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span></span>
 <span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="fu">as_duckdb_tibble</span>()</span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co">#&gt; Error in `as_duckdb_tibble()`:</span></span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co">#&gt; ! The input is data read by readr, and duckplyr supports reading CSV</span></span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt;   files directly.</span></span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt; ℹ Use `read_csv_duckdb()` to read with the built-in reader.</span></span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt; ℹ To proceed with the data as read by readr, use `as_tibble()` before</span></span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt;   `as_duckdb_tibble()`.</span></span></code></pre></div>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co">#&gt; Warning: The `file` argument of `read_csv()` should use `I()` for literal data as of</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co">#&gt; readr 2.2.0.</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt;   </span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt;   # Bad (for example):</span></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt;   read_csv(&quot;x,y\n1,2&quot;)</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt;   </span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt;   # Good:</span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt;   read_csv(I(&quot;x,y\n1,2&quot;))</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt; This warning is displayed once per session.</span></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt; generated.</span></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt; Error in `as_duckdb_tibble()`:</span></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt; ! The input is data read by readr, and duckplyr supports reading CSV</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt;   files directly.</span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt; ℹ Use `read_csv_duckdb()` to read with the built-in reader.</span></span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co">#&gt; ℹ To proceed with the data as read by readr, use `as_tibble()` before</span></span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt;   `as_duckdb_tibble()`.</span></span></code></pre></div>
 <p>In all cases, <code>as_tibble()</code> can be used to proceed with
 the existing code.</p>
 </div>
@@ -644,7 +655,7 @@ in duckplyr:</p>
 <span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a><span class="co">#&gt; │             a             │</span></span>
 <span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a><span class="co">#&gt; │             b             │</span></span>
 <span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a><span class="co">#&gt; │                           │</span></span>
-<span id="cb16-13"><a href="#cb16-13" tabindex="-1"></a><span class="co">#&gt; │          ~1 Rows          │</span></span>
+<span id="cb16-13"><a href="#cb16-13" tabindex="-1"></a><span class="co">#&gt; │           ~1 row          │</span></span>
 <span id="cb16-14"><a href="#cb16-14" tabindex="-1"></a><span class="co">#&gt; └-------------┬-------------┘</span></span>
 <span id="cb16-15"><a href="#cb16-15" tabindex="-1"></a><span class="co">#&gt; ┌-------------┴-------------┐</span></span>
 <span id="cb16-16"><a href="#cb16-16" tabindex="-1"></a><span class="co">#&gt; │     R_DATAFRAME_SCAN      │</span></span>
@@ -652,7 +663,7 @@ in duckplyr:</p>
 <span id="cb16-18"><a href="#cb16-18" tabindex="-1"></a><span class="co">#&gt; │      Text: data.frame     │</span></span>
 <span id="cb16-19"><a href="#cb16-19" tabindex="-1"></a><span class="co">#&gt; │       Projections: a      │</span></span>
 <span id="cb16-20"><a href="#cb16-20" tabindex="-1"></a><span class="co">#&gt; │                           │</span></span>
-<span id="cb16-21"><a href="#cb16-21" tabindex="-1"></a><span class="co">#&gt; │          ~1 Rows          │</span></span>
+<span id="cb16-21"><a href="#cb16-21" tabindex="-1"></a><span class="co">#&gt; │           ~1 row          │</span></span>
 <span id="cb16-22"><a href="#cb16-22" tabindex="-1"></a><span class="co">#&gt; └---------------------------┘</span></span>
 <span id="cb16-23"><a href="#cb16-23" tabindex="-1"></a></span>
 <span id="cb16-24"><a href="#cb16-24" tabindex="-1"></a>simple_data_computed <span class="ot">&lt;-</span></span>
@@ -669,7 +680,7 @@ persisted after the session ends:</p>
 <span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a><span class="co">#&gt; │         SEQ_SCAN          │</span></span>
 <span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="co">#&gt; │    --------------------   │</span></span>
 <span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="co">#&gt; │           Table:          │</span></span>
-<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a><span class="co">#&gt; │    duckplyr_pcg1DiSr96    │</span></span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a><span class="co">#&gt; │    duckplyr_ouvJrFk1Ew    │</span></span>
 <span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a><span class="co">#&gt; │                           │</span></span>
 <span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a><span class="co">#&gt; │   Type: Sequential Scan   │</span></span>
 <span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a><span class="co">#&gt; │                           │</span></span>
@@ -677,7 +688,7 @@ persisted after the session ends:</p>
 <span id="cb17-12"><a href="#cb17-12" tabindex="-1"></a><span class="co">#&gt; │             a             │</span></span>
 <span id="cb17-13"><a href="#cb17-13" tabindex="-1"></a><span class="co">#&gt; │             b             │</span></span>
 <span id="cb17-14"><a href="#cb17-14" tabindex="-1"></a><span class="co">#&gt; │                           │</span></span>
-<span id="cb17-15"><a href="#cb17-15" tabindex="-1"></a><span class="co">#&gt; │          ~1 Rows          │</span></span>
+<span id="cb17-15"><a href="#cb17-15" tabindex="-1"></a><span class="co">#&gt; │           ~1 row          │</span></span>
 <span id="cb17-16"><a href="#cb17-16" tabindex="-1"></a><span class="co">#&gt; └---------------------------┘</span></span></code></pre></div>
 <p>The <code>collect()</code> function brings the data into R memory and
 returns a plain tibble:</p>
@@ -724,7 +735,7 @@ Parquet file:</p>
 <span id="cb20-13"><a href="#cb20-13" tabindex="-1"></a><span class="co">#&gt; │             a             │</span></span>
 <span id="cb20-14"><a href="#cb20-14" tabindex="-1"></a><span class="co">#&gt; │             b             │</span></span>
 <span id="cb20-15"><a href="#cb20-15" tabindex="-1"></a><span class="co">#&gt; │                           │</span></span>
-<span id="cb20-16"><a href="#cb20-16" tabindex="-1"></a><span class="co">#&gt; │          ~1 Rows          │</span></span>
+<span id="cb20-16"><a href="#cb20-16" tabindex="-1"></a><span class="co">#&gt; │           ~1 row          │</span></span>
 <span id="cb20-17"><a href="#cb20-17" tabindex="-1"></a><span class="co">#&gt; └---------------------------┘</span></span></code></pre></div>
 <p>Just like with <code>compute.duckplyr_df()</code>, the return value
 of <code>compute_csv()</code> and <code>compute_parquet()</code> is a
