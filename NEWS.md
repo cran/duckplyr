@@ -1,5 +1,16 @@
 <!-- NEWS.md is maintained by https://fledge.cynkra.com, contributors should not edit this file -->
 
+# duckplyr 1.2.1 (2026-03-09)
+
+## Bug fixes
+
+- Filter write-only options before passing to read functions in `compute_parquet()` and `compute_csv()` (#886, #887).
+
+## Continuous integration
+
+- Fix failing test on macos (@joakimlinde, #888).
+
+
 # duckplyr 1.2.0 (2026-02-24)
 
 ## Features
